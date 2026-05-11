@@ -31,7 +31,10 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: [
+    "http://localhost:5173",
+    "https://school-crm-blond.vercel.app"
+  ],
   credentials: true
 })); // Enable CORS for frontend requests
 app.use(express.json()); // Parse JSON payloads
