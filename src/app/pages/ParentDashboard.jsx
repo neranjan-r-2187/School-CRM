@@ -11,7 +11,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ParentLayout } from "../components/layouts/ParentLayout";
 import { ChatInterface } from "./ChatInterface";
 import { SupportTickets } from "./support/SupportTickets";
+import { useQuery } from "@tanstack/react-query";
+import api from "../lib/api";
 import { useData } from "../context/DataContext";
+import { useChatContext } from "../context/ChatContext";
 const progressData = [
   { subject: "Math", score: 85, month: "Jan" },
   { subject: "Math", score: 88, month: "Feb" },
@@ -32,6 +35,23 @@ const attendanceStats = {
 };
 export const ParentDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { linkedStudents } = useData();
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+
+  // Set default selected student
+  if (!selectedStudentId && linkedStudents.length > 0) {
+    setSelectedStudentId(linkedStudents[0]._id);
+  }
+
+  const { data: studentData, isLoading: isDataLoading } = useQuery({
+    queryKey: ["studentData", selectedStudentId],
+    queryFn: async () => {
+      const response = await api.get(`/parents/students/${selectedStudentId}/data`);
+      return response.data.data;
+    },
+    enabled: !!selectedStudentId
+  });
+
   const { threads } = useData();
   const renderContent = () => {
     switch (activeTab) {
@@ -49,6 +69,7 @@ export const ParentDashboard = () => {
         return renderOverviewTab();
     }
   };
+  const { unreadConversationsCount } = useChatContext();
   const renderOverviewTab = () => <motion.div
     key="overview"
     initial={{ opacity: 0 }}
@@ -56,17 +77,37 @@ export const ParentDashboard = () => {
     exit={{ opacity: 0 }}
     className="space-y-6"
   >
-      {
-    /* Quick Stats */
-  }
+      {/* Student Selector (if multiple) */}
+      {linkedStudents.length > 1 && (
+        <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+          <span className="text-sm font-semibold text-slate-700">Viewing data for:</span>
+          <div className="flex gap-2">
+            {linkedStudents.map(student => (
+              <button
+                key={student._id}
+                onClick={() => setSelectedStudentId(student._id)}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${selectedStudentId === student._id ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                {student.user?.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-slate-500 font-medium">Attendance</span>
             <CheckCircle2 className="w-5 h-5 text-green-600" />
           </div>
-          <p className="text-3xl font-bold text-slate-900">{attendanceStats.percentage}</p>
-          <p className="text-xs text-slate-500 mt-1">This month</p>
+          <p className="text-3xl font-bold text-slate-900">
+            {studentData?.attendance?.length > 0 
+              ? `${Math.round((studentData.attendance.filter(a => a.status === 'present').length / studentData.attendance.length) * 100)}%`
+              : 'N/A'}
+          </p>
+          <p className="text-xs text-slate-500 mt-1">This term</p>
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
@@ -74,27 +115,31 @@ export const ParentDashboard = () => {
             <span className="text-sm text-slate-500 font-medium">Overall Grade</span>
             <TrendingUp className="w-5 h-5 text-blue-600" />
           </div>
-          <p className="text-3xl font-bold text-slate-900">A-</p>
-          <p className="text-xs text-slate-500 mt-1">Average performance</p>
+          <p className="text-3xl font-bold text-slate-900">
+            {studentData?.grades?.length > 0 
+              ? `${Math.round(studentData.grades.reduce((acc, g) => acc + g.marks, 0) / studentData.grades.length)}%`
+              : 'N/A'}
+          </p>
+          <p className="text-xs text-slate-500 mt-1">Average score</p>
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-slate-500 font-medium">Pending Fees</span>
+            <span className="text-sm text-slate-500 font-medium">Assignments</span>
             <AlertCircle className="w-5 h-5 text-orange-600" />
           </div>
-          <p className="text-3xl font-bold text-slate-900">₹12,000</p>
-          <p className="text-xs text-slate-500 mt-1">Due Mar 15</p>
+          <p className="text-3xl font-bold text-slate-900">{studentData?.assignments?.length || 0}</p>
+          <p className="text-xs text-slate-500 mt-1">Total tasks</p>
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-slate-500 font-medium">Unread Messages</span>
             <span className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center text-xs font-bold text-red-600">
-              {threads.reduce((acc, t) => acc + t.unreadCount, 0)}
+              {unreadConversationsCount}
             </span>
           </div>
-          <p className="text-3xl font-bold text-slate-900">{threads.reduce((acc, t) => acc + t.unreadCount, 0)}</p>
+          <p className="text-3xl font-bold text-slate-900">{unreadConversationsCount}</p>
           <p className="text-xs text-slate-500 mt-1">From teachers</p>
         </div>
       </div>

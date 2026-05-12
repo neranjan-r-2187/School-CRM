@@ -10,7 +10,7 @@ const sampleData = {
     { name: 'Charlie Brown', email: 'student3@school.com', password: 'password123', role: ROLES.STUDENT },
     { name: 'David Miller', email: 'student4@school.com', password: 'password123', role: ROLES.STUDENT },
     { name: 'Mary Johnson', email: 'parent1@school.com', password: 'password123', role: ROLES.PARENT },
-    { name: 'Robert Wilson', email: 'parent2@school.com', password: 'password123', role: ROLES.PARENT },
+ ,
   ],
   classes: [
     { name: '10', section: 'A', roomNumber: '301', academicYear: '2023-24' },

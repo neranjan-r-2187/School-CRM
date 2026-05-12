@@ -13,8 +13,27 @@ const { HTTP_STATUS, ROLES } = require('../constants');
 // @route   GET /api/admin/users
 // @access  Private/Admin
 exports.getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({}).sort({ createdAt: -1 });
-  sendResponse(res, HTTP_STATUS.OK, users, 'Users fetched successfully');
+  const users = await User.find({}).sort({ createdAt: -1 }).lean();
+  
+  // Attach profile IDs for Students and Parents
+  const enrichedUsers = await Promise.all(users.map(async (u) => {
+    if (u.role === ROLES.STUDENT) {
+      const student = await Student.findOne({ user: u._id }).select('_id parents').populate({
+        path: 'parents',
+        populate: { path: 'user', select: 'name' }
+      });
+      return { ...u, profileId: student?._id, linkedParents: student?.parents || [] };
+    } else if (u.role === ROLES.PARENT) {
+      const parent = await Parent.findOne({ user: u._id }).select('_id children').populate({
+        path: 'children',
+        populate: { path: 'user', select: 'name' }
+      });
+      return { ...u, profileId: parent?._id, linkedStudents: parent?.children || [] };
+    }
+    return u;
+  }));
+
+  sendResponse(res, HTTP_STATUS.OK, enrichedUsers, 'Users fetched successfully');
 });
 
 // @desc    Get all teachers
@@ -201,4 +220,82 @@ exports.deleteClass = asyncHandler(async (req, res) => {
   await Class.findByIdAndDelete(req.params.id);
   sendResponse(res, HTTP_STATUS.OK, {}, 'Class deleted successfully');
 });
+// @desc    Link parent and student
+// @route   POST /api/admin/link-parent-student
+// @access  Private/Admin
+exports.linkParentStudent = asyncHandler(async (req, res) => {
+  const { parentId, studentId } = req.body;
 
+  if (!parentId || !studentId) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please provide both parentId and studentId');
+  }
+
+  const parent = await Parent.findById(parentId);
+  const student = await Student.findById(studentId);
+
+  if (!parent || !student) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Parent or Student profile not found');
+  }
+
+  // Check for duplicate link
+  if (parent.children.includes(studentId) || student.parents.includes(parentId)) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Relationship already exists');
+  }
+
+  // Update parent
+  parent.children.push(studentId);
+  await parent.save();
+
+  // Update student
+  student.parents.push(parentId);
+  await student.save();
+
+  sendResponse(res, HTTP_STATUS.OK, { parent, student }, 'Parent and Student linked successfully');
+});
+
+// @desc    Unlink parent and student
+// @route   DELETE /api/admin/unlink-parent-student
+// @access  Private/Admin
+exports.unlinkParentStudent = asyncHandler(async (req, res) => {
+  const { parentId, studentId } = req.body;
+
+  if (!parentId || !studentId) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please provide both parentId and studentId');
+  }
+
+  const parent = await Parent.findById(parentId);
+  const student = await Student.findById(studentId);
+
+  if (!parent || !student) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Parent or Student profile not found');
+  }
+
+  // Remove student from parent's children
+  parent.children = parent.children.filter(id => id.toString() !== studentId);
+  await parent.save();
+
+  // Remove parent from student's parents
+  student.parents = student.parents.filter(id => id.toString() !== parentId);
+  await student.save();
+
+  sendResponse(res, HTTP_STATUS.OK, {}, 'Relationship removed successfully');
+});
+
+// @desc    Get all links
+// @route   GET /api/admin/parent-student-links
+// @access  Private/Admin
+exports.getParentStudentLinks = asyncHandler(async (req, res) => {
+  const parents = await Parent.find({ children: { $exists: true, $not: { $size: 0 } } })
+    .populate('user', 'name email')
+    .populate({
+      path: 'children',
+      populate: { path: 'user', select: 'name email' }
+    });
+
+  sendResponse(res, HTTP_STATUS.OK, parents, 'Parent-student links fetched successfully');
+});

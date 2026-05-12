@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Loader2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Loader2, Link as LinkIcon, UserMinus } from "lucide-react";
+import { ParentStudentLinkModal } from "./ParentStudentLinkModal";
 import { useNotifications } from "../../context/NotificationContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
@@ -10,6 +11,8 @@ export const UserManagement = () => {
   const [activeTab, setActiveTab] = useState("Teacher");
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [linkingUser, setLinkingUser] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -234,6 +237,18 @@ export const UserManagement = () => {
                         >
                           {user.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                         </button>
+                        {(user.role === "Student" || user.role === "Parent") && (
+                          <button
+                            onClick={() => {
+                              setLinkingUser(user);
+                              setIsLinkModalOpen(true);
+                            }}
+                            className="p-2 text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Manage Links"
+                          >
+                            <LinkIcon className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleOpenModal(user)}
                           className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -350,5 +365,11 @@ export const UserManagement = () => {
             </form>
           </div>
         </div>}
+      {isLinkModalOpen && (
+        <ParentStudentLinkModal 
+          user={linkingUser} 
+          onClose={() => setIsLinkModalOpen(false)} 
+        />
+      )}
     </div>;
 };

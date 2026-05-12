@@ -9,7 +9,10 @@ const {
   updateClass,
   deleteClass,
   updateUser,
-  deleteUser
+  deleteUser,
+  linkParentStudent,
+  unlinkParentStudent,
+  getParentStudentLinks
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { ROLES } = require('../constants');
@@ -37,5 +40,10 @@ router.route('/classes/:id')
 router.route('/users/:id')
   .put(updateUser)
   .delete(deleteUser);
+
+// Parent-Student Linking
+router.post('/link-parent-student', linkParentStudent);
+router.delete('/unlink-parent-student', unlinkParentStudent);
+router.get('/parent-student-links', getParentStudentLinks);
 
 module.exports = router;

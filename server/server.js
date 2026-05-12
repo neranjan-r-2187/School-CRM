@@ -15,6 +15,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const parentDashboardRoutes = require('./routes/parentRoutes');
 
 
 
@@ -69,6 +70,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/parents', parentDashboardRoutes);
 
 
 
