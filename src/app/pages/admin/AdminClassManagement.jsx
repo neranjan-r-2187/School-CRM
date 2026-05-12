@@ -14,7 +14,7 @@ export const AdminClassManagement = () => {
   const { data: classesResponse, isLoading } = useQuery({
     queryKey: ["classes"],
     queryFn: async () => {
-      const response = await api.get("/api/classes");
+      const response = await api.get("/classes");
       return response.data.data;
     }
   });
@@ -24,7 +24,7 @@ export const AdminClassManagement = () => {
   // Mutations
   const createClassMutation = useMutation({
     mutationFn: async (newClass) => {
-      await api.post("/api/admin/classes", newClass);
+      await api.post("/admin/classes", newClass);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
@@ -35,7 +35,7 @@ export const AdminClassManagement = () => {
 
   const updateClassMutation = useMutation({
     mutationFn: async ({ id, ...data }) => {
-      await api.put(`/api/admin/classes/${id}`, data);
+      await api.put(`/admin/classes/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
@@ -46,7 +46,7 @@ export const AdminClassManagement = () => {
 
   const deleteClassMutation = useMutation({
     mutationFn: async (id) => {
-      await api.delete(`/api/admin/classes/${id}`);
+      await api.delete(`/admin/classes/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);

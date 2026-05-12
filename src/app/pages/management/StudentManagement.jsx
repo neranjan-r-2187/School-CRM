@@ -37,7 +37,7 @@ export function StudentManagement() {
     queryFn: async () => {
       const params = {};
       if (selectedClass !== "all") params.class = selectedClass;
-      const response = await api.get("/api/students", { params });
+      const response = await api.get("/students", { params });
       return response.data.data;
     }
   });
@@ -48,7 +48,7 @@ export function StudentManagement() {
   const deleteStudentMutation = useMutation({
     mutationFn: async (userId) => {
       // We delete the user which deletes the student profile (handled in adminController)
-      await api.delete(`/api/admin/users/${userId}`);
+      await api.delete(`/admin/users/${userId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["students"]);

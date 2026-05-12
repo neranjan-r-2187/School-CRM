@@ -26,7 +26,7 @@ export const AdminTeacherManagement = () => {
   const { data: teachersResponse, isLoading } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
-      const response = await api.get("/api/admin/teachers");
+      const response = await api.get("/admin/teachers");
       return response.data.data;
     }
   });
@@ -36,7 +36,7 @@ export const AdminTeacherManagement = () => {
   // Mutations
   const deleteTeacherMutation = useMutation({
     mutationFn: async (userId) => {
-      await api.delete(`/api/admin/users/${userId}`);
+      await api.delete(`/admin/users/${userId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["teachers"]);

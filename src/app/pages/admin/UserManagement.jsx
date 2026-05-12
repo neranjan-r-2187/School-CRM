@@ -23,7 +23,7 @@ export const UserManagement = () => {
   const { data: usersResponse, isLoading, isError } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await api.get("/api/admin/users");
+      const response = await api.get("/admin/users");
       return response.data.data;
     }
   });
@@ -33,7 +33,7 @@ export const UserManagement = () => {
   // Mutations
   const createUserMutation = useMutation({
     mutationFn: async (newUser) => {
-      const response = await api.post("/api/admin/users", newUser);
+      const response = await api.post("/admin/users", newUser);
       return response.data;
     },
     onSuccess: () => {
@@ -48,7 +48,7 @@ export const UserManagement = () => {
 
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, ...data }) => {
-      const response = await api.put(`/api/admin/users/${id}`, data);
+      const response = await api.put(`/admin/users/${id}`, data);
       return response.data;
     },
     onSuccess: () => {
@@ -63,7 +63,7 @@ export const UserManagement = () => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (id) => {
-      const response = await api.delete(`/api/admin/users/${id}`);
+      const response = await api.delete(`/admin/users/${id}`);
       return response.data;
     },
     onSuccess: () => {
@@ -77,7 +77,7 @@ export const UserManagement = () => {
 
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ id, isActive }) => {
-      const response = await api.put(`/api/admin/users/${id}`, { isActive });
+      const response = await api.put(`/admin/users/${id}`, { isActive });
       return response.data;
     },
     onSuccess: () => {

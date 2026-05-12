@@ -14,7 +14,7 @@ export const DataProvider = ({ children }) => {
   const { data: assignments = [] } = useQuery({
     queryKey: ["assignments", user?.id],
     queryFn: async () => {
-      const endpoint = user?.role === "Student" ? "/api/students/assignments" : "/api/teachers/assignments";
+      const endpoint = user?.role === "Student" ? "/students/assignments" : "/teachers/assignments";
       const response = await api.get(endpoint);
       return response.data.data;
     },
@@ -26,7 +26,7 @@ export const DataProvider = ({ children }) => {
     queryKey: ["attendance", user?.id],
     queryFn: async () => {
       if (user?.role !== "Student") return [];
-      const response = await api.get("/api/students/attendance");
+      const response = await api.get("/students/attendance");
       return response.data.data;
     },
     enabled: !!user && user.role === "Student"
@@ -37,7 +37,7 @@ export const DataProvider = ({ children }) => {
     queryKey: ["grades", user?.id],
     queryFn: async () => {
       if (user?.role !== "Student") return [];
-      const response = await api.get("/api/students/grades");
+      const response = await api.get("/students/grades");
       return response.data.data;
     },
     enabled: !!user && user.role === "Student"
@@ -48,7 +48,7 @@ export const DataProvider = ({ children }) => {
     queryKey: ["users"],
     queryFn: async () => {
       // Allow Admin and Students (to find teachers)
-      const response = await api.get("/api/admin/users");
+      const response = await api.get("/admin/users");
       return response.data.data;
     },
     enabled: !!user
@@ -58,7 +58,7 @@ export const DataProvider = ({ children }) => {
   const { data: tickets = [] } = useQuery({
     queryKey: ["tickets", user?.id],
     queryFn: async () => {
-      const response = await api.get("/api/tickets");
+      const response = await api.get("/tickets");
       return response.data.data;
     },
     enabled: !!user
@@ -68,7 +68,7 @@ export const DataProvider = ({ children }) => {
   const { data: doubts = [] } = useQuery({
     queryKey: ["doubts", user?.id],
     queryFn: async () => {
-      const response = await api.get("/api/doubts");
+      const response = await api.get("/doubts");
       return response.data.data;
     },
     enabled: !!user
@@ -76,14 +76,14 @@ export const DataProvider = ({ children }) => {
 
   // Mutations
   const addTicketMutation = useMutation({
-    mutationFn: (ticketData) => api.post("/api/tickets", ticketData),
+    mutationFn: (ticketData) => api.post("/tickets", ticketData),
     onSuccess: () => {
       queryClient.invalidateQueries(["tickets"]);
     }
   });
 
   const addDoubtMutation = useMutation({
-    mutationFn: (doubtData) => api.post("/api/doubts", doubtData),
+    mutationFn: (doubtData) => api.post("/doubts", doubtData),
     onSuccess: () => {
       queryClient.invalidateQueries(["doubts"]);
     }
@@ -106,11 +106,11 @@ export const DataProvider = ({ children }) => {
     users,
     doubts,
     addTicket: (data) => addTicketMutation.mutate(data),
-    addTicketMessage: (id, message) => api.post(`/api/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries(["tickets"])),
-    updateTicket: (id, data) => api.put(`/api/tickets/${id}`, data).then(() => queryClient.invalidateQueries(["tickets"])),
+    addTicketMessage: (id, message) => api.post(`/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries(["tickets"])),
+    updateTicket: (id, data) => api.put(`/tickets/${id}`, data).then(() => queryClient.invalidateQueries(["tickets"])),
     addDoubt: (data) => addDoubtMutation.mutate(data),
     updateDoubt: (id, data) => updateDoubtMutation.mutate({ id, ...data }),
-    addDoubtReply: (id, message) => api.post(`/api/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries(["doubts"])),
+    addDoubtReply: (id, message) => api.post(`/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries(["doubts"])),
   }), [assignments, attendance, grades, users, tickets, doubts]);
 
   return <DataContext.Provider value={value}>
