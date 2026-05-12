@@ -1,4 +1,7 @@
+const Class = require('../models/Class');
+const Subject = require('../models/Subject');
 const User = require('../models/User');
+
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const Parent = require('../models/Parent');
@@ -13,6 +16,28 @@ exports.getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({}).sort({ createdAt: -1 });
   sendResponse(res, HTTP_STATUS.OK, users, 'Users fetched successfully');
 });
+
+// @desc    Get all teachers
+// @route   GET /api/admin/teachers
+// @access  Private/Admin
+exports.getTeachers = asyncHandler(async (req, res) => {
+  const teachers = await Teacher.find({})
+    .populate('user', 'name email isActive')
+    .sort({ createdAt: -1 });
+  sendResponse(res, HTTP_STATUS.OK, teachers, 'Teachers fetched successfully');
+});
+
+// @desc    Get all students
+// @route   GET /api/admin/students
+// @access  Private/Admin
+exports.getStudents = asyncHandler(async (req, res) => {
+  const students = await Student.find({})
+    .populate('user', 'name email isActive')
+    .populate('class', 'name section')
+    .sort({ createdAt: -1 });
+  sendResponse(res, HTTP_STATUS.OK, students, 'Students fetched successfully');
+});
+
 
 // @desc    Create a new user
 // @route   POST /api/admin/users
@@ -125,3 +150,33 @@ exports.deleteUser = asyncHandler(async (req, res) => {
 
   sendResponse(res, HTTP_STATUS.OK, {}, 'User and associated profile deleted successfully');
 });
+
+// @desc    Create a new class
+// @route   POST /api/admin/classes
+// @access  Private/Admin
+exports.createClass = asyncHandler(async (req, res) => {
+  const { name, section, classTeacherId } = req.body;
+  const newClass = await Class.create({
+    name,
+    section,
+    classTeacher: classTeacherId
+  });
+  sendResponse(res, HTTP_STATUS.CREATED, newClass, 'Class created successfully');
+});
+
+// @desc    Update a class
+// @route   PUT /api/admin/classes/:id
+// @access  Private/Admin
+exports.updateClass = asyncHandler(async (req, res) => {
+  const updatedClass = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  sendResponse(res, HTTP_STATUS.OK, updatedClass, 'Class updated successfully');
+});
+
+// @desc    Delete a class
+// @route   DELETE /api/admin/classes/:id
+// @access  Private/Admin
+exports.deleteClass = asyncHandler(async (req, res) => {
+  await Class.findByIdAndDelete(req.params.id);
+  sendResponse(res, HTTP_STATUS.OK, {}, 'Class deleted successfully');
+});
+

@@ -26,8 +26,13 @@ import { AdminSettings } from "../admin/AdminSettings";
 import { useData } from "../../context/DataContext";
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { tickets } = useData();
+  const { tickets, users, attendance, assignments } = useData();
   const [selectedPeriod, setSelectedPeriod] = useState("This Month");
+
+  const studentsCount = users.filter(u => u.role === "Student").length;
+  const teachersCount = users.filter(u => u.role === "Teacher").length;
+  const classesCount = [...new Set(users.filter(u => u.role === "Student").map(u => u.class))].filter(Boolean).length;
+
   const renderContent = () => {
     switch (activeTab) {
       case "users":
@@ -59,11 +64,12 @@ export const AdminDashboard = () => {
     </div>;
   const renderDashboard = () => {
     const stats = [
-      { label: "Total Students", value: "1,247", change: "+8.2%", trend: "up", icon: Users, color: "text-blue-600 bg-blue-50" },
-      { label: "Total Teachers", value: "87", change: "+2.3%", trend: "up", icon: GraduationCap, color: "text-teal-600 bg-teal-50" },
-      { label: "Active Classes", value: "42", change: "0%", trend: "neutral", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
+      { label: "Total Students", value: studentsCount.toString(), change: "+8.2%", trend: "up", icon: Users, color: "text-blue-600 bg-blue-50" },
+      { label: "Total Teachers", value: teachersCount.toString(), change: "+2.3%", trend: "up", icon: GraduationCap, color: "text-teal-600 bg-teal-50" },
+      { label: "Active Classes", value: classesCount.toString(), change: "0%", trend: "neutral", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
       { label: "Revenue (Feb)", value: "\u20B942.5L", change: "+12.4%", trend: "up", icon: DollarSign, color: "text-green-600 bg-green-50" }
     ];
+
     const quickStats = [
       { label: "Attendance Today", value: "94.2%", icon: UserCheck, color: "bg-green-500" },
       { label: "Pending Admissions", value: "23", icon: Clock, color: "bg-orange-500" },

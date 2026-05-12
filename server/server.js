@@ -12,6 +12,9 @@ const classRoutes = require('./routes/classRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+const doubtRoutes = require('./routes/doubtRoutes');
+
 
 
 // Load Models (Pre-register for population)
@@ -24,6 +27,9 @@ require('./models/Subject');
 require('./models/Assignment');
 require('./models/Attendance');
 require('./models/Grade');
+require('./models/Ticket');
+require('./models/Doubt');
+
 
 // Initialize express app
 const app = express();
@@ -57,6 +63,9 @@ app.use('/api/teachers', teacherRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/doubts', doubtRoutes);
+
 
 
 // Error Handling Middleware (must be after routes)

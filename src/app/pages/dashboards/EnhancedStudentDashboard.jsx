@@ -11,7 +11,9 @@ import {
   FileText
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { studentProfile, todaySchedule } from "../../data/mockData";
+import { todaySchedule } from "../../data/mockData";
+import { useAuth } from "../../app/context/AuthContext";
+
 import { CareerOptions } from "../student/CareerOptions";
 import { SubjectCompletions } from "../student/SubjectCompletions";
 import { Timetable } from "../student/Timetable";
@@ -19,11 +21,12 @@ import { ChatInterface } from "../ChatInterface";
 import { Doubts } from "../student/Doubts";
 import { StudentLayout } from "../../components/layouts/StudentLayout";
 import { SupportTickets } from "../support/SupportTickets";
-import { useData } from "../../context/DataContext";
 export const EnhancedStudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const { user } = useAuth();
   const { assignments, attendance, grades } = useData();
-  const student = studentProfile;
+  const student = user || { name: "Student", role: "Student" };
+
   const totalDays = attendance.length;
   const presentDays = attendance.filter((a) => a.status === "present").length;
   const attendancePercentage = totalDays > 0 ? Math.round(presentDays / totalDays * 100) : 0;
@@ -76,8 +79,9 @@ export const EnhancedStudentDashboard = () => {
             Welcome back, {student.name.split(" ")[0]}! 👋
           </h1>
           <p className="text-slate-500 mt-1">
-            {student.class} - Section {student.section} • Roll No: {student.rollNo}
+            {student.role} • ID: {student._id?.slice(-6).toUpperCase()}
           </p>
+
         </div>
       </div>
 

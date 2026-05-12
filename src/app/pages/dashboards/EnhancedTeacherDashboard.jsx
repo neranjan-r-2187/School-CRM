@@ -20,18 +20,23 @@ import {
   Timer,
   Star
 } from "lucide-react";
-import { useData } from "../../context/DataContext";
+import { useAuth } from "../../app/context/AuthContext";
+import { useTeacherDashboard } from "../../features/teacher-dashboard/hooks/useTeacherData";
+import { LayoutDashboard } from "lucide-react";
+
 export function EnhancedTeacherDashboard() {
+  const { user } = useAuth();
+  const { data: dashboardData, isLoading: dashboardLoading } = useTeacherDashboard();
   const { assignments, attendance, users } = useData();
+
   const [activeTab, setActiveTab] = useState("overview");
   const teacherProfile = {
-    name: "Ms. Priya Sharma",
-    email: "priya.sharma@school.edu.in",
-    employeeId: "EMP-2023-0145",
-    department: "Science",
-    subjects: ["Physics", "Chemistry"],
-    experience: "8 years"
+    name: user?.name || "Teacher",
+    email: user?.email || "",
+    employeeId: user?._id?.slice(-6).toUpperCase() || "N/A",
+    department: dashboardData?.department || "General",
   };
+
   const myClasses = [
     {
       id: "class1",
@@ -199,36 +204,37 @@ export function EnhancedTeacherDashboard() {
     { date: "Feb 12", title: "Parent-Teacher Meeting", class: "All Classes", time: "02:00 PM" },
     { date: "Feb 15", title: "Science Fair", class: "School Event", time: "10:00 AM" }
   ];
-  const stats = [
+  const statsData = [
     {
-      label: "Total Students",
-      value: "155",
-      change: "+5 this semester",
+      label: "Assigned Classes",
+      value: dashboardData?.totalClasses || "0",
+      change: "Current session",
       icon: Users,
       color: "bg-blue-500"
     },
     {
-      label: "Classes Today",
-      value: "4",
-      change: "2 completed",
+      label: "Active Assignments",
+      value: dashboardData?.activeAssignments || "0",
+      change: "Due this week",
       icon: BookOpen,
       color: "bg-green-500"
     },
     {
-      label: "Avg Attendance",
-      value: "91.9%",
-      change: "+2.3% this month",
-      icon: CheckCircle,
+      label: "Pending Attendance",
+      value: dashboardData?.pendingAttendance || "0",
+      change: "Action required",
+      icon: UserCheck,
       color: "bg-purple-500"
     },
     {
-      label: "Pending Reviews",
-      value: "53",
-      change: "12 urgent",
-      icon: ClipboardList,
+      label: "Avg Attendance",
+      value: "92%",
+      change: "+1.2% this month",
+      icon: TrendingUp,
       color: "bg-orange-500"
     }
   ];
+
   return <div className="min-h-screen bg-slate-50">
       {
     /* Header */
@@ -255,7 +261,7 @@ export function EnhancedTeacherDashboard() {
     /* Quick Stats */
   }
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {stats.map((stat, idx) => <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            {statsData.map((stat, idx) => <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center gap-3">
                   <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center`}>
                     <stat.icon className="w-6 h-6 text-white" />
@@ -268,6 +274,7 @@ export function EnhancedTeacherDashboard() {
                 <p className="text-xs text-blue-200 mt-2">{stat.change}</p>
               </div>)}
           </div>
+
         </div>
       </div>
 
