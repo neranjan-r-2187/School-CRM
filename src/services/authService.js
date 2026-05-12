@@ -7,7 +7,7 @@ export const authService = {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (email === "parent@school.com" && password === "password") {
-          resolve({ user: { id: "p1", name: "Ravi Kumar", role: "Parent" }, token: "fake-jwt-token" });
+          resolve({ user: { id: "p1", name: "Parent User", role: "Parent" }, token: "fake-jwt-token" });
         } else if (email === "student@school.com" && password === "password") {
           resolve({ user: { id: "s1", name: "Rahul Kumar", role: "Student" }, token: "fake-jwt-token" });
         } else if (email === "admin@school.com" && password === "password") {

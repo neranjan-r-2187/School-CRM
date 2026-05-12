@@ -16,7 +16,7 @@ const { HTTP_STATUS } = require('../constants');
 exports.getLinkedStudents = asyncHandler(async (req, res) => {
   const parent = await Parent.findOne({ user: req.user._id })
     .populate({
-      path: 'children',
+      path: 'studentIds',
       populate: { path: 'user', select: 'name avatar' }
     });
 
@@ -25,7 +25,7 @@ exports.getLinkedStudents = asyncHandler(async (req, res) => {
     throw new Error('Parent profile not found');
   }
 
-  sendResponse(res, HTTP_STATUS.OK, parent.children, 'Linked students fetched successfully');
+  sendResponse(res, HTTP_STATUS.OK, parent.studentIds, 'Linked students fetched successfully');
 });
 
 // @desc    Get data for a specific linked student
@@ -36,7 +36,7 @@ exports.getStudentData = asyncHandler(async (req, res) => {
 
   // Verify this student is linked to the parent
   const parent = await Parent.findOne({ user: req.user._id });
-  if (!parent || !parent.children.includes(studentId)) {
+  if (!parent || !parent.studentIds.some(id => id.toString() === studentId)) {
     res.status(HTTP_STATUS.FORBIDDEN);
     throw new Error('Not authorized to view this student data');
   }

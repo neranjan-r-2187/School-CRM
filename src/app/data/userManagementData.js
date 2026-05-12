@@ -99,18 +99,18 @@ export const mockTeachers = [
 export const mockStudents = [
   {
     id: "S001",
-    name: "Ravi Kumar",
-    email: "ravi.kumar@student.school.edu.in",
+    name: "Student Name",
+    email: "student@school.com",
     role: "Student",
-    phone: "+91 98765 54321",
+    phone: "+91 00000 00000",
     dateJoined: "2024-04-01",
     status: "Active",
-    avatar: "https://ui-avatars.com/api/?name=Ravi+Kumar&background=0D9488&color=fff",
-    class: "Class 10",
+    avatar: "https://ui-avatars.com/api/?name=Student&background=0D9488&color=fff",
+    class: "General Class",
     section: "A",
     rollNumber: "001",
-    parentName: "Mr. Suresh Kumar",
-    parentPhone: "+91 98765 00001"
+    parentName: "Parent Name",
+    parentPhone: "+91 00000 00001"
   },
   {
     id: "S002",
@@ -221,13 +221,13 @@ export const mockStudents = [
 export const mockStaff = [
   {
     id: "ST001",
-    name: "Neranjan",
+    name: "Administrator",
     email: "admin@school.com",
     role: "Staff",
-    phone: "+91 98765 11111",
+    phone: "+91 00000 11111",
     dateJoined: "2015-01-10",
     status: "Active",
-    avatar: "https://ui-avatars.com/api/?name=Neranjan&background=6366F1&color=fff",
+    avatar: "https://ui-avatars.com/api/?name=Admin&background=6366F1&color=fff",
     department: "Administration",
     position: "Principal"
   },

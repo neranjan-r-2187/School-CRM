@@ -21,7 +21,7 @@ const studentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class',
     },
-    parents: [
+    parentIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Parent',

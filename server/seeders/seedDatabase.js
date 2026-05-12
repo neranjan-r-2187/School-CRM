@@ -68,7 +68,7 @@ const seedDatabase = async () => {
     // 6. Seed Parents
     const parentData = parentUsers.map((u, i) => ({
       user: u._id,
-      children: [students[i * 2]._id, students[i * 2 + 1]._id].filter(id => id)
+      studentIds: [students[i * 2]._id, students[i * 2 + 1]._id].filter(id => id)
     }));
     const parents = await Parent.insertMany(parentData);
     console.log('6. Seeded Parents');
@@ -76,8 +76,8 @@ const seedDatabase = async () => {
     // Link parents to students
     for (const parent of parents) {
       await Student.updateMany(
-        { _id: { $in: parent.children } },
-        { $push: { parents: parent._id } }
+        { _id: { $in: parent.studentIds } },
+        { $push: { parentIds: parent._id } }
       );
     }
 

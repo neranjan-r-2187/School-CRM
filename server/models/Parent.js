@@ -11,7 +11,7 @@ const parentSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    children: [
+    studentIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',

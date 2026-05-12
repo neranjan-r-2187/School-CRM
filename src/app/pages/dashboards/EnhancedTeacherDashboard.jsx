@@ -143,7 +143,7 @@ export function EnhancedTeacherDashboard() {
     {
       id: "4",
       type: "meeting",
-      message: "Parent-teacher meeting with Ravi Kumar's parents",
+      message: "Parent-teacher meeting with student's parents",
       time: "3 hours ago",
       icon: MessageSquare,
       color: "text-orange-600"

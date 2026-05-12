@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQuery } from "@tanstack/react-query";
-import api from "../lib/api";
+import api from "../../lib/api";
 import { useData } from "../context/DataContext";
 import { useChatContext } from "../context/ChatContext";
 import { ChatInterface } from "./ChatInterface";
@@ -30,9 +30,16 @@ export const ParentDashboard = () => {
   const pathParts = location.pathname.split("/");
   const activeTab = pathParts[pathParts.length - 1] === "dashboard" ? "overview" : pathParts[pathParts.length - 1];
 
-  // Set default selected student
+  // Sync selected student with linked students list
   useEffect(() => {
-    if (!selectedStudentId && linkedStudents.length > 0) {
+    if (linkedStudents.length === 0) {
+      setSelectedStudentId(null);
+      return;
+    }
+
+    // If no student is selected, or currently selected student is no longer in the list
+    const isCurrentStillLinked = linkedStudents.some(s => s._id === selectedStudentId);
+    if (!selectedStudentId || !isCurrentStillLinked) {
       setSelectedStudentId(linkedStudents[0]._id);
     }
   }, [linkedStudents, selectedStudentId]);
@@ -115,12 +122,12 @@ export const ParentDashboard = () => {
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <p className="text-3xl font-bold text-slate-900">{attendancePercentage}%</p>
-            <p className="text-xs text-slate-500 mt-1">This term</p>
+            <p className="text-xs text-slate-500 mt-1">Attendance rate</p>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-500 font-medium">Overall Grade</span>
+              <span className="text-sm text-slate-500 font-medium">Overall Performance</span>
               <TrendingUp className="w-5 h-5 text-blue-600" />
             </div>
             <p className="text-3xl font-bold text-slate-900">{averageGrade}%</p>
@@ -133,7 +140,7 @@ export const ParentDashboard = () => {
               <AlertCircle className="w-5 h-5 text-orange-600" />
             </div>
             <p className="text-3xl font-bold text-slate-900">{assignments.length}</p>
-            <p className="text-xs text-slate-500 mt-1">Total tasks</p>
+            <p className="text-xs text-slate-500 mt-1">Academic tasks</p>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
@@ -144,7 +151,7 @@ export const ParentDashboard = () => {
               </span>
             </div>
             <p className="text-3xl font-bold text-slate-900">{unreadConversationsCount}</p>
-            <p className="text-xs text-slate-500 mt-1">New chats</p>
+            <p className="text-xs text-slate-500 mt-1">Unread chats</p>
           </div>
         </div>
 

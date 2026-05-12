@@ -18,17 +18,17 @@ exports.getUsers = asyncHandler(async (req, res) => {
   // Attach profile IDs for Students and Parents
   const enrichedUsers = await Promise.all(users.map(async (u) => {
     if (u.role === ROLES.STUDENT) {
-      const student = await Student.findOne({ user: u._id }).select('_id parents').populate({
-        path: 'parents',
+      const student = await Student.findOne({ user: u._id }).select('_id parentIds').populate({
+        path: 'parentIds',
         populate: { path: 'user', select: 'name' }
       });
-      return { ...u, profileId: student?._id, linkedParents: student?.parents || [] };
+      return { ...u, profileId: student?._id, linkedParents: student?.parentIds || [] };
     } else if (u.role === ROLES.PARENT) {
-      const parent = await Parent.findOne({ user: u._id }).select('_id children').populate({
-        path: 'children',
+      const parent = await Parent.findOne({ user: u._id }).select('_id studentIds').populate({
+        path: 'studentIds',
         populate: { path: 'user', select: 'name' }
       });
-      return { ...u, profileId: parent?._id, linkedStudents: parent?.children || [] };
+      return { ...u, profileId: parent?._id, linkedStudents: parent?.studentIds || [] };
     }
     return u;
   }));
@@ -240,17 +240,17 @@ exports.linkParentStudent = asyncHandler(async (req, res) => {
   }
 
   // Check for duplicate link
-  if (parent.children.includes(studentId) || student.parents.includes(parentId)) {
+  if (parent.studentIds.includes(studentId) || student.parentIds.includes(parentId)) {
     res.status(HTTP_STATUS.BAD_REQUEST);
     throw new Error('Relationship already exists');
   }
 
   // Update parent
-  parent.children.push(studentId);
+  parent.studentIds.push(studentId);
   await parent.save();
 
   // Update student
-  student.parents.push(parentId);
+  student.parentIds.push(parentId);
   await student.save();
 
   sendResponse(res, HTTP_STATUS.OK, { parent, student }, 'Parent and Student linked successfully');
@@ -276,11 +276,11 @@ exports.unlinkParentStudent = asyncHandler(async (req, res) => {
   }
 
   // Remove student from parent's children
-  parent.children = parent.children.filter(id => id.toString() !== studentId);
+  parent.studentIds = parent.studentIds.filter(id => id.toString() !== studentId);
   await parent.save();
 
   // Remove parent from student's parents
-  student.parents = student.parents.filter(id => id.toString() !== parentId);
+  student.parentIds = student.parentIds.filter(id => id.toString() !== parentId);
   await student.save();
 
   sendResponse(res, HTTP_STATUS.OK, {}, 'Relationship removed successfully');
@@ -290,10 +290,10 @@ exports.unlinkParentStudent = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/parent-student-links
 // @access  Private/Admin
 exports.getParentStudentLinks = asyncHandler(async (req, res) => {
-  const parents = await Parent.find({ children: { $exists: true, $not: { $size: 0 } } })
+  const parents = await Parent.find({ studentIds: { $exists: true, $not: { $size: 0 } } })
     .populate('user', 'name email')
     .populate({
-      path: 'children',
+      path: 'studentIds',
       populate: { path: 'user', select: 'name email' }
     });
 

@@ -46,7 +46,7 @@ const recentActivities = [
   { id: "1", type: "attendance", message: "Marked attendance for Class 10-A - 40/42 present", time: "30 min ago", icon: UserCheck, color: "text-green-600", bg: "bg-green-100" },
   { id: "2", type: "assignment", message: "28 students submitted Physics Lab Report", time: "1 hour ago", icon: FileText, color: "text-blue-600", bg: "bg-blue-100" },
   { id: "3", type: "grade", message: "Graded Chemistry Quiz for Class 11-A", time: "2 hours ago", icon: Award, color: "text-purple-600", bg: "bg-purple-100" },
-  { id: "4", type: "meeting", message: "Parent-teacher meeting with Ravi Kumar's parents", time: "3 hours ago", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-100" },
+  { id: "4", type: "meeting", message: "Parent-teacher meeting with student's parents", time: "3 hours ago", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-100" },
   { id: "5", type: "announcement", message: "Posted announcement about Science Fair on Feb 15", time: "5 hours ago", icon: Bell, color: "text-indigo-600", bg: "bg-indigo-100" }
 ];
 

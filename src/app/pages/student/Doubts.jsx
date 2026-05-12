@@ -35,7 +35,7 @@ export const Doubts = () => {
     const doubt = {
       id: `D${(doubts.length + 1).toString().padStart(3, "0")}`,
       studentId: "S001",
-      studentName: "Ravi Kumar",
+      studentName: "Student Name",
       subject: newDoubt.subject,
       title: newDoubt.question,
       question: newDoubt.description,
@@ -100,6 +100,7 @@ export const Doubts = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Ask Your Doubts</h2>
+          <p className="text-slate-500">Student ID: STU202</p>
           <p className="text-slate-600 mt-1">Get help from your teachers</p>
         </div>
         <button
@@ -263,6 +264,7 @@ export const Doubts = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">Ask a Doubt</h2>
+              <p className="text-sm font-bold text-slate-900">Staff Account</p>
               <button
     onClick={() => setIsModalOpen(false)}
     className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"

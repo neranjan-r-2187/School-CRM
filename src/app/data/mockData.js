@@ -2,10 +2,10 @@ import { subMinutes, subHours, subDays } from "date-fns";
 export const CURRENT_USER_ID = "parent-001";
 export const currentUserProfile = {
   id: CURRENT_USER_ID,
-  name: "Ravi Kumar (Parent)",
-  email: "ravi.kumar@example.com",
+  name: "System Parent",
+  email: "parent@school.com",
   role: "Parent",
-  avatar: "https://ui-avatars.com/api/?name=Ravi+Kumar&background=0D9488&color=fff"
+  avatar: "https://ui-avatars.com/api/?name=Parent&background=0D9488&color=fff"
 };
 export const mockUsers = [
   { id: "T001", name: "Ms. Priya Sharma", role: "Class Teacher", avatar: "https://ui-avatars.com/api/?name=Priya+Sharma&background=0D9488&color=fff", online: true, lastActive: "2 min ago" },
@@ -41,7 +41,7 @@ export const mockThreads = [
     unreadCount: 3,
     messages: [
       ...generateMessages("T001"),
-      { id: "m-T001-7", senderId: "T001", text: "Please ensure Ravi completes the worksheet.", timestamp: subMinutes(/* @__PURE__ */ new Date("2026-02-04T17:00:00"), 30), status: "read" },
+      { id: "m-T001-7", senderId: "T001", text: "Please ensure your child completes the worksheet.", timestamp: subMinutes(/* @__PURE__ */ new Date("2026-02-04T17:00:00"), 30), status: "read" },
       { id: "m-T001-8", senderId: "T001", text: "Homework due tomorrow", timestamp: /* @__PURE__ */ new Date("2026-02-04T17:00:00"), status: "delivered" }
     ]
   },
@@ -75,8 +75,8 @@ export const mockThreads = [
 ];
 export const sampleCredentials = {
   parent: {
-    email: "ravi.kumar@example.com",
-    password: "parent123"
+    email: "parent@example.com",
+    password: "password123"
   },
   student: {
     studentId: "STU-2026-0142",
@@ -95,7 +95,7 @@ export const studentProfile = {
   rollNo: 15,
   avatar: "https://ui-avatars.com/api/?name=Aarav+Kumar&background=3B82F6&color=fff",
   email: "aarav.kumar@school.edu.in",
-  parentName: "Ravi Kumar",
+  parentName: "Parent Name",
   dateOfBirth: "2010-08-15",
   bloodGroup: "O+",
   address: "B-204, Green Valley Apartments, Sector 22, Noida, UP 201301"
@@ -577,7 +577,7 @@ export const mockTickets = [
     priority: "High",
     status: "In Progress",
     createdBy: "parent-001",
-    createdByName: "Ravi Kumar",
+    createdByName: "Parent User",
     createdByRole: "Parent",
     assignedTo: "admin-001",
     assignedToName: "Neranjan",
@@ -587,7 +587,7 @@ export const mockTickets = [
       {
         id: "msg-001-1",
         senderId: "parent-001",
-        senderName: "Ravi Kumar",
+        senderName: "Parent User",
         senderRole: "Parent",
         message: "Unable to access the portal since yesterday. Please help.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-04T09:30:00")).toISOString()
@@ -603,7 +603,7 @@ export const mockTickets = [
       {
         id: "msg-001-3",
         senderId: "parent-001",
-        senderName: "Ravi Kumar",
+        senderName: "Parent User",
         senderRole: "Parent",
         message: "The student ID is STU-2026-0142",
         timestamp: (/* @__PURE__ */ new Date("2026-02-04T11:45:00")).toISOString()
@@ -627,7 +627,7 @@ export const mockTickets = [
     priority: "Medium",
     status: "Resolved",
     createdBy: "parent-001",
-    createdByName: "Ravi Kumar",
+    createdByName: "Parent User",
     createdByRole: "Parent",
     assignedTo: "admin-001",
     assignedToName: "Neranjan",
@@ -638,7 +638,7 @@ export const mockTickets = [
       {
         id: "msg-002-1",
         senderId: "parent-001",
-        senderName: "Ravi Kumar",
+        senderName: "Parent User",
         senderRole: "Parent",
         message: "Paid fees on 28th Jan but no receipt yet.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-01T10:00:00")).toISOString()
@@ -670,7 +670,7 @@ export const mockTickets = [
     priority: "Medium",
     status: "Open",
     createdBy: "parent-001",
-    createdByName: "Ravi Kumar",
+    createdByName: "Parent User",
     createdByRole: "Parent",
     createdAt: (/* @__PURE__ */ new Date("2026-02-06T08:15:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-02-06T08:15:00")).toISOString(),
@@ -678,7 +678,7 @@ export const mockTickets = [
       {
         id: "msg-003-1",
         senderId: "parent-001",
-        senderName: "Ravi Kumar",
+        senderName: "Parent User",
         senderRole: "Parent",
         message: "Need extra help with Mathematics, especially quadratic equations. Please advise on tutoring options.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-06T08:15:00")).toISOString()
