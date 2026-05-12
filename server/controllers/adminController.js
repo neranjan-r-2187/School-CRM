@@ -45,58 +45,78 @@ exports.getStudents = asyncHandler(async (req, res) => {
 exports.createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, ...roleData } = req.body;
 
-  // Check if user exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    res.status(HTTP_STATUS.BAD_REQUEST);
-    throw new Error('User already exists with this email');
-  }
-
-  // Create base user
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || ROLES.STUDENT
-  });
-
-  if (!user) {
-    res.status(HTTP_STATUS.BAD_REQUEST);
-    throw new Error('Invalid user data');
-  }
-
-  // Create role-specific profile
   try {
-    if (role === ROLES.STUDENT) {
-      await Student.create({
-        user: user._id,
-        studentId: roleData.studentId || `STU${Date.now()}`,
-        rollNumber: roleData.rollNumber,
-        class: roleData.class,
-        address: roleData.address
-      });
-    } else if (role === ROLES.TEACHER || role === ROLES.STAFF) {
-      await Teacher.create({
-        user: user._id,
-        employeeId: roleData.employeeId || `EMP${Date.now()}`,
-        department: roleData.department,
-        qualification: roleData.qualification
-      });
-    } else if (role === ROLES.PARENT) {
-      await Parent.create({
-        user: user._id,
-        occupation: roleData.occupation,
-        emergencyContact: roleData.emergencyContact
-      });
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      res.status(HTTP_STATUS.BAD_REQUEST);
+      throw new Error(`User already exists with email: ${email}`);
     }
-  } catch (error) {
-    // If profile creation fails, delete the user to maintain consistency
-    await User.findByIdAndDelete(user._id);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
-    throw new Error(`Failed to create profile: ${error.message}`);
-  }
 
-  sendResponse(res, HTTP_STATUS.CREATED, user, 'User and profile created successfully');
+    // Create base user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: role || ROLES.STUDENT
+    });
+
+    if (!user) {
+      res.status(HTTP_STATUS.BAD_REQUEST);
+      throw new Error('Failed to create user record');
+    }
+
+    // Create role-specific profile
+    try {
+      if (role === ROLES.STUDENT) {
+        let classId = null;
+        if (roleData.class) {
+          // Check if it's a valid ObjectId, if not try to find class by name
+          if (roleData.class.match(/^[0-9a-fA-F]{24}$/)) {
+            classId = roleData.class;
+          } else {
+            const foundClass = await Class.findOne({ name: new RegExp('^' + roleData.class + '$', 'i') });
+            if (foundClass) classId = foundClass._id;
+          }
+        }
+
+        await Student.create({
+          user: user._id,
+          studentId: roleData.studentId || `STU${Date.now()}`,
+          rollNumber: roleData.rollNumber,
+          class: classId,
+          address: roleData.address
+        });
+      } else if (role === ROLES.TEACHER || role === ROLES.STAFF) {
+        await Teacher.create({
+          user: user._id,
+          employeeId: roleData.employeeId || `EMP${Date.now()}`,
+          department: roleData.department,
+          qualification: roleData.qualification
+        });
+      } else if (role === ROLES.PARENT) {
+        await Parent.create({
+          user: user._id,
+          occupation: roleData.occupation,
+          emergencyContact: roleData.emergencyContact
+        });
+      }
+    } catch (profileError) {
+      console.error(`Profile creation failed for role ${role}:`, profileError);
+      // Clean up the user if profile fails
+      await User.findByIdAndDelete(user._id);
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      throw new Error(`Profile creation failed: ${profileError.message}`);
+    }
+
+    sendResponse(res, HTTP_STATUS.CREATED, user, 'User and profile created successfully');
+  } catch (error) {
+    console.error('User creation process failed:', error);
+    if (!res.statusCode || res.statusCode === 200) {
+      res.status(HTTP_STATUS.BAD_REQUEST);
+    }
+    throw error;
+  }
 });
 
 // @desc    Update user
@@ -106,9 +126,11 @@ exports.updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (!user) {
+    console.error(`User update failed: User ${req.params.id} not found`);
     res.status(HTTP_STATUS.NOT_FOUND);
     throw new Error('User not found');
   }
+
 
   user.name = req.body.name || user.name;
   user.email = req.body.email || user.email;
