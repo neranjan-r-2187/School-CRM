@@ -1,4 +1,4 @@
-# School CRM v23
+# School CRM v30
 
 A modern, full-stack School Management System (CRM) built with React, Node.js, and MongoDB. This application provides a streamlined experience for students, teachers, and administrators to manage academic life.
 
