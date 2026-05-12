@@ -9,9 +9,15 @@ const { HTTP_STATUS, ROLES } = require('../constants');
 // @route   GET /api/chat/conversations
 // @access  Private
 exports.getConversations = asyncHandler(async (req, res) => {
-  const conversations = await Conversation.find({
-    participants: { $in: [req.user._id] }
-  })
+  let query = { participants: { $in: [req.user._id] } };
+  
+  // If admin, they might want to see all (though usually they just see their own)
+  // Re-reading user request: "ADMIN: can view all conversations"
+  if (req.user.role === ROLES.ADMIN) {
+      query = {}; // All conversations
+  }
+
+  const conversations = await Conversation.find(query)
   .populate('participants', 'name email role avatar')
   .populate({
     path: 'lastMessage',

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { DataProvider } from "./context/DataContext";
+import { ChatProvider } from "./context/ChatContext";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "../components/error/ErrorBoundary";
 import { PageLoader } from "../components/ui/skeletons/PageLoader";
@@ -140,6 +141,7 @@ const AppContent = () => {
         <Route path="fees" element={<AdminFeesManagement />} />
         <Route path="reports" element={<AdminReports />} />
         <Route path="tickets" element={<AdminTicketManagement />} />
+        <Route path="chat" element={<ChatInterface />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
       
@@ -154,6 +156,7 @@ const AppContent = () => {
         <Route path="attendance" element={<TeacherAttendance />} />
         <Route path="assignments" element={<TeacherAssignments />} />
         <Route path="grades" element={<TeacherGrades />} />
+        <Route path="chat" element={<ChatInterface />} />
       </Route>
       
       {
@@ -187,10 +190,12 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <DataProvider>
-            <Toaster position="top-right" richColors />
-            <Suspense fallback={<PageLoader text="Loading application..." />}>
-              <AppContent />
-            </Suspense>
+            <ChatProvider>
+              <Toaster position="top-right" richColors />
+              <Suspense fallback={<PageLoader text="Loading application..." />}>
+                <AppContent />
+              </Suspense>
+            </ChatProvider>
           </DataProvider>
         </NotificationProvider>
       </AuthProvider>

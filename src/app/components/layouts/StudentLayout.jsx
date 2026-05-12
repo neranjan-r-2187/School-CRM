@@ -12,11 +12,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useData } from "../../context/DataContext";
+import { useChatContext } from "../../context/ChatContext";
 import { DashboardShell } from "../../../components/layouts/DashboardShell";
 
 export const StudentLayout = () => {
   const { user } = useAuth();
   const { tickets } = useData();
+  const { unreadConversationsCount } = useChatContext();
   
   const openTicketsCount = tickets.filter(
     (t) => t.createdBy === user?.id && (t.status === "Open" || t.status === "In Progress")
@@ -31,7 +33,7 @@ export const StudentLayout = () => {
     { id: "doubts", path: "/student/dashboard/doubts", label: "Doubts", icon: HelpCircle },
     { id: "career", path: "/student/dashboard/career", label: "Career", icon: Target },
     { id: "completions", path: "/student/dashboard/completions", label: "Completions", icon: TrendingUp },
-    { id: "chat", path: "/student/dashboard/chat", label: "Chat", icon: MessageSquare },
+    { id: "chat", path: "/student/dashboard/chat", label: "Chat", icon: MessageSquare, badge: unreadConversationsCount },
     { id: "support", path: "/student/dashboard/support", label: "Support", icon: TicketIcon, badge: openTicketsCount }
   ];
 

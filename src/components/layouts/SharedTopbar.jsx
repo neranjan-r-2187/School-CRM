@@ -1,6 +1,8 @@
 import { Menu, Bell } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useNotifications } from "../../app/context/NotificationContext";
+import { useChatContext } from "../../app/context/ChatContext";
 import { NotificationCenter } from "../../app/components/NotificationCenter";
 
 export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
@@ -10,6 +12,10 @@ export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
 
   // Find exact match or match by prefix
   const activeMenu = menuItems.find((item) => currentPath === item.path || currentPath.startsWith(item.path + '/')) || { label: "Dashboard" };
+
+  const { unreadCount } = useNotifications();
+  const { unreadConversationsCount } = useChatContext();
+  const totalUnread = unreadCount + unreadConversationsCount;
 
   return (
     <>
@@ -34,7 +40,11 @@ export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
             className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <Bell className="w-5 h-5 text-slate-600" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+            {totalUnread > 0 && (
+              <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                {totalUnread > 9 ? '9+' : totalUnread}
+              </span>
+            )}
           </button>
         </div>
       </header>

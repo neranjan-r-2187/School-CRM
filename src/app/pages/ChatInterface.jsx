@@ -73,8 +73,8 @@ export const ChatInterface = () => {
     setIsSearching(false);
   };
 
-  const selectedConversation = conversations.find(c => c._id === selectedConversationId);
-  const recipient = selectedConversation?.participants.find(p => p._id !== user?._id && p._id !== user?.id);
+  const selectedConversation = conversations?.find(c => c._id === selectedConversationId);
+  const recipient = selectedConversation?.participants?.find(p => p._id !== user?._id && p._id !== user?.id);
 
   return (
     <div className="flex h-[calc(100vh-160px)] bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -115,8 +115,8 @@ export const ChatInterface = () => {
             </div>
           ) : (
             <div className="p-2 space-y-1">
-              {conversations.map(conv => {
-                const otherUser = conv.participants.find(p => p._id !== user?._id && p._id !== user?.id);
+              {conversations?.map(conv => {
+                const otherUser = conv.participants?.find(p => p._id !== user?._id && p._id !== user?.id);
                 const isActive = selectedConversationId === conv._id;
                 return (
                   <button 
@@ -142,7 +142,7 @@ export const ChatInterface = () => {
                   </button>
                 );
               })}
-              {conversations.length === 0 && (
+              {conversations?.length === 0 && (
                 <div className="text-center py-12 px-4">
                   <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MessageSquare className="w-8 h-8 text-slate-300" />
@@ -189,7 +189,7 @@ export const ChatInterface = () => {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => {
+              {messages?.map((msg) => {
                 const isMe = msg.sender?._id === user?._id || msg.sender === user?._id || msg.sender?._id === user?.id || msg.sender === user?.id;
                 return (
                   <div key={msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
