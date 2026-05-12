@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import chatService from '../../services/chatService';
+import { useNotifications } from '../context/NotificationContext';
 
 export const useChat = (conversationId = null) => {
   const queryClient = useQueryClient();
@@ -25,6 +26,8 @@ export const useChat = (conversationId = null) => {
     refetchInterval: 3000, // Faster polling for active chat
   });
 
+  const { showToast } = useNotifications();
+
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: chatService.sendMessage,
@@ -34,6 +37,10 @@ export const useChat = (conversationId = null) => {
       // Invalidate conversations to update last message
       queryClient.invalidateQueries(['conversations']);
     },
+    onError: (error) => {
+        const message = error.response?.data?.message || "Failed to send message";
+        showToast("error", "Error", message);
+    }
   });
 
   // Search users mutation

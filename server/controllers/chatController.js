@@ -25,7 +25,32 @@ exports.getConversations = asyncHandler(async (req, res) => {
   })
   .sort({ updatedAt: -1 });
 
-  sendResponse(res, HTTP_STATUS.OK, conversations);
+  // Filter out invalid conversations based on new rules (e.g. Student <-> Parent)
+  const filteredConversations = conversations.filter(conv => {
+    if (req.user.role === ROLES.ADMIN) return true;
+    
+    const otherParticipant = conv.participants.find(p => p._id.toString() !== req.user._id.toString());
+    if (!otherParticipant) return false;
+
+    const senderRole = req.user.role;
+    const otherRole = otherParticipant.role;
+
+    // Direct forbidden pairs
+    if (senderRole === ROLES.STUDENT && otherRole === ROLES.PARENT) return false;
+    if (senderRole === ROLES.PARENT && otherRole === ROLES.STUDENT) return false;
+    
+    // Role-based allowed lists
+    if (senderRole === ROLES.STUDENT) {
+        return [ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN].includes(otherRole);
+    }
+    if (senderRole === ROLES.PARENT) {
+        return [ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN].includes(otherRole);
+    }
+    
+    return true;
+  });
+
+  sendResponse(res, HTTP_STATUS.OK, filteredConversations);
 });
 
 // @desc    Get messages for a conversation
@@ -93,11 +118,13 @@ exports.sendMessage = asyncHandler(async (req, res) => {
     let allowed = false;
 
     if (senderRole === ROLES.ADMIN) allowed = true;
-    else if (senderRole === ROLES.TEACHER) allowed = true; // Teachers can message anyone
-    else if (senderRole === ROLES.STUDENT) {
-        if (recipientRole === ROLES.TEACHER || recipientRole === ROLES.ADMIN) allowed = true;
+    else if (senderRole === ROLES.TEACHER || senderRole === ROLES.STAFF) {
+        // Teachers/Staff can message Students, Parents, Admin, and each other
+        if ([ROLES.STUDENT, ROLES.PARENT, ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF].includes(recipientRole)) allowed = true;
+    } else if (senderRole === ROLES.STUDENT) {
+        if ([ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN].includes(recipientRole)) allowed = true;
     } else if (senderRole === ROLES.PARENT) {
-        if (recipientRole === ROLES.TEACHER || recipientRole === ROLES.ADMIN) allowed = true;
+        if ([ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN].includes(recipientRole)) allowed = true;
     }
 
     if (!allowed) {
@@ -147,13 +174,25 @@ exports.searchUsers = asyncHandler(async (req, res) => {
         return sendResponse(res, HTTP_STATUS.OK, []);
     }
 
-    const users = await User.find({
+    const searchFilter = {
         _id: { $ne: req.user._id },
         $or: [
             { name: { $regex: query, $options: 'i' } },
             { email: { $regex: query, $options: 'i' } }
         ]
-    }).select('name email role avatar').limit(10);
+    };
+
+    // Role-based filtering for search results
+    if (req.user.role === ROLES.STUDENT) {
+        searchFilter.role = { $in: [ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN] };
+    } else if (req.user.role === ROLES.PARENT) {
+        searchFilter.role = { $in: [ROLES.TEACHER, ROLES.STAFF, ROLES.ADMIN] };
+    } else if (req.user.role === ROLES.TEACHER || req.user.role === ROLES.STAFF) {
+        // Teachers/Staff can see everyone they are allowed to message
+        searchFilter.role = { $in: [ROLES.STUDENT, ROLES.PARENT, ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF] };
+    }
+
+    const users = await User.find(searchFilter).select('name email role avatar').limit(10);
 
     sendResponse(res, HTTP_STATUS.OK, users);
 });
