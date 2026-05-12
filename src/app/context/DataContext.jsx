@@ -14,11 +14,15 @@ export const DataProvider = ({ children }) => {
   const { data: assignments = [] } = useQuery({
     queryKey: ["assignments", user?.id],
     queryFn: async () => {
-      const endpoint = user?.role === "Student" ? "/students/assignments" : "/teachers/assignments";
+      let endpoint = "";
+      if (user?.role === "Student") endpoint = "/students/assignments";
+      else if (user?.role === "Teacher" || user?.role === "Staff") endpoint = "/teachers/assignments";
+      else return [];
+
       const response = await api.get(endpoint);
       return response.data.data;
     },
-    enabled: !!user
+    enabled: !!user && (user.role === "Student" || user.role === "Teacher" || user.role === "Staff")
   });
 
   // 2. Fetch Attendance

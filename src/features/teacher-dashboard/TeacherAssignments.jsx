@@ -25,18 +25,10 @@ export const TeacherAssignments = () => {
   const { data: classes } = useTeacherClasses();
   const createAssignment = useCreateAssignment();
 
-  // Fetch subjects (seeded data)
-  const { data: subjects } = useQuery({
-    queryKey: ['subjects'],
-    queryFn: async () => {
-      const { data } = await api.get('/classes'); // Getting classes to find subjects indirectly or just list all subjects
-      // Since I don't have a direct /subjects endpoint for MVP, I'll fetch one class and use its subjects if possible
-      // Or better: just hardcode common subject IDs from seeding if I know them.
-      // Actually, I'll just fetch all assignments and unique subjects from them, or just use a placeholder for now.
-      const res = await api.get('/assignments?limit=100'); // This works because anyone can view assignments
-      return Array.from(new Set(res.data.data.map(a => JSON.stringify(a.subject)))).map(s => JSON.parse(s));
-    }
-  });
+  // Derive subjects from assignments data
+  const subjects = assignments 
+    ? Array.from(new Set(assignments.map(a => JSON.stringify(a.subject)))).map(s => JSON.parse(s))
+    : [];
 
   const handleCreate = async (e) => {
     e.preventDefault();
