@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMyTickets, createTicket, addMessage, updateTicket } = require('../controllers/ticketController');
+const { getMyTickets, createTicket, addMessage, updateTicket, deleteTicket } = require('../controllers/ticketController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
@@ -10,7 +10,8 @@ router.route('/')
   .post(createTicket);
 
 router.route('/:id')
-  .put(updateTicket);
+  .put(updateTicket)
+  .delete(deleteTicket);
 
 router.route('/:id/messages')
   .post(addMessage);

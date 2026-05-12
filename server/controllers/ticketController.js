@@ -1,4 +1,6 @@
 const Ticket = require('../models/Ticket');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncHandler');
 const { HTTP_STATUS } = require('../constants');
 
@@ -49,6 +51,18 @@ exports.createTicket = asyncHandler(async (req, res) => {
     }]
   });
 
+  // Notify Admins about new ticket
+  const admins = await User.find({ role: { $in: ['Admin', 'SuperAdmin'] } });
+  const adminNotifications = admins.map(admin => ({
+    userId: admin._id,
+    type: 'ticket',
+    title: 'New Support Ticket',
+    message: `${req.user.name} created a new ticket: ${title}`,
+    actionUrl: '/admin/dashboard/tickets',
+    relatedId: ticket._id
+  }));
+  await Notification.insertMany(adminNotifications);
+
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
     data: ticket
@@ -80,6 +94,22 @@ exports.addMessage = asyncHandler(async (req, res) => {
   ticket.updatedAt = Date.now();
   await ticket.save();
 
+  // Notify other party about message
+  const recipientId = req.user.id === ticket.createdBy.toString() 
+    ? ticket.assignedTo || null 
+    : ticket.createdBy;
+
+  if (recipientId) {
+    await Notification.create({
+      userId: recipientId,
+      type: 'ticket',
+      title: 'New Ticket Message',
+      message: `${req.user.name} replied to ticket ${ticket.ticketNumber}`,
+      actionUrl: req.user.role === 'Admin' ? '/student/dashboard/support' : '/admin/dashboard/tickets',
+      relatedId: ticket._id
+    });
+  }
+
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: ticket
@@ -102,8 +132,50 @@ exports.updateTicket = asyncHandler(async (req, res) => {
     });
   }
 
+  // Notify user about update
+  let notifTitle = 'Ticket Updated';
+  let notifMessage = `Your ticket ${ticket.ticketNumber} has been updated.`;
+  
+  if (req.body.status) {
+    notifTitle = 'Ticket Status Updated';
+    notifMessage = `Your ticket ${ticket.ticketNumber} status is now: ${req.body.status}`;
+  } else if (req.body.assignedTo) {
+    notifTitle = 'Ticket Assigned';
+    notifMessage = `Your ticket ${ticket.ticketNumber} has been assigned to a staff member.`;
+  }
+
+  await Notification.create({
+    userId: ticket.createdBy,
+    type: 'ticket',
+    title: notifTitle,
+    message: notifMessage,
+    actionUrl: '/student/dashboard/support',
+    relatedId: ticket._id
+  });
+
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: ticket
+  });
+});
+
+// @desc    Delete ticket
+// @route   DELETE /api/tickets/:id
+// @access  Private (Admin only)
+exports.deleteTicket = asyncHandler(async (req, res) => {
+  const ticket = await Ticket.findById(req.params.id);
+
+  if (!ticket) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      success: false,
+      message: 'Ticket not found'
+    });
+  }
+
+  await ticket.deleteOne();
+
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
+    data: {}
   });
 });

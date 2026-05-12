@@ -16,6 +16,7 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const parentDashboardRoutes = require('./routes/parentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 
 
@@ -33,6 +34,7 @@ require('./models/Ticket');
 require('./models/Doubt');
 require('./models/Conversation');
 require('./models/Message');
+require('./models/Notification');
 
 
 // Initialize express app
@@ -71,6 +73,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/parents', parentDashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 

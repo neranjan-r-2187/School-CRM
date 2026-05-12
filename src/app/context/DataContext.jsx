@@ -123,6 +123,7 @@ export const DataProvider = ({ children }) => {
     addTicket: (data) => addTicketMutation.mutate(data),
     addTicketMessage: (id, message) => api.post(`/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries(["tickets"])),
     updateTicket: (id, data) => api.put(`/tickets/${id}`, data).then(() => queryClient.invalidateQueries(["tickets"])),
+    deleteTicket: (id) => api.delete(`/tickets/${id}`).then(() => queryClient.invalidateQueries(["tickets"])),
     addDoubt: (data) => addDoubtMutation.mutate(data),
     updateDoubt: (id, data) => updateDoubtMutation.mutate({ id, ...data }),
     addDoubtReply: (id, message) => api.post(`/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries(["doubts"])),
