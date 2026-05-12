@@ -11,6 +11,8 @@ const teacherRoutes = require('./routes/teacherRoutes');
 const classRoutes = require('./routes/classRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+
 
 // Load Models (Pre-register for population)
 require('./models/User');
@@ -54,6 +56,8 @@ app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 // Error Handling Middleware (must be after routes)
 app.use(errorHandler);

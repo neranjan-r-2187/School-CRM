@@ -19,7 +19,7 @@ export const LoginPage = () => {
       return;
     }
     try {
-      await login(selectedRole);
+      await login(email, password);
       if (selectedRole === "Parent") {
         navigate("/parent/dashboard");
       } else {
