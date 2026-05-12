@@ -3,6 +3,9 @@ const Student = require('../models/Student');
 const Attendance = require('../models/Attendance');
 const Grade = require('../models/Grade');
 const Assignment = require('../models/Assignment');
+const Announcement = require('../models/Announcement');
+const Fee = require('../models/Fee');
+const Schedule = require('../models/Schedule');
 const asyncHandler = require('../middleware/asyncHandler');
 const sendResponse = require('../utils/apiResponse');
 const { HTTP_STATUS } = require('../constants');
@@ -38,20 +41,66 @@ exports.getStudentData = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to view this student data');
   }
 
-  const studentProfile = await Student.findById(studentId).populate('user', 'name');
+  const studentProfile = await Student.findById(studentId)
+    .populate('user', 'name email avatar')
+    .populate('class', 'name section');
   
-  // Fetch various data
-  const attendance = await Attendance.find({ student: studentProfile.user._id }).sort({ date: -1 });
-  const grades = await Grade.find({ student: studentProfile.user._id }).populate('subject', 'name');
-  const assignments = await Assignment.find({ 
-    // This depends on how assignments are linked to students. 
-    // Usually via Class.
-  });
+  if (!studentProfile) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Student profile not found');
+  }
+
+  const studentUserId = studentProfile.user._id;
+
+  // 1. Fetch Attendance
+  const attendance = await Attendance.find({ student: studentUserId }).sort({ date: -1 });
+
+  // 2. Fetch Grades
+  const grades = await Grade.find({ student: studentUserId }).populate('subject', 'name');
+  
+  // 3. Fetch Assignments for the student's class
+  let assignments = [];
+  if (studentProfile.class) {
+    assignments = await Assignment.find({ class: studentProfile.class._id })
+      .populate('subject', 'name')
+      .populate({
+        path: 'teacher',
+        populate: { path: 'user', select: 'name' }
+      })
+      .sort({ dueDate: -1 });
+  }
+
+  // 4. Fetch Announcements (General or specific to their class)
+  const announcements = await Announcement.find({
+    isActive: true,
+    $or: [
+      { targetAudience: 'All' },
+      { targetAudience: 'Parents' },
+      { class: studentProfile.class?._id }
+    ]
+  }).sort({ createdAt: -1 });
+
+  // 5. Fetch Fees
+  const fees = await Fee.find({ student: studentUserId }).sort({ dueDate: 1 });
+
+  // 6. Fetch Schedule
+  let schedule = [];
+  if (studentProfile.class) {
+    schedule = await Schedule.find({ class: studentProfile.class._id })
+      .populate('periods.subject', 'name')
+      .populate({
+        path: 'periods.teacher',
+        populate: { path: 'user', select: 'name' }
+      });
+  }
 
   sendResponse(res, HTTP_STATUS.OK, {
     student: studentProfile,
     attendance,
     grades,
-    assignments
+    assignments,
+    announcements,
+    fees,
+    schedule
   }, 'Student data fetched successfully');
 });

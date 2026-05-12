@@ -18,6 +18,7 @@ import { TeacherLayout } from "./components/layouts/TeacherLayout";
 // Tip: For future optimization, use React.lazy for route components:
 // const EnhancedLogin = lazy(() => import('./pages/auth/EnhancedLogin'));
 import { EnhancedLogin } from "./pages/auth/EnhancedLogin";
+import { ParentDashboard } from "./pages/ParentDashboard";
 import { ChatInterface } from "./pages/ChatInterface";
 import { SupportTickets } from "./pages/support/SupportTickets";
 
@@ -123,12 +124,13 @@ const AppContent = () => {
       <Route path="/parent/dashboard" element={<ProtectedRoute>
           <ParentLayout />
         </ProtectedRoute>}>
-        <Route index element={<ParentHome />} />
-        <Route path="progress" element={<ParentProgress />} />
-        <Route path="attendance" element={<ParentAttendance />} />
-        <Route path="fees" element={<ParentFees />} />
-        <Route path="chat" element={<ChatInterface />} />
-        <Route path="support" element={<SupportTickets />} />
+        <Route index element={<ParentDashboard />} />
+        <Route path="progress" element={<ParentDashboard />} />
+        <Route path="attendance" element={<ParentDashboard />} />
+        <Route path="schedule" element={<ParentDashboard />} />
+        <Route path="fees" element={<ParentDashboard />} />
+        <Route path="chat" element={<ParentDashboard />} />
+        <Route path="support" element={<ParentDashboard />} />
       </Route>
       <Route path="/admin/dashboard" element={<ProtectedRoute>
           <AdminLayout />

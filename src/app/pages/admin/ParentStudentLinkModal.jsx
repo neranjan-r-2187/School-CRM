@@ -34,6 +34,7 @@ export const ParentStudentLinkModal = ({ user, onClose }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
+      queryClient.invalidateQueries(["linkedStudents"]);
       showToast("success", "Linked Successfully", "Relationship has been established.");
     },
     onError: (error) => {
@@ -50,6 +51,7 @@ export const ParentStudentLinkModal = ({ user, onClose }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
+      queryClient.invalidateQueries(["linkedStudents"]);
       showToast("info", "Unlinked Successfully", "Relationship has been removed.");
     },
     onError: (error) => {
