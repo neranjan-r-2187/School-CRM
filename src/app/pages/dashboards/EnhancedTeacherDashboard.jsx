@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../app/context/AuthContext";
 import { useTeacherDashboard } from "../../features/teacher-dashboard/hooks/useTeacherData";
+import { SupportTickets } from "../support/SupportTickets";
+import { useData } from "../../context/DataContext";
 import { LayoutDashboard } from "lucide-react";
 
 export function EnhancedTeacherDashboard() {

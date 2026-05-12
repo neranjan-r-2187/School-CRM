@@ -21,6 +21,7 @@ import { ChatInterface } from "../ChatInterface";
 import { Doubts } from "../student/Doubts";
 import { StudentLayout } from "../../components/layouts/StudentLayout";
 import { SupportTickets } from "../support/SupportTickets";
+import { useData } from "../../context/DataContext";
 export const EnhancedStudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
   const { user } = useAuth();

@@ -47,11 +47,10 @@ export const DataProvider = ({ children }) => {
   const { data: users = [] } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      // Allow Admin and Students (to find teachers)
       const response = await api.get("/admin/users");
       return response.data.data;
     },
-    enabled: !!user
+    enabled: !!user && user.role === "Admin"
   });
 
   // 5. Fetch Tickets
