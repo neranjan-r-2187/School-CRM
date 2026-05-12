@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Loader2 } from "lucide-react";
 import { useNotifications } from "../../context/NotificationContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../lib/api";
+import api from "../../../lib/api";
 
 export const UserManagement = () => {
   const { showToast } = useNotifications();

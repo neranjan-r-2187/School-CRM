@@ -1,7 +1,7 @@
 import { Users, BookOpen, UserCheck, TrendingUp, Plus, Edit, Eye, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../lib/api";
+import api from "../../../lib/api";
 import { useState } from "react";
 
 export const AdminClassManagement = () => {
