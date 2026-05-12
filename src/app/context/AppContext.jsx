@@ -196,7 +196,7 @@ export function AppProvider({ children }) {
   const login = (email, password, role) => {
     const mockUser = {
       id: "1",
-      name: "Admin User",
+      name: "Neranjan",
       email,
       role,
       schoolId: role !== "super-admin" ? "1" : void 0,

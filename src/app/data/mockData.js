@@ -13,7 +13,7 @@ export const mockUsers = [
   { id: "T003", name: "Mrs. Anjali Gupta", role: "Math Teacher", avatar: "https://ui-avatars.com/api/?name=Anjali+Gupta&background=purple&color=fff", online: true, lastActive: "Just now" },
   { id: "T004", name: "Mr. Vikram Singh", role: "Sports Coach", avatar: "https://ui-avatars.com/api/?name=Vikram+Singh&background=orange&color=fff", online: false, lastActive: "3 hours ago" },
   { id: "T005", name: "Ms. Sneha Patel", role: "Art Teacher", avatar: "https://ui-avatars.com/api/?name=Sneha+Patel&background=pink&color=fff", online: true, lastActive: "5 min ago" },
-  { id: "T006", name: "Mr. Amit Verma", role: "Principal", avatar: "https://ui-avatars.com/api/?name=Amit+Verma&background=slate&color=fff", online: false, lastActive: "Yesterday" },
+  { id: "T006", name: "Neranjan", role: "Principal", avatar: "https://ui-avatars.com/api/?name=Neranjan&background=slate&color=fff", online: false, lastActive: "Yesterday" },
   { id: "T007", name: "Mrs. Kavita Reddy", role: "Science Teacher", avatar: "https://ui-avatars.com/api/?name=Kavita+Reddy&background=teal&color=fff", online: false, lastActive: "2 days ago" },
   { id: "T008", name: "Mr. Rahul Roy", role: "History Teacher", avatar: "https://ui-avatars.com/api/?name=Rahul+Roy&background=brown&color=fff", online: true, lastActive: "10 min ago" },
   { id: "T009", name: "Ms. Meera Iyer", role: "English Teacher", avatar: "https://ui-avatars.com/api/?name=Meera+Iyer&background=indigo&color=fff", online: true, lastActive: "1 min ago" },
@@ -580,7 +580,7 @@ export const mockTickets = [
     createdByName: "Ravi Kumar",
     createdByRole: "Parent",
     assignedTo: "admin-001",
-    assignedToName: "Amit Verma",
+    assignedToName: "Neranjan",
     createdAt: (/* @__PURE__ */ new Date("2026-02-04T09:30:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-02-05T14:20:00")).toISOString(),
     messages: [
@@ -595,7 +595,7 @@ export const mockTickets = [
       {
         id: "msg-001-2",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "Thank you for reaching out. I am looking into this issue. Can you please confirm the student ID you are using?",
         timestamp: (/* @__PURE__ */ new Date("2026-02-04T11:15:00")).toISOString()
@@ -611,7 +611,7 @@ export const mockTickets = [
       {
         id: "msg-001-4",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "I have reset the password. Please check your registered email for the new credentials. The issue should be resolved now.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-05T14:20:00")).toISOString()
@@ -630,7 +630,7 @@ export const mockTickets = [
     createdByName: "Ravi Kumar",
     createdByRole: "Parent",
     assignedTo: "admin-001",
-    assignedToName: "Amit Verma",
+    assignedToName: "Neranjan",
     createdAt: (/* @__PURE__ */ new Date("2026-02-01T10:00:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-02-02T16:30:00")).toISOString(),
     resolvedAt: (/* @__PURE__ */ new Date("2026-02-02T16:30:00")).toISOString(),
@@ -646,7 +646,7 @@ export const mockTickets = [
       {
         id: "msg-002-2",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "Let me check the payment records and generate the receipt for you.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-01T14:30:00")).toISOString()
@@ -654,7 +654,7 @@ export const mockTickets = [
       {
         id: "msg-002-3",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "Receipt has been generated and sent to your registered email. You can also download it from the Fees section in your dashboard.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-02T16:30:00")).toISOString()
@@ -721,7 +721,7 @@ export const mockTickets = [
     createdByName: "Sunita Patel",
     createdByRole: "Parent",
     assignedTo: "admin-001",
-    assignedToName: "Amit Verma",
+    assignedToName: "Neranjan",
     createdAt: (/* @__PURE__ */ new Date("2026-02-03T11:20:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-02-04T09:30:00")).toISOString(),
     messages: [
@@ -736,7 +736,7 @@ export const mockTickets = [
       {
         id: "msg-005-2",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "Processing your request. Please submit the TC application form and clear any pending dues. Documents will be ready in 2-3 working days.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-04T09:30:00")).toISOString()
@@ -779,7 +779,7 @@ export const mockTickets = [
     createdByName: "Aarav Kumar",
     createdByRole: "Student",
     assignedTo: "admin-001",
-    assignedToName: "Amit Verma",
+    assignedToName: "Neranjan",
     createdAt: (/* @__PURE__ */ new Date("2026-01-28T14:20:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-01-30T11:15:00")).toISOString(),
     resolvedAt: (/* @__PURE__ */ new Date("2026-01-30T11:15:00")).toISOString(),
@@ -795,7 +795,7 @@ export const mockTickets = [
       {
         id: "msg-007-2",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "I will coordinate with the Physics teacher to review your answer sheet.",
         timestamp: (/* @__PURE__ */ new Date("2026-01-29T10:00:00")).toISOString()
@@ -803,7 +803,7 @@ export const mockTickets = [
       {
         id: "msg-007-3",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "You were right. There was a calculation error. Your corrected marks (87) have been updated in the system.",
         timestamp: (/* @__PURE__ */ new Date("2026-01-30T11:15:00")).toISOString()
@@ -822,7 +822,7 @@ export const mockTickets = [
     createdByName: "Deepak Sharma",
     createdByRole: "Parent",
     assignedTo: "admin-001",
-    assignedToName: "Amit Verma",
+    assignedToName: "Neranjan",
     createdAt: (/* @__PURE__ */ new Date("2026-02-02T09:00:00")).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date("2026-02-03T15:45:00")).toISOString(),
     messages: [
@@ -837,7 +837,7 @@ export const mockTickets = [
       {
         id: "msg-008-2",
         senderId: "admin-001",
-        senderName: "Amit Verma",
+        senderName: "Neranjan",
         senderRole: "Admin",
         message: "Checking available bus routes covering Sector 18. Will update you with options by tomorrow.",
         timestamp: (/* @__PURE__ */ new Date("2026-02-03T15:45:00")).toISOString()

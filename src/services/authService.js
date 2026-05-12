@@ -11,7 +11,7 @@ export const authService = {
         } else if (email === "student@school.com" && password === "password") {
           resolve({ user: { id: "s1", name: "Rahul Kumar", role: "Student" }, token: "fake-jwt-token" });
         } else if (email === "admin@school.com" && password === "password") {
-          resolve({ user: { id: "a1", name: "Admin User", role: "Admin" }, token: "fake-jwt-token" });
+          resolve({ user: { id: "a1", name: "Neranjan", role: "Admin" }, token: "fake-jwt-token" });
         } else if (email === "teacher@school.com" && password === "password") {
           resolve({ user: { id: "t1", name: "Priya Sharma", role: "Teacher" }, token: "fake-jwt-token" });
         } else {

@@ -2,7 +2,7 @@ const { ROLES, ATTENDANCE_STATUS, ASSIGNMENT_STATUS } = require('../constants');
 
 const sampleData = {
   users: [
-    { name: 'Admin User', email: 'admin@school.com', password: 'password123', role: ROLES.ADMIN },
+    { name: 'Neranjan', email: 'admin@school.com', password: 'password123', role: ROLES.ADMIN },
     { name: 'John Doe', email: 'teacher1@school.com', password: 'password123', role: ROLES.TEACHER },
     { name: 'Jane Smith', email: 'teacher2@school.com', password: 'password123', role: ROLES.TEACHER },
     { name: 'Alice Johnson', email: 'student1@school.com', password: 'password123', role: ROLES.STUDENT },

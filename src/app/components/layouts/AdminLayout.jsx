@@ -7,6 +7,7 @@ import {
   TicketIcon,
   GraduationCap,
   Book,
+  MessageSquare,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 import { DashboardShell } from "../../../components/layouts/DashboardShell";
@@ -24,6 +25,7 @@ export const AdminLayout = () => {
     { id: "fees", path: "/admin/dashboard/fees", label: "Fees & Payments", icon: DollarSign },
     { id: "reports", path: "/admin/dashboard/reports", label: "Reports", icon: BarChart3 },
     { id: "tickets", path: "/admin/dashboard/tickets", label: "Support Tickets", icon: TicketIcon, badge: openTicketsCount },
+    { id: "chat", path: "/admin/dashboard/chat", label: "Messages", icon: MessageSquare },
     { id: "settings", path: "/admin/dashboard/settings", label: "Settings", icon: Settings }
   ];
 

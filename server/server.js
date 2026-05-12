@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 
 
@@ -29,6 +30,8 @@ require('./models/Attendance');
 require('./models/Grade');
 require('./models/Ticket');
 require('./models/Doubt');
+require('./models/Conversation');
+require('./models/Message');
 
 
 // Initialize express app
@@ -65,6 +68,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/doubts', doubtRoutes);
+app.use('/api/chat', chatRoutes);
 
 
 

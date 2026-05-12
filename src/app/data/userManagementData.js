@@ -221,13 +221,13 @@ export const mockStudents = [
 export const mockStaff = [
   {
     id: "ST001",
-    name: "Mr. Amit Verma",
-    email: "amit.verma@school.edu.in",
+    name: "Neranjan",
+    email: "admin@school.com",
     role: "Staff",
     phone: "+91 98765 11111",
     dateJoined: "2015-01-10",
     status: "Active",
-    avatar: "https://ui-avatars.com/api/?name=Amit+Verma&background=6366F1&color=fff",
+    avatar: "https://ui-avatars.com/api/?name=Neranjan&background=6366F1&color=fff",
     department: "Administration",
     position: "Principal"
   },
