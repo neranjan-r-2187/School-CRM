@@ -290,6 +290,20 @@ exports.unlinkParentStudent = asyncHandler(async (req, res) => {
   sendResponse(res, HTTP_STATUS.OK, {}, 'Relationship removed successfully');
 });
 
+// @desc    Get all parent-student links
+// @route   GET /api/admin/parent-student-links
+// @access  Private/Admin
+exports.getParentStudentLinks = asyncHandler(async (req, res) => {
+  const parents = await Parent.find({ studentIds: { $exists: true, $not: { $size: 0 } } })
+    .populate('user', 'name email')
+    .populate({
+      path: 'studentIds',
+      populate: { path: 'user', select: 'name email' }
+    });
+
+  sendResponse(res, HTTP_STATUS.OK, parents, 'Parent-student links fetched successfully');
+});
+
 // @desc    Link teacher and student
 // @route   POST /api/admin/link-teacher-student
 // @access  Private/Admin
