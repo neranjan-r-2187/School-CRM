@@ -71,6 +71,7 @@ class DashboardService {
       totalClasses,
       activeAssignments,
       pendingAttendance,
+      totalAssignedStudents: teacher.assignedStudents?.length || 0,
       department: teacher.department
     };
   }

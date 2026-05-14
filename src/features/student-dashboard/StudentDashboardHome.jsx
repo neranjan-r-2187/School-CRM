@@ -7,12 +7,13 @@ import {
   Video,
   Clock,
   CheckCircle2,
-  FileText
+  FileText,
+  Users
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/context/AuthContext";
-import { useStudentDashboard, useStudentAssignments, useStudentSchedule } from "./hooks/useStudentData";
+import { useStudentDashboard, useStudentAssignments, useStudentSchedule, useStudentTeachers } from "./hooks/useStudentData";
 import { AsyncWrapper } from "../../components/ui/AsyncWrapper";
 import { DashboardSkeleton } from "../../components/ui/skeletons/DashboardSkeleton";
 
@@ -24,6 +25,7 @@ export const StudentDashboardHome = () => {
   const { data: stats, isLoading: statsLoading, isError: statsError } = useStudentDashboard();
   const { data: assignments, isLoading: assignmentsLoading, isError: assignmentsError } = useStudentAssignments();
   const { data: scheduleData } = useStudentSchedule();
+  const { data: teachers } = useStudentTeachers();
 
   const currentTime = new Date();
   const currentHour = currentTime.getHours();
@@ -288,6 +290,39 @@ export const StudentDashboardHome = () => {
         </div>
 
         <div className="space-y-6">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-600" />
+                My Teachers
+              </h2>
+              <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-bold">
+                {teachers?.length || 0}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {teachers?.slice(0, 3).map((teacher) => (
+                <div key={teacher._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-xs">
+                    {teacher.user?.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{teacher.user?.name}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">{teacher.department || 'Faculty'}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <a href={`mailto:${teacher.user?.email}`} className="p-1.5 hover:bg-white rounded-md text-slate-400 hover:text-indigo-600 transition-colors">
+                      <Clock className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+              {(!teachers || teachers.length === 0) && (
+                <p className="text-center py-4 text-slate-400 text-xs italic">No specific teachers assigned yet.</p>
+              )}
+            </div>
+          </div>
+
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h2>
             <div className="space-y-3">

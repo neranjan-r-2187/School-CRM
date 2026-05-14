@@ -5,7 +5,8 @@ const {
   getProfile, 
   getGrades, 
   getAttendance, 
-  getAssignments 
+  getAssignments,
+  getAssignedTeachers
 } = require('../controllers/studentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { ROLES } = require('../constants');
@@ -27,6 +28,7 @@ router.get('/profile', getProfile);
 router.get('/grades', getGrades);
 router.get('/attendance', getAttendance);
 router.get('/assignments', getAssignments);
+router.get('/teachers', getAssignedTeachers);
 router.get('/schedule', (req, res, next) => {
   const { getSchedule } = require('../controllers/studentController');
   getSchedule(req, res, next);

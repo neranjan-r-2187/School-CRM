@@ -1,4 +1,4 @@
-import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus } from "lucide-react";
+import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus, Users } from "lucide-react";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { useAuth } from "../../app/context/AuthContext";
@@ -57,9 +57,9 @@ export const TeacherHome = () => {
 
   const dashboardStats = [
     { label: "Assigned Classes", value: stats?.totalClasses || "0", change: "Current session", icon: UserCheck, color: "bg-blue-500" },
+    { label: "My Students", value: stats?.totalAssignedStudents || "0", change: "Linked accounts", icon: Users, color: "bg-indigo-500" },
     { label: "Active Assignments", value: stats?.activeAssignments || "0", change: "Due this week", icon: FileText, color: "bg-green-500" },
-    { label: "Pending Attendance", value: stats?.pendingAttendance || "0", change: "Action required", icon: Clock, color: "bg-orange-500" },
-    { label: "Department", value: stats?.department || "N/A", change: "Faculty unit", icon: Award, color: "bg-purple-500" }
+    { label: "Pending Attendance", value: stats?.pendingAttendance || "0", change: "Action required", icon: Clock, color: "bg-orange-500" }
   ];
 
   return (

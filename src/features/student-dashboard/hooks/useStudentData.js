@@ -65,3 +65,16 @@ export const useStudentSchedule = () => {
     },
   });
 };
+
+/**
+ * Hook to fetch student assigned teachers
+ */
+export const useStudentTeachers = () => {
+  return useQuery({
+    queryKey: ['student-teachers'],
+    queryFn: async () => {
+      const { data } = await api.get('/students/teachers');
+      return data.data;
+    },
+  });
+};

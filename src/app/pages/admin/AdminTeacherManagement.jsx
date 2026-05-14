@@ -21,6 +21,9 @@ export const AdminTeacherManagement = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewTeacher, setViewTeacher] = useState(null);
+  const [assigningTeacher, setAssigningTeacher] = useState(null);
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
+  const [selectedStudents, setSelectedStudents] = useState([]);
 
   // Fetch teachers from API
   const { data: teachersResponse, isLoading } = useQuery({
@@ -31,7 +34,16 @@ export const AdminTeacherManagement = () => {
     }
   });
 
+  const { data: studentsResponse } = useQuery({
+    queryKey: ["students"],
+    queryFn: async () => {
+      const response = await api.get("/admin/students");
+      return response.data.data;
+    }
+  });
+
   const teachers = teachersResponse || [];
+  const allStudents = studentsResponse || [];
 
   // Mutations
   const deleteTeacherMutation = useMutation({
@@ -44,6 +56,34 @@ export const AdminTeacherManagement = () => {
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to delete teacher");
+    }
+  });
+
+  const linkStudentsMutation = useMutation({
+    mutationFn: async ({ teacherId, studentIds }) => {
+      await api.post("/admin/link-teacher-student", { teacherId, studentIds });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["teachers"]);
+      toast.success("Students assigned successfully");
+      setAssigningTeacher(null);
+      setSelectedStudents([]);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to assign students");
+    }
+  });
+
+  const unlinkStudentMutation = useMutation({
+    mutationFn: async ({ teacherId, studentId }) => {
+      await api.delete("/admin/unlink-teacher-student", { data: { teacherId, studentId } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["teachers"]);
+      toast.success("Student unlinked successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to unlink student");
     }
   });
 
@@ -70,6 +110,33 @@ export const AdminTeacherManagement = () => {
   const handleEdit = (teacher) => {
     toast.info(`Edit functionality is available in User Management for ${teacher.user.name}`);
   };
+
+  const handleAssignStudents = () => {
+    if (!assigningTeacher || selectedStudents.length === 0) return;
+    linkStudentsMutation.mutate({
+      teacherId: assigningTeacher._id,
+      studentIds: selectedStudents
+    });
+  };
+
+  const toggleStudentSelection = (studentId) => {
+    setSelectedStudents(prev => 
+      prev.includes(studentId) 
+        ? prev.filter(id => id !== studentId) 
+        : [...prev, studentId]
+    );
+  };
+
+  const filteredStudents = allStudents.filter(s => {
+    const name = s.user?.name || "";
+    const email = s.user?.email || "";
+    const studentId = s.studentId || "";
+    const query = studentSearchQuery.toLowerCase();
+    
+    return name.toLowerCase().includes(query) || 
+           email.toLowerCase().includes(query) || 
+           studentId.toLowerCase().includes(query);
+  });
 
   if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin w-8 h-8 text-blue-600" /></div>;
 
@@ -123,6 +190,66 @@ export const AdminTeacherManagement = () => {
           </div>
         </div>}
 
+      {/* Assign Students Modal */}
+      {assigningTeacher && <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-900">Assign Students</h2>
+                <button onClick={() => { setAssigningTeacher(null); setSelectedStudents([]); }} className="p-2 hover:bg-slate-100 rounded-lg"><X className="w-5 h-5" /></button>
+              </div>
+              <p className="text-sm text-slate-500 mt-1">Select students to assign to {assigningTeacher.user?.name}</p>
+            </div>
+            
+            <div className="p-4 border-b border-slate-100">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search students..."
+                  value={studentSearchQuery}
+                  onChange={(e) => setStudentSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="max-h-64 overflow-y-auto p-2 space-y-1">
+              {filteredStudents.map(student => (
+                <label key={student._id} className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedStudents.includes(student._id) ? 'bg-blue-50' : 'hover:bg-slate-50'}`}>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedStudents.includes(student._id)}
+                    onChange={() => toggleStudentSelection(student._id)}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{student.user?.name}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">{student.studentId} • {student.class?.name || 'No Class'}</p>
+                  </div>
+                </label>
+              ))}
+              {filteredStudents.length === 0 && <p className="text-center py-8 text-slate-400 text-sm">No students found</p>}
+            </div>
+
+            <div className="p-6 bg-slate-50 flex gap-3">
+              <button 
+                onClick={() => { setAssigningTeacher(null); setSelectedStudents([]); }}
+                className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold hover:bg-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleAssignStudents}
+                disabled={selectedStudents.length === 0 || linkStudentsMutation.isPending}
+                className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {linkStudentsMutation.isPending ? 'Assigning...' : `Assign ${selectedStudents.length} Students`}
+              </button>
+            </div>
+          </div>
+        </div>}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Teacher Management</h1>
@@ -168,20 +295,57 @@ export const AdminTeacherManagement = () => {
                  <span className="text-slate-600">Email:</span>
                  <span className="text-slate-900 truncate max-w-[150px]">{teacher.user?.email}</span>
                </div>
+               <div className="pt-2 border-t border-slate-50 mt-2">
+                 <div className="flex items-center justify-between mb-2">
+                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Students</span>
+                   <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-black">{teacher.assignedStudents?.length || 0}</span>
+                 </div>
+                 <div className="flex flex-wrap gap-1">
+                   {teacher.assignedStudents?.slice(0, 3).map(student => (
+                     <div key={student._id} className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded text-[9px] font-bold text-slate-600 border border-slate-100">
+                       <span className="truncate max-w-[60px]">{student.user?.name}</span>
+                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          unlinkStudentMutation.mutate({ teacherId: teacher._id, studentId: student._id });
+                        }}
+                        className="hover:text-red-500"
+                       >
+                         <X className="w-2.5 h-2.5" />
+                       </button>
+                     </div>
+                   ))}
+                   {teacher.assignedStudents?.length > 3 && (
+                     <span className="text-[9px] text-slate-400 font-bold self-center">+{teacher.assignedStudents.length - 3} more</span>
+                   )}
+                   {(!teacher.assignedStudents || teacher.assignedStudents.length === 0) && (
+                     <span className="text-[9px] text-slate-300 italic font-medium">No students assigned</span>
+                   )}
+                 </div>
+               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button onClick={() => setViewTeacher(teacher)} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
-                <Eye className="w-4 h-4" />
-                View
+            <div className="flex flex-col gap-2">
+              <button 
+                onClick={() => setAssigningTeacher(teacher)}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-white bg-slate-950 rounded-lg hover:bg-black transition-colors text-sm font-bold shadow-lg shadow-slate-950/10"
+              >
+                <Plus className="w-4 h-4" />
+                Assign Students
               </button>
-              <button onClick={() => handleEdit(teacher)} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium">
-                <Edit className="w-4 h-4" />
-                Edit
-              </button>
-              <button onClick={() => handleDelete(teacher)} className="px-3 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => setViewTeacher(teacher)} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                  <Eye className="w-4 h-4" />
+                  View
+                </button>
+                <button onClick={() => handleEdit(teacher)} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium">
+                  <Edit className="w-4 h-4" />
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(teacher)} className="px-3 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>)}
       </div>

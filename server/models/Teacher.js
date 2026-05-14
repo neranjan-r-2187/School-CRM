@@ -23,6 +23,12 @@ const teacherSchema = new mongoose.Schema(
         ref: 'Class',
       },
     ],
+    assignedStudents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',
+      },
+    ],
     department: {
       type: String,
       trim: true,

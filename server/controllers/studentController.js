@@ -52,10 +52,29 @@ exports.getSchedule = asyncHandler(async (req, res) => {
   sendResponse(res, HTTP_STATUS.OK, schedule);
 });
 
+// @desc    Get student assigned teachers
+// @route   GET /api/students/teachers
+// @access  Private/Student
+exports.getAssignedTeachers = asyncHandler(async (req, res) => {
+  const teachers = await studentService.getAssignedTeachers(req.user.id);
+  sendResponse(res, HTTP_STATUS.OK, teachers);
+});
+
 // @desc    Get all students (for teachers/admins)
 // @route   GET /api/students
 // @access  Private/Teacher,Admin
 exports.getAllStudents = asyncHandler(async (req, res) => {
-  const students = await studentService.getAllStudents(req.query);
+  const query = { ...req.query };
+  
+  // If user is a teacher, restrict to their assigned students
+  if (req.user.role === 'Teacher') {
+    const Teacher = require('../models/Teacher');
+    const teacher = await Teacher.findOne({ user: req.user._id });
+    if (teacher) {
+      query.teacherId = teacher._id;
+    }
+  }
+
+  const students = await studentService.getAllStudents(query);
   sendResponse(res, HTTP_STATUS.OK, students);
 });

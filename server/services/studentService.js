@@ -57,9 +57,28 @@ class StudentService {
       });
   }
 
+  async getAssignedTeachers(userId) {
+    const student = await Student.findOne({ user: userId });
+    if (!student) return [];
+
+    const Teacher = require('../models/Teacher');
+    return await Teacher.find({ assignedStudents: student._id })
+      .populate('user', 'name email')
+      .populate('assignedClasses', 'name section');
+  }
+
   async getAllStudents(query = {}) {
     const filter = {};
     if (query.class) filter.class = query.class;
+    
+    // If teacher is specified, find students assigned to that teacher
+    if (query.teacherId) {
+      const Teacher = require('../models/Teacher');
+      const teacher = await Teacher.findById(query.teacherId);
+      if (teacher) {
+        filter._id = { $in: teacher.assignedStudents };
+      }
+    }
     
     return await Student.find(filter)
       .populate('user', 'name email')

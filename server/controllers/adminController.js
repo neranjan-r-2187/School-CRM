@@ -42,6 +42,10 @@ exports.getUsers = asyncHandler(async (req, res) => {
 exports.getTeachers = asyncHandler(async (req, res) => {
   const teachers = await Teacher.find({})
     .populate('user', 'name email isActive')
+    .populate({
+      path: 'assignedStudents',
+      populate: { path: 'user', select: 'name email' }
+    })
     .sort({ createdAt: -1 });
   sendResponse(res, HTTP_STATUS.OK, teachers, 'Teachers fetched successfully');
 });
@@ -286,16 +290,73 @@ exports.unlinkParentStudent = asyncHandler(async (req, res) => {
   sendResponse(res, HTTP_STATUS.OK, {}, 'Relationship removed successfully');
 });
 
-// @desc    Get all links
-// @route   GET /api/admin/parent-student-links
+// @desc    Link teacher and student
+// @route   POST /api/admin/link-teacher-student
 // @access  Private/Admin
-exports.getParentStudentLinks = asyncHandler(async (req, res) => {
-  const parents = await Parent.find({ studentIds: { $exists: true, $not: { $size: 0 } } })
+exports.linkTeacherStudent = asyncHandler(async (req, res) => {
+  const { teacherId, studentIds } = req.body;
+
+  if (!teacherId || !studentIds || !Array.isArray(studentIds)) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please provide teacherId and an array of studentIds');
+  }
+
+  const teacher = await Teacher.findById(teacherId);
+  if (!teacher) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Teacher profile not found');
+  }
+
+  // Add students to teacher's assignedStudents array if not already present
+  let addedCount = 0;
+  for (const studentId of studentIds) {
+    if (!teacher.assignedStudents.includes(studentId)) {
+      teacher.assignedStudents.push(studentId);
+      addedCount++;
+    }
+  }
+
+  if (addedCount > 0) {
+    await teacher.save();
+  }
+
+  sendResponse(res, HTTP_STATUS.OK, teacher, `${addedCount} students linked to teacher successfully`);
+});
+
+// @desc    Unlink teacher and student
+// @route   DELETE /api/admin/unlink-teacher-student
+// @access  Private/Admin
+exports.unlinkTeacherStudent = asyncHandler(async (req, res) => {
+  const { teacherId, studentId } = req.body;
+
+  if (!teacherId || !studentId) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please provide both teacherId and studentId');
+  }
+
+  const teacher = await Teacher.findById(teacherId);
+  if (!teacher) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Teacher profile not found');
+  }
+
+  // Remove student from teacher's assignedStudents
+  teacher.assignedStudents = teacher.assignedStudents.filter(id => id.toString() !== studentId);
+  await teacher.save();
+
+  sendResponse(res, HTTP_STATUS.OK, {}, 'Relationship removed successfully');
+});
+
+// @desc    Get all teacher-student links
+// @route   GET /api/admin/teacher-student-links
+// @access  Private/Admin
+exports.getTeacherStudentLinks = asyncHandler(async (req, res) => {
+  const teachers = await Teacher.find({ assignedStudents: { $exists: true, $not: { $size: 0 } } })
     .populate('user', 'name email')
     .populate({
-      path: 'studentIds',
+      path: 'assignedStudents',
       populate: { path: 'user', select: 'name email' }
     });
 
-  sendResponse(res, HTTP_STATUS.OK, parents, 'Parent-student links fetched successfully');
+  sendResponse(res, HTTP_STATUS.OK, teachers, 'Teacher-student links fetched successfully');
 });
