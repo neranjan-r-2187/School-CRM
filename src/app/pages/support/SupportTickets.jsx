@@ -226,7 +226,7 @@ export const SupportTickets = () => {
                       <SelectTrigger className="h-16 rounded-2xl bg-slate-50 border-transparent focus:bg-white transition-all font-black text-slate-700 px-6">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-none shadow-2xl p-2 z-[9999]">
+                      <SelectContent className="rounded-2xl border border-slate-200 bg-white shadow-2xl p-2 z-[9999]">
                         <SelectItem value="Technical" className="rounded-xl font-bold py-3">Technical</SelectItem>
                         <SelectItem value="Academic" className="rounded-xl font-bold py-3">Academic</SelectItem>
                         <SelectItem value="Financial" className="rounded-xl font-bold py-3">Financial</SelectItem>

@@ -338,7 +338,7 @@ export const AdminTicketManagement = () => {
                       <SelectTrigger className="w-full rounded-[1.5rem] bg-white border-slate-100 h-20 px-8 font-black text-slate-900 shadow-xl shadow-slate-950/5 text-lg">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-none shadow-[0_30px_60px_rgba(0,0,0,0.15)] p-2">
+                      <SelectContent className="rounded-2xl border border-slate-200 bg-white shadow-[0_30px_60px_rgba(0,0,0,0.15)] p-2 z-50">
                         <SelectItem value="Open" className="rounded-xl py-4 font-bold">Open Queue</SelectItem>
                         <SelectItem value="In Progress" className="rounded-xl py-4 font-bold">In Processing</SelectItem>
                         <SelectItem value="Resolved" className="rounded-xl py-4 font-bold text-emerald-600">Finalized / Resolved</SelectItem>
@@ -356,7 +356,7 @@ export const AdminTicketManagement = () => {
                       <SelectTrigger className="w-full rounded-[1.5rem] bg-white border-slate-100 h-20 px-8 font-black text-slate-900 shadow-xl shadow-slate-950/5 text-lg">
                         <SelectValue placeholder="Delegate Action..." />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-none shadow-[0_30px_60px_rgba(0,0,0,0.15)] p-2">
+                      <SelectContent className="rounded-2xl border border-slate-200 bg-white shadow-[0_30px_60px_rgba(0,0,0,0.15)] p-2 z-50">
                         <SelectItem value="unassigned" className="rounded-xl py-4 font-bold">Unassigned Queue</SelectItem>
                         {staffMembers.map(staff => (
                           <SelectItem key={staff._id} value={staff._id} className="rounded-xl py-4 font-bold">{staff.name}</SelectItem>
@@ -466,7 +466,7 @@ export const AdminTicketManagement = () => {
                   <SelectValue placeholder="All Queue" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="rounded-[2rem] border-none shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2">
+              <SelectContent className="rounded-[2rem] border border-slate-100 bg-white shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2 z-50">
                 <SelectItem value="all" className="rounded-xl py-4 font-bold">All Requests</SelectItem>
                 <SelectItem value="Open" className="rounded-xl py-4 font-bold">Awaiting Action</SelectItem>
                 <SelectItem value="In Progress" className="rounded-xl py-4 font-bold">Active Processing</SelectItem>
@@ -481,7 +481,7 @@ export const AdminTicketManagement = () => {
                   <SelectValue placeholder="All Priorities" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="rounded-[2rem] border-none shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2">
+              <SelectContent className="rounded-[2rem] border border-slate-100 bg-white shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2 z-50">
                 <SelectItem value="all" className="rounded-xl py-4 font-bold">All Urgency</SelectItem>
                 <SelectItem value="Low" className="rounded-xl py-4 font-bold">Standard Priority</SelectItem>
                 <SelectItem value="Medium" className="rounded-xl py-4 font-bold">Elevated Priority</SelectItem>
