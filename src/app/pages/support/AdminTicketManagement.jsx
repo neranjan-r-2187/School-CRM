@@ -187,7 +187,10 @@ export const AdminTicketManagement = () => {
            <Button variant="outline" className="rounded-xl border-slate-200 h-11 px-4 sm:px-6 font-bold text-[10px] tracking-wider hover:bg-white transition-all whitespace-nowrap">
              GENERATE PDF
            </Button>
-           <Button variant="destructive" className="rounded-xl shadow-lg shadow-rose-500/10 h-11 px-4 sm:px-6 font-bold text-[10px] tracking-wider transform hover:-translate-y-0.5 transition-all whitespace-nowrap" onClick={() => handleDeleteTicket(selectedTicket._id || selectedTicket.id)}>
+           <Button 
+             className="rounded-xl shadow-lg shadow-rose-500/10 h-11 px-4 sm:px-6 font-bold text-[10px] tracking-wider transform hover:-translate-y-0.5 transition-all whitespace-nowrap bg-red-600 hover:bg-red-700 text-white border-none" 
+             onClick={() => handleDeleteTicket(selectedTicket._id || selectedTicket.id)}
+           >
             <Trash2 className="w-4 h-4 mr-2 shrink-0" />
             <span className="truncate">PURGE RECORD</span>
           </Button>

@@ -39,7 +39,7 @@ export const NotificationCenter = ({ onClose }) => {
   };
   const handleNotificationClick = (notification) => {
     if (!notification.read) {
-      markAsRead(notification.id);
+      markAsRead(notification.id || notification._id);
     }
     if (notification.actionUrl) {
       navigate(notification.actionUrl);
@@ -85,39 +85,58 @@ export const NotificationCenter = ({ onClose }) => {
           </div>
         </div>
 
-        {
-    /* Notification List */
-  }
+        {/* Notification List */}
         <div className="flex-1 overflow-y-auto">
-          {notifications.length > 0 ? <div className="divide-y divide-slate-100">
-              {notifications.map((notification) => <div
-    key={notification.id}
-    onClick={() => handleNotificationClick(notification)}
-    className={`p-4 transition-colors cursor-pointer ${!notification.read ? "bg-blue-50 hover:bg-blue-100" : "hover:bg-slate-50"}`}
-  >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-slate-900 text-sm">{notification.title}</p>
-                        {!notification.read && <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1" />}
+          {Array.isArray(notifications) && notifications.length > 0 ? (
+            <div className="divide-y divide-slate-100">
+              {notifications.map((notification) => {
+                const notificationId = notification.id || notification._id;
+                const timestamp = notification.timestamp || notification.createdAt;
+                
+                // Safe date formatting
+                let displayTime = "Just now";
+                try {
+                  if (timestamp) {
+                    displayTime = format(new Date(timestamp), "MMM d, h:mm a");
+                  }
+                } catch (e) {
+                  console.error("Date formatting error:", e);
+                }
+
+                return (
+                  <div
+                    key={notificationId}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`p-4 transition-colors cursor-pointer ${!notification.read ? "bg-blue-50 hover:bg-blue-100" : "hover:bg-slate-50"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
+                        {getNotificationIcon(notification.type)}
                       </div>
-                      <p className="text-sm text-slate-600 mt-1">{notification.message}</p>
-                      <p className="text-xs text-slate-400 mt-2">
-                        {format(notification.timestamp, "MMM d, h:mm a")}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-semibold text-slate-900 text-sm">{notification.title}</p>
+                          {!notification.read && <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1" />}
+                        </div>
+                        <p className="text-sm text-slate-600 mt-1">{notification.message}</p>
+                        <p className="text-xs text-slate-400 mt-2">
+                          {displayTime}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>)}
-            </div> : <div className="p-8 text-center">
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center">
               <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Bell className="w-8 h-8 text-slate-400" />
               </div>
               <p className="text-slate-600 font-medium">No notifications</p>
               <p className="text-sm text-slate-500 mt-1">You're all caught up!</p>
-            </div>}
+            </div>
+          )}
         </div>
 
         {
