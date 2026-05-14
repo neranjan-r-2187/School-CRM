@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
-import { useStudentSchedule } from "../../features/student-dashboard/hooks/useStudentData";
+import { useStudentSchedule } from "../../../features/student-dashboard/hooks/useStudentData";
 import { useAuth } from "../../context/AuthContext";
 import { todaySchedule as mockSchedule } from "../../data/mockData";
 export const Timetable = () => {
