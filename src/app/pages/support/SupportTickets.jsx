@@ -16,7 +16,8 @@ import {
   Sparkles,
   ArrowRight,
   LifeBuoy,
-  HelpCircle
+  HelpCircle,
+  Activity
 } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -46,13 +47,16 @@ export const SupportTickets = () => {
     priority: "Medium"
   });
 
-  const userTickets = tickets.filter((ticket) => 
-    ticket.createdBy?._id === user?.id || ticket.createdBy === user?.id || ticket.createdBy?._id === user?._id
+  const userTickets = (tickets || []).filter((ticket) => 
+    ticket.createdBy?._id === user?.id || 
+    ticket.createdBy === user?.id || 
+    ticket.createdBy?._id === user?._id ||
+    ticket.createdBy === user?._id
   );
 
   const filteredTickets = userTickets.filter((ticket) => {
-    const matchesSearch = ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (ticket.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         (ticket.description || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === "all" || ticket.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -355,7 +359,7 @@ export const SupportTickets = () => {
                         </Badge>
                         <div className="flex items-center gap-3 text-[11px] text-slate-300 font-black uppercase tracking-widest ml-auto lg:ml-0">
                           <Calendar className="w-5 h-5 opacity-40" />
-                          {format(new Date(ticket.createdAt), "MMMM d, yyyy")}
+                          {ticket.createdAt ? format(new Date(ticket.createdAt), "MMMM d, yyyy") : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -405,7 +409,10 @@ export const SupportTickets = () => {
                    <DialogTitle className="text-5xl font-black tracking-tight leading-none text-white">{selectedTicket.title}</DialogTitle>
                    <div className="flex flex-wrap items-center gap-10 text-slate-400 text-[11px] font-black uppercase tracking-[0.2em]">
                       <span className="flex items-center gap-3 text-indigo-400"><Tag className="w-5 h-5" /> {selectedTicket.category}</span>
-                      <span className="flex items-center gap-3"><Clock className="w-5 h-5" /> Submitted on {format(new Date(selectedTicket.createdAt), "MMMM d, yyyy 'at' h:mm a")}</span>
+                      <span className="flex items-center gap-3">
+                        <Clock className="w-5 h-5" /> 
+                        {selectedTicket.createdAt ? `Submitted on ${format(new Date(selectedTicket.createdAt), "MMMM d, yyyy 'at' h:mm a")}` : "Date N/A"}
+                      </span>
                    </div>
                 </div>
               </div>
@@ -449,7 +456,9 @@ export const SupportTickets = () => {
                           }`}>
                             <div className="flex items-center justify-between mb-4">
                                <span className="text-base font-black text-slate-900 tracking-tight">{message.senderName}</span>
-                               <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{format(new Date(message.timestamp), "MMM d, h:mm a")}</span>
+                               <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                                 {message.timestamp ? format(new Date(message.timestamp), "MMM d, h:mm a") : "Time N/A"}
+                               </span>
                             </div>
                             <p className="text-slate-600 leading-relaxed font-semibold text-lg">{message.message}</p>
                           </div>

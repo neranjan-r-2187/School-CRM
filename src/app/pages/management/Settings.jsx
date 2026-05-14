@@ -10,8 +10,12 @@ import {
   Clock,
   Calendar
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+
 export function Settings() {
-  const [activeTab, setActiveTab] = useState("general");
+  const { user } = useAuth();
+  const isAdmin = user?.role === "Admin";
+  const [activeTab, setActiveTab] = useState(isAdmin ? "general" : "notifications");
   return <div className="p-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
@@ -24,22 +28,24 @@ export function Settings() {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200">
         <div className="flex border-b border-slate-200 overflow-x-auto">
           {[
-    { id: "general", label: "General", icon: SettingsIcon },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "security", label: "Security", icon: Shield },
-    { id: "system", label: "System", icon: Database }
-  ].map((tab) => <button
+            ...(isAdmin ? [{ id: "general", label: "General", icon: SettingsIcon }] : []),
+            { id: "notifications", label: "Notifications", icon: Bell },
+            { id: "security", label: "Security", icon: Shield },
+            ...(isAdmin ? [{ id: "system", label: "System", icon: Database }] : [])
+          ].map((tab) => (
+            <button
     key={tab.id}
     onClick={() => setActiveTab(tab.id)}
     className={`flex items-center gap-2 px-6 py-4 font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"}`}
   >
               <tab.icon className="w-5 h-5" />
               {tab.label}
-            </button>)}
+            </button>
+          ))}
         </div>
 
         <div className="p-6">
-          {activeTab === "general" && <div className="space-y-6">
+          {activeTab === "general" && isAdmin && <div className="space-y-6">
               {
     /* School Information */
   }
@@ -236,7 +242,7 @@ export function Settings() {
               </div>
             </div>}
 
-          {activeTab === "system" && <div className="space-y-6">
+          {activeTab === "system" && isAdmin && <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                   <Database className="w-5 h-5" />

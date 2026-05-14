@@ -66,15 +66,27 @@ import { ReportsAnalytics } from "./pages/management/ReportsAnalytics";
 import { Settings } from "./pages/management/Settings";
 
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen bg-slate-50">Loading...</div>;
   }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    // If user doesn't have permission, redirect to their home dashboard
+    const homePath = user?.role === "Parent" ? "/parent/dashboard" : 
+                    user?.role === "Student" ? "/student/dashboard" :
+                    user?.role === "Teacher" ? "/teacher/dashboard" : 
+                    user?.role === "Admin" || user?.role === "SuperAdmin" ? "/admin/dashboard" : "/login";
+    return <Navigate to={homePath} replace />;
+  }
+
   return <ErrorBoundary>{children}</ErrorBoundary>;
 };
 const RedirectBasedOnRole = () => {
@@ -103,7 +115,7 @@ const AppContent = () => {
       {
     /* Student Routes - Direct without Layout */
   }
-      <Route path="/student/dashboard" element={<ProtectedRoute>
+      <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={["Student", "Admin", "SuperAdmin"]}>
           <StudentLayout />
         </ProtectedRoute>}>
         <Route index element={<StudentDashboardHome />} />
@@ -121,7 +133,7 @@ const AppContent = () => {
       {
     /* Admin Routes - Direct without Standard Layout */
   }
-      <Route path="/parent/dashboard" element={<ProtectedRoute>
+      <Route path="/parent/dashboard" element={<ProtectedRoute allowedRoles={["Parent", "Admin", "SuperAdmin"]}>
           <ParentLayout />
         </ProtectedRoute>}>
         <Route index element={<ParentDashboard />} />
@@ -132,7 +144,7 @@ const AppContent = () => {
         <Route path="chat" element={<ParentDashboard />} />
         <Route path="support" element={<ParentDashboard />} />
       </Route>
-      <Route path="/admin/dashboard" element={<ProtectedRoute>
+      <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
           <AdminLayout />
         </ProtectedRoute>}>
         <Route index element={<AdminHome />} />
@@ -150,7 +162,7 @@ const AppContent = () => {
       {
     /* Teacher Routes - Direct without Standard Layout */
   }
-      <Route path="/teacher/dashboard" element={<ProtectedRoute>
+      <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={["Teacher", "Staff", "Admin", "SuperAdmin"]}>
           <TeacherLayout />
         </ProtectedRoute>}>
         <Route index element={<TeacherHome />} />

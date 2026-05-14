@@ -82,6 +82,18 @@ exports.addMessage = asyncHandler(async (req, res) => {
     });
   }
 
+  // Check permission: Creator, Assignee, or Admin
+  const isCreator = ticket.createdBy.toString() === req.user.id;
+  const isAssignee = ticket.assignedTo && ticket.assignedTo.toString() === req.user.id;
+  const isAdmin = req.user.role === 'Admin' || req.user.role === 'SuperAdmin';
+
+  if (!isCreator && !isAssignee && !isAdmin) {
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
+      success: false,
+      message: 'Not authorized to add messages to this ticket'
+    });
+  }
+
   const { message } = req.body;
 
   ticket.messages.push({
