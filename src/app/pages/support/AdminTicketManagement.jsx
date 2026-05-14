@@ -177,19 +177,19 @@ export const AdminTicketManagement = () => {
 
   if (selectedTicket) {
     return (
-      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <Button variant="ghost" onClick={() => setSelectedTicket(null)} className="group hover:bg-white rounded-xl h-11 px-4 text-slate-900 font-bold tracking-tight">
+      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700 p-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+        <Button variant="ghost" onClick={() => setSelectedTicket(null)} className="group hover:bg-white rounded-xl h-11 px-4 text-slate-900 font-bold tracking-tight shrink-0">
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
           RETURN TO QUEUE
         </Button>
-        <div className="flex items-center gap-3">
-           <Button variant="outline" className="rounded-xl border-slate-200 h-11 px-6 font-bold text-[10px] tracking-wider hover:bg-white transition-all">
+        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+           <Button variant="outline" className="rounded-xl border-slate-200 h-11 px-4 sm:px-6 font-bold text-[10px] tracking-wider hover:bg-white transition-all whitespace-nowrap">
              GENERATE PDF
            </Button>
-           <Button variant="destructive" className="rounded-xl shadow-lg shadow-rose-500/10 h-11 px-6 font-bold text-[10px] tracking-wider transform hover:-translate-y-0.5 transition-all" onClick={() => handleDeleteTicket(selectedTicket._id || selectedTicket.id)}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            PURGE RECORD
+           <Button variant="destructive" className="rounded-xl shadow-lg shadow-rose-500/10 h-11 px-4 sm:px-6 font-bold text-[10px] tracking-wider transform hover:-translate-y-0.5 transition-all whitespace-nowrap" onClick={() => handleDeleteTicket(selectedTicket._id || selectedTicket.id)}>
+            <Trash2 className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">PURGE RECORD</span>
           </Button>
         </div>
       </div>
