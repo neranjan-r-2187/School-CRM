@@ -44,6 +44,14 @@ exports.getAssignments = asyncHandler(async (req, res) => {
   sendResponse(res, HTTP_STATUS.OK, assignments);
 });
 
+// @desc    Get student schedule
+// @route   GET /api/students/schedule
+// @access  Private/Student
+exports.getSchedule = asyncHandler(async (req, res) => {
+  const schedule = await studentService.getSchedule(req.user.id);
+  sendResponse(res, HTTP_STATUS.OK, schedule);
+});
+
 // @desc    Get all students (for teachers/admins)
 // @route   GET /api/students
 // @access  Private/Teacher,Admin

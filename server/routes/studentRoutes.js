@@ -27,5 +27,9 @@ router.get('/profile', getProfile);
 router.get('/grades', getGrades);
 router.get('/attendance', getAttendance);
 router.get('/assignments', getAssignments);
+router.get('/schedule', (req, res, next) => {
+  const { getSchedule } = require('../controllers/studentController');
+  getSchedule(req, res, next);
+});
 
 module.exports = router;

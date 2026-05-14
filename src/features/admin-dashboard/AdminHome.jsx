@@ -60,25 +60,24 @@ export const AdminHome = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
-            <p className="text-slate-500 mt-1">Welcome back, manage your school efficiently</p>
-          </div>
-          <div className="flex gap-3">
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="px-4 py-2 border border-slate-200 rounded-xl bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Today</option>
-              <option>This Week</option>
-              <option>This Month</option>
-              <option>This Year</option>
-            </select>
-          </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            Institutional Hub
+          </h2>
+          <p className="text-slate-500 font-medium">Holistic overview of school operations & metrics</p>
+        </div>
+        <div className="flex gap-4">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="appearance-none bg-white border border-slate-200 rounded-2xl px-6 py-3 pr-10 text-sm font-bold text-slate-700 shadow-sm focus:ring-4 focus:ring-blue-500/5 outline-none cursor-pointer hover:border-blue-300 transition-all"
+          >
+            <option>Today</option>
+            <option>This Week</option>
+            <option>This Month</option>
+            <option>This Year</option>
+          </select>
         </div>
       </div>
 

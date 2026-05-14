@@ -322,28 +322,39 @@ export const ParentDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Parent Portal</h1>
-          <p className="text-slate-500 font-medium">Real-time academic monitoring</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            Monitoring Hub
+          </h2>
+          <p className="text-slate-500 font-medium">Real-time academic performance & activities</p>
         </div>
 
         <div className="flex items-center gap-4">
           {linkedStudents.length > 1 && (
-            <select 
-              value={selectedStudentId} 
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold"
-            >
-              {linkedStudents.map(s => <option key={s._id} value={s._id}>{s.user?.name}</option>)}
-            </select>
+            <div className="relative">
+              <select 
+                value={selectedStudentId} 
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="appearance-none bg-white border border-slate-200 rounded-2xl px-6 py-3 pr-12 text-sm font-bold text-slate-700 shadow-sm hover:border-indigo-300 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none cursor-pointer"
+              >
+                {linkedStudents.map(s => <option key={s._id} value={s._id}>{s.user?.name}</option>)}
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <Clock className="w-4 h-4" />
+              </div>
+            </div>
           )}
           {studentData?.student?.user && (
-            <div className="flex items-center gap-4 bg-white p-2 pr-6 rounded-2xl shadow-sm border border-slate-100">
-              <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.student.user.name)}&background=6366f1&color=fff&bold=true`} className="w-12 h-12 rounded-xl" alt="" />
+            <div className="flex items-center gap-4 bg-white p-2.5 pr-8 rounded-3xl shadow-sm border border-slate-100 group hover:border-indigo-200 transition-all">
+              <img 
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.student.user.name)}&background=6366f1&color=fff&bold=true&rounded=true`} 
+                className="w-12 h-12 rounded-2xl shadow-lg shadow-indigo-500/10 group-hover:scale-105 transition-transform" 
+                alt="" 
+              />
               <div>
-                <p className="text-sm font-black text-slate-900">{studentData.student.user.name}</p>
-                <p className="text-[10px] text-indigo-500 font-black uppercase">{studentData.student.class?.name} • ID: {studentData.student.studentId}</p>
+                <p className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{studentData.student.user.name}</p>
+                <p className="text-[10px] text-indigo-500 font-black uppercase tracking-widest">{studentData.student.class?.name || "Class"} • ROLL: {studentData.student.studentId?.slice(-4) || "N/A"}</p>
               </div>
             </div>
           )}

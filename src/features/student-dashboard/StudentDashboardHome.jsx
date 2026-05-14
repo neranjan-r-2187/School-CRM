@@ -10,10 +10,9 @@ import {
   FileText
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { todaySchedule } from "../../app/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/context/AuthContext";
-import { useStudentDashboard, useStudentAssignments } from "./hooks/useStudentData";
+import { useStudentDashboard, useStudentAssignments, useStudentSchedule } from "./hooks/useStudentData";
 import { AsyncWrapper } from "../../components/ui/AsyncWrapper";
 import { DashboardSkeleton } from "../../components/ui/skeletons/DashboardSkeleton";
 
@@ -24,6 +23,7 @@ export const StudentDashboardHome = () => {
   // Real data hooks
   const { data: stats, isLoading: statsLoading, isError: statsError } = useStudentDashboard();
   const { data: assignments, isLoading: assignmentsLoading, isError: assignmentsError } = useStudentAssignments();
+  const { data: scheduleData } = useStudentSchedule();
 
   const currentTime = new Date();
   const currentHour = currentTime.getHours();
@@ -31,7 +31,13 @@ export const StudentDashboardHome = () => {
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
   
   const getCurrentClass = () => {
-    return todaySchedule.find((cls) => {
+    if (!scheduleData) return null;
+    
+    const today = format(new Date(), 'EEEE');
+    const todayScheduleData = scheduleData.find(s => s.day === today);
+    if (!todayScheduleData) return null;
+
+    return todayScheduleData.periods.find((cls) => {
       const [startHour, startMin] = cls.startTime.split(":").map(Number);
       const [endHour, endMin] = cls.endTime.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
@@ -150,9 +156,9 @@ export const StudentDashboardHome = () => {
                   {currentClass.startTime} - {currentClass.endTime}
                 </div>
               </div>
-              <h3 className="text-2xl font-bold mb-2">{currentClass.subject}</h3>
+              <h3 className="text-2xl font-bold mb-2">{currentClass.subject?.name || "Subject"}</h3>
               <p className="text-blue-100 mb-4">
-                {currentClass.teacher} • {currentClass.room}
+                {currentClass.teacher?.user?.name || "Teacher"} • {currentClass.room || "Room"}
               </p>
               <div className="flex gap-3">
                 <button className="flex-1 bg-white text-blue-600 px-4 py-2.5 rounded-lg font-medium hover:bg-blue-50 transition-all flex items-center justify-center gap-2">
@@ -175,39 +181,49 @@ export const StudentDashboardHome = () => {
               <span className="text-sm text-slate-500">{format(new Date(), "EEEE, MMM dd")}</span>
             </div>
             <div className="space-y-3">
-              {todaySchedule.map((cls) => {
-                const [startHour, startMin] = cls.startTime.split(":").map(Number);
-                const startMinutes = startHour * 60 + startMin;
-                const isPast = currentTimeInMinutes > startMinutes;
-                const isCurrent = currentClass?.id === cls.id;
-                return (
-                  <div
-                    key={cls.id}
-                    className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
-                      isCurrent ? "border-blue-500 bg-blue-50" : isPast ? "border-slate-100 bg-slate-50 opacity-50" : "border-slate-100 bg-white hover:border-slate-200"
-                    }`}
-                  >
-                    <div className={`text-center min-w-[60px] ${isCurrent ? "text-blue-600" : "text-slate-600"}`}>
-                      <p className="text-xs font-medium">{cls.startTime}</p>
-                      <p className="text-xs text-slate-400">{cls.endTime}</p>
+              {(() => {
+                const today = format(new Date(), 'EEEE');
+                const todayScheduleData = scheduleData?.find(s => s.day === today);
+                const periods = todayScheduleData?.periods || [];
+                
+                if (periods.length === 0) {
+                  return <p className="text-center text-slate-500 py-4">No classes scheduled for today.</p>;
+                }
+
+                return periods.map((cls, idx) => {
+                  const [startHour, startMin] = cls.startTime.split(":").map(Number);
+                  const startMinutes = startHour * 60 + startMin;
+                  const isPast = currentTimeInMinutes > startMinutes;
+                  const isCurrent = currentClass?._id === cls._id;
+                  return (
+                    <div
+                      key={cls._id || idx}
+                      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
+                        isCurrent ? "border-blue-500 bg-blue-50" : isPast ? "border-slate-100 bg-slate-50 opacity-50" : "border-slate-100 bg-white hover:border-slate-200"
+                      }`}
+                    >
+                      <div className={`text-center min-w-[60px] ${isCurrent ? "text-blue-600" : "text-slate-600"}`}>
+                        <p className="text-xs font-medium">{cls.startTime}</p>
+                        <p className="text-xs text-slate-400">{cls.endTime}</p>
+                      </div>
+                      <div className="flex-1">
+                        <p className={`font-semibold ${isCurrent ? "text-blue-900" : "text-slate-900"}`}>
+                          {cls.subject?.name || "Subject"}
+                        </p>
+                        <p className="text-sm text-slate-500">{cls.teacher?.user?.name || "Teacher"}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500">{cls.room}</p>
+                        {isCurrent && (
+                          <span className="inline-block mt-1 text-xs bg-blue-600 text-white px-2 py-0.5 rounded">
+                            Live
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className={`font-semibold ${isCurrent ? "text-blue-900" : "text-slate-900"}`}>
-                        {cls.subject}
-                      </p>
-                      <p className="text-sm text-slate-500">{cls.teacher}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-slate-500">{cls.room}</p>
-                      {isCurrent && (
-                        <span className="inline-block mt-1 text-xs bg-blue-600 text-white px-2 py-0.5 rounded">
-                          Live
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           </div>
 

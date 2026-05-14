@@ -65,7 +65,7 @@ export const StudentAttendance = () => {
               {attendance.map((record, index) => (
                 <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="p-4 text-slate-900">{format(new Date(record.date), "MMM dd, yyyy")}</td>
-                  <td className="p-4 text-slate-700">{record.subject}</td>
+                  <td className="p-4 text-slate-700">{record.class?.name || "General"}</td>
                   <td className="p-4 text-center">
                     <span className={`inline-block px-3 py-1 rounded-lg text-sm font-medium ${
                       record.status === "present" ? "bg-green-100 text-green-700" : 

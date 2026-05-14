@@ -50,13 +50,13 @@ exports.getStudentData = asyncHandler(async (req, res) => {
     throw new Error('Student profile not found');
   }
 
-  const studentUserId = studentProfile.user._id;
+  const studentId_ref = studentProfile._id;
 
   // 1. Fetch Attendance
-  const attendance = await Attendance.find({ student: studentUserId }).sort({ date: -1 });
+  const attendance = await Attendance.find({ student: studentId_ref }).sort({ date: -1 });
 
   // 2. Fetch Grades
-  const grades = await Grade.find({ student: studentUserId }).populate('subject', 'name');
+  const grades = await Grade.find({ student: studentId_ref }).populate('subject', 'name');
   
   // 3. Fetch Assignments for the student's class
   let assignments = [];
@@ -81,7 +81,7 @@ exports.getStudentData = asyncHandler(async (req, res) => {
   }).sort({ createdAt: -1 });
 
   // 5. Fetch Fees
-  const fees = await Fee.find({ student: studentUserId }).sort({ dueDate: 1 });
+  const fees = await Fee.find({ student: studentId_ref }).sort({ dueDate: 1 });
 
   // 6. Fetch Schedule
   let schedule = [];

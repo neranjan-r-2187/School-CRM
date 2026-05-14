@@ -407,39 +407,38 @@ export const AdminTicketManagement = () => {
   }
 
   return (
-    <div className="space-y-16 animate-in fade-in duration-1000 p-2">
+    <div className="space-y-12 animate-in fade-in duration-1000 p-2">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
-        <div className="space-y-4">
-          <h1 className="text-6xl lg:text-8xl font-black text-slate-950 tracking-tighter leading-none">
-            Support <br /> Oversight
-          </h1>
-          <p className="text-slate-400 font-black text-xl lg:text-2xl tracking-tight uppercase tracking-[0.1em]">Administrative Ticket Command Center</p>
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            Support Queue
+          </h2>
+          <p className="text-slate-500 font-medium">Manage and resolve system-wide support requests</p>
         </div>
-        <div className="flex items-center gap-4 bg-white p-3 rounded-[2rem] shadow-2xl shadow-slate-950/5 border border-slate-50">
-           <Button variant="ghost" className="rounded-2xl h-16 px-8 font-black text-slate-500 hover:text-slate-950 transition-colors uppercase tracking-widest text-xs">System Logs</Button>
-           <Button className="bg-slate-950 hover:bg-black text-white rounded-2xl h-16 px-10 font-black text-xs tracking-widest shadow-2xl shadow-slate-950/20 transform hover:-translate-y-1 transition-all">
+        <div className="flex items-center gap-4">
+           <Button variant="outline" className="rounded-2xl h-14 px-8 font-bold text-slate-600 hover:text-slate-900 transition-colors border-slate-200">System Logs</Button>
+           <Button className="bg-slate-950 hover:bg-black text-white rounded-2xl h-14 px-10 font-bold shadow-xl shadow-slate-950/10">
              GLOBAL ANALYTICS
            </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {dashboardStats.map((stat, index) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="group overflow-hidden border-none shadow-[0_30px_60px_rgba(0,0,0,0.06)] rounded-[3rem] relative h-48 bg-white hover:shadow-[0_40px_80px_rgba(0,0,0,0.1)] transition-all duration-700 active:scale-95">
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-[0.01] group-hover:opacity-[0.04] transition-opacity duration-700`} />
-              <div className="p-10 h-full flex items-center gap-8 relative">
-                <div className={`w-20 h-20 rounded-[1.75rem] bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-2xl shadow-${stat.gradient.split('-')[1]}-500/20 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6`}>
-                  <stat.icon className="w-9 h-9 text-white" />
+            <Card className="group overflow-hidden border-none shadow-sm rounded-3xl relative h-32 bg-white hover:shadow-md transition-all duration-300">
+              <div className="p-6 h-full flex items-center gap-6 relative">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg shadow-slate-200`}>
+                  <stat.icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.3em] mb-2">{stat.label}</p>
-                  <p className="text-5xl font-black text-slate-950 tracking-tighter leading-none">{stat.value}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                  <p className="text-3xl font-black text-slate-950 tracking-tight">{stat.value}</p>
                 </div>
               </div>
             </Card>
@@ -466,12 +465,12 @@ export const AdminTicketManagement = () => {
                   <SelectValue placeholder="All Queue" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="rounded-[2rem] border border-slate-100 bg-white shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2 z-50">
-                <SelectItem value="all" className="rounded-xl py-4 font-bold">All Requests</SelectItem>
-                <SelectItem value="Open" className="rounded-xl py-4 font-bold">Awaiting Action</SelectItem>
-                <SelectItem value="In Progress" className="rounded-xl py-4 font-bold">Active Processing</SelectItem>
-                <SelectItem value="Resolved" className="rounded-xl py-4 font-bold text-emerald-600">Finalized Outcome</SelectItem>
-                <SelectItem value="Closed" className="rounded-xl py-4 font-bold text-slate-400">Archived Record</SelectItem>
+              <SelectContent className="rounded-[2rem] border border-slate-200 bg-white shadow-2xl p-2 z-[9999]">
+                <SelectItem value="all" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">All Requests</SelectItem>
+                <SelectItem value="Open" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">Awaiting Action</SelectItem>
+                <SelectItem value="In Progress" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">Active Processing</SelectItem>
+                <SelectItem value="Resolved" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50 text-emerald-600">Finalized Outcome</SelectItem>
+                <SelectItem value="Closed" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50 text-slate-400">Archived Record</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterPriority} onValueChange={setFilterPriority}>
@@ -481,12 +480,12 @@ export const AdminTicketManagement = () => {
                   <SelectValue placeholder="All Priorities" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="rounded-[2rem] border border-slate-100 bg-white shadow-[0_40px_80px_rgba(0,0,0,0.2)] p-2 z-50">
-                <SelectItem value="all" className="rounded-xl py-4 font-bold">All Urgency</SelectItem>
-                <SelectItem value="Low" className="rounded-xl py-4 font-bold">Standard Priority</SelectItem>
-                <SelectItem value="Medium" className="rounded-xl py-4 font-bold">Elevated Priority</SelectItem>
-                <SelectItem value="High" className="rounded-xl py-4 font-bold text-orange-600">High Urgency</SelectItem>
-                <SelectItem value="Urgent" className="rounded-xl py-4 font-bold text-rose-600">CRITICAL PATH</SelectItem>
+              <SelectContent className="rounded-[2rem] border border-slate-200 bg-white shadow-2xl p-2 z-[9999]">
+                <SelectItem value="all" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">All Urgency</SelectItem>
+                <SelectItem value="Low" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">Standard Priority</SelectItem>
+                <SelectItem value="Medium" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50">Elevated Priority</SelectItem>
+                <SelectItem value="High" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50 text-orange-600">High Urgency</SelectItem>
+                <SelectItem value="Urgent" className="rounded-xl py-4 font-bold cursor-pointer hover:bg-slate-50 text-rose-600">CRITICAL PATH</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -44,6 +44,19 @@ class StudentService {
       .sort('dueDate');
   }
 
+  async getSchedule(userId) {
+    const student = await Student.findOne({ user: userId });
+    if (!student) return null;
+
+    const Schedule = require('../models/Schedule');
+    return await Schedule.findOne({ class: student.class })
+      .populate('periods.subject', 'name')
+      .populate({
+        path: 'periods.teacher',
+        populate: { path: 'user', select: 'name' }
+      });
+  }
+
   async getAllStudents(query = {}) {
     const filter = {};
     if (query.class) filter.class = query.class;

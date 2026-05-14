@@ -52,3 +52,16 @@ export const useStudentAssignments = () => {
     },
   });
 };
+
+/**
+ * Hook to fetch student schedule
+ */
+export const useStudentSchedule = () => {
+  return useQuery({
+    queryKey: ['student-schedule'],
+    queryFn: async () => {
+      const { data } = await api.get('/students/schedule');
+      return data.data;
+    },
+  });
+};

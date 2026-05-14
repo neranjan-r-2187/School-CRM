@@ -151,42 +151,47 @@ export const UserManagement = () => {
   if (isLoading) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin w-8 h-8 text-indigo-600" /></div>;
 
   return <div className="min-h-screen bg-slate-50">
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="px-8 py-6">
-          <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
-          <p className="text-slate-600 mt-1">Manage teachers, students, and staff members</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            User Operations
+          </h2>
+          <p className="text-slate-500 font-medium">Provision and manage institutional identities</p>
         </div>
       </div>
 
       <div className="p-8">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 mb-6">
-          <div className="flex border-b border-slate-200">
-            {["Teacher", "Student", "Staff", "Parent"].map((tab) => <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 font-medium transition-colors relative ${activeTab === tab ? "text-indigo-600 border-b-2 border-indigo-600" : "text-slate-600 hover:text-slate-900"}`}
-            >
-              {tab}s ({users.filter(u => u.role === tab).length})
-            </button>)}
+        <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 mb-8 overflow-hidden">
+          <div className="flex border-b border-slate-100 bg-slate-50/50">
+            {["Teacher", "Student", "Staff", "Parent"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-8 py-5 font-black text-xs uppercase tracking-widest transition-all relative ${activeTab === tab ? "text-indigo-600 bg-white" : "text-slate-400 hover:text-slate-600 hover:bg-white/50"}`}
+              >
+                {tab}s <span className="ml-2 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px]">{users.filter(u => u.role === tab).length}</span>
+                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600" />}
+              </button>
+            ))}
           </div>
 
-          <div className="p-4 flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <div className="p-6 flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1 w-full relative group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors w-5 h-5" />
               <input
                 type="text"
-                placeholder={`Search ${activeTab.toLowerCase()}s...`}
+                placeholder={`Search ${activeTab.toLowerCase()} repository...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all font-bold text-slate-900 placeholder:text-slate-300"
               />
             </div>
             <button
               onClick={() => handleOpenModal()}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              className="w-full md:w-auto px-8 py-4 bg-slate-950 text-white rounded-2xl hover:bg-black transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-950/20"
             >
-              <Plus className="w-4 h-4" />
-              Add {activeTab}
+              <Plus className="w-5 h-5" />
+              Provision {activeTab}
             </button>
           </div>
         </div>
