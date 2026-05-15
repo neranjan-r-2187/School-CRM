@@ -163,7 +163,7 @@ export const TeacherHome = () => {
                     <h3 className="text-xl font-black text-slate-900 mb-1">Class {cls.name}</h3>
                     <div className="flex items-center gap-2 text-slate-500 font-bold text-xs mt-4">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{cls.roomNumber || "301"} • {cls.academicYear || "Active"}</span>
+                      <span>{cls.roomNumber || "TBD"} • {cls.academicYear || "Active"}</span>
                     </div>
                   </div>
                 ))}

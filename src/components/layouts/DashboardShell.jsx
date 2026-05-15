@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { SharedSidebar } from "./SharedSidebar";
 import { SharedTopbar } from "./SharedTopbar";
 
-export const DashboardShell = ({ menuItems, roleName, sidebarFooter }) => {
+export const DashboardShell = ({ menuItems, roleName, sidebarFooter, children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -23,7 +23,7 @@ export const DashboardShell = ({ menuItems, roleName, sidebarFooter }) => {
         />
         
         <main className="flex-1 overflow-auto p-4 lg:p-8">
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
 

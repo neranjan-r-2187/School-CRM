@@ -10,8 +10,15 @@ export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Find exact match or match by prefix
-  const activeMenu = menuItems.find((item) => currentPath === item.path || currentPath.startsWith(item.path + '/')) || { label: "Dashboard" };
+  // Find the single most specific active item for the title
+  const getActiveMenu = () => {
+    const sortedItems = [...menuItems].sort((a, b) => b.path.length - a.path.length);
+    return sortedItems.find(item => 
+      currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path + '/'))
+    ) || { label: "Dashboard" };
+  };
+
+  const activeMenu = getActiveMenu();
 
   const { unreadCount } = useNotifications();
   const { unreadConversationsCount } = useChatContext();

@@ -49,7 +49,8 @@ class DashboardService {
    * Get statistics for a specific teacher
    */
   async getTeacherStats(userId) {
-    const teacher = await Teacher.findOne({ user: userId });
+    const teacherService = require('./teacherService');
+    const teacher = await teacherService._getOrCreateProfile(userId);
     if (!teacher) return null;
 
     const teacherId = teacher._id;

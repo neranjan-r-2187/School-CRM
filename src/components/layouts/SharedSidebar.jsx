@@ -18,6 +18,17 @@ export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName
     setSidebarOpen(false);
   };
 
+  // Find the single most specific active item
+  const getActiveItemId = () => {
+    const sortedItems = [...menuItems].sort((a, b) => b.path.length - a.path.length);
+    const active = sortedItems.find(item => 
+      currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path + '/'))
+    );
+    return active?.id;
+  };
+
+  const activeId = getActiveItemId();
+
   return (
     <aside className={`
       fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out
@@ -49,7 +60,7 @@ export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName
           <div className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path || currentPath.startsWith(item.path + '/');
+              const isActive = item.id === activeId;
               return (
                 <button
                   key={item.id}

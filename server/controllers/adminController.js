@@ -171,8 +171,36 @@ exports.updateUser = asyncHandler(async (req, res) => {
 
   const updatedUser = await user.save();
 
-  // Update role-specific profile if needed (simplified for now)
-  // In a real app, you'd handle specific field updates for profiles here too
+  // Update/Create role-specific profile if needed
+  try {
+    if (updatedUser.role === ROLES.TEACHER || updatedUser.role === ROLES.STAFF) {
+      const exists = await Teacher.findOne({ user: updatedUser._id });
+      if (!exists) {
+        await Teacher.create({
+          user: updatedUser._id,
+          employeeId: `EMP${Date.now()}`,
+          department: 'General'
+        });
+      }
+    } else if (updatedUser.role === ROLES.STUDENT) {
+      const exists = await Student.findOne({ user: updatedUser._id });
+      if (!exists) {
+        await Student.create({
+          user: updatedUser._id,
+          studentId: `STU${Date.now()}`
+        });
+      }
+    } else if (updatedUser.role === ROLES.PARENT) {
+      const exists = await Parent.findOne({ user: updatedUser._id });
+      if (!exists) {
+        await Parent.create({
+          user: updatedUser._id
+        });
+      }
+    }
+  } catch (profileError) {
+    console.error('Failed to update/create profile during user update:', profileError);
+  }
 
   sendResponse(res, HTTP_STATUS.OK, updatedUser, 'User updated successfully');
 });
