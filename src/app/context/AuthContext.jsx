@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import api from "../../lib/api";
 
 const AuthContext = createContext(undefined);
@@ -57,10 +58,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const queryClient = useQueryClient();
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('token');
-    // Clear any React Query cache if necessary
+    queryClient.clear(); // Clear all cached data on logout
   };
 
   return (

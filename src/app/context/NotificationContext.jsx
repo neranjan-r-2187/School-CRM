@@ -18,7 +18,7 @@ export const NotificationProvider = ({ children }) => {
       return response.data.data;
     },
     enabled: isAuthenticated,
-    refetchInterval: 10000, // Poll every 10 seconds
+    refetchInterval: 30000, // Poll every 30 seconds to reduce load
   });
 
   const unreadCount = notifications.filter((n) => !n.read).length;

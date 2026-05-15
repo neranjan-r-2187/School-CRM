@@ -16,7 +16,7 @@ export const ChatProvider = ({ children }) => {
     queryKey: ['conversations-global'],
     queryFn: chatService.getConversations,
     enabled: isAuthenticated,
-    refetchInterval: 3000, // Poll every 3 seconds for new messages
+    refetchInterval: 15000, // Poll every 15 seconds for new messages
   });
 
   const unreadConversationsCount = (conversations || []).filter(c => {

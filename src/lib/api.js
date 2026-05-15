@@ -5,7 +5,8 @@ import axios from 'axios';
  * Configured with baseURL and JWT interceptors for automatic auth handling.
  */
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ,
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 20000, // 20 second timeout to prevent hanging requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,11 +30,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Detect if this is a timeout or network error (backend might be sleeping)
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      console.warn('API Request timed out - backend might be sleeping or under heavy load');
+    }
+
     // If token is invalid or expired
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      // We don't force a redirect here to avoid reload loops; 
-      // the AuthContext will detect the missing token.
+      // Trigger a page reload or event that AuthContext can catch
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login?expired=true';
+      }
     }
     return Promise.reject(error);
   }

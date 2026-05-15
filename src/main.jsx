@@ -9,7 +9,11 @@ import "./styles/theme.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes before data is considered stale
+      gcTime: 10 * 60 * 1000, // 10 minutes cache duration
       refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
       retry: 1,
     },
   },
