@@ -54,8 +54,16 @@ class DashboardService {
 
     const teacherId = teacher._id;
 
-    // 1. Total Classes
-    const totalClasses = teacher.assignedClasses.length;
+    // 1. Total Classes (Assigned + Leading)
+    const Class = require('../models/Class');
+    const classes = await Class.find({
+      $or: [
+        { _id: { $in: teacher.assignedClasses } },
+        { classTeacher: teacherId }
+      ]
+    });
+    
+    const totalClasses = classes.length;
 
     // 2. Active Assignments
     const activeAssignments = await Assignment.countDocuments({
@@ -63,15 +71,20 @@ class DashboardService {
       dueDate: { $gte: new Date() }
     });
 
-    // 3. Pending Attendance Submissions (Stub logic)
-    // In a real app, you'd check if attendance was recorded for today for each class
-    const pendingAttendance = totalClasses; // Simplified for now
+    // 3. Pending Attendance Submissions (Simplified logic)
+    const pendingAttendance = totalClasses; 
+
+    // 4. Total Students (Sum of students in all classes)
+    const Student = require('../models/Student');
+    const totalAssignedStudents = await Student.countDocuments({
+      class: { $in: classes.map(c => c._id) }
+    });
 
     return {
       totalClasses,
       activeAssignments,
       pendingAttendance,
-      totalAssignedStudents: teacher.assignedStudents?.length || 0,
+      totalAssignedStudents,
       department: teacher.department
     };
   }

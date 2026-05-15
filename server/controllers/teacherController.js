@@ -46,3 +46,10 @@ exports.getAssignments = asyncHandler(async (req, res) => {
   const assignments = await assignmentService.getTeacherAssignments(req.user.id);
   sendResponse(res, HTTP_STATUS.OK, assignments);
 });
+// @desc    Get teacher assigned subjects
+// @route   GET /api/teachers/subjects
+// @access  Private/Teacher
+exports.getSubjects = asyncHandler(async (req, res) => {
+  const subjects = await teacherService.getSubjects(req.user.id);
+  sendResponse(res, HTTP_STATUS.OK, subjects);
+});

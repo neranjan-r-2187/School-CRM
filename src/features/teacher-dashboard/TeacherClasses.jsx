@@ -1,74 +1,117 @@
-import { Plus, GraduationCap, Clock, BookOpen } from "lucide-react";
+import { Plus, GraduationCap, Clock, BookOpen, Users, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Card } from "../../components/ui/Card";
-
-const myClasses = [
-  { id: "class1", name: "Class 10-A", subject: "Physics", students: 42, schedule: "Mon, Wed, Fri - 09:00 AM", room: "Room 301", avgAttendance: 94.5, avgGrade: 78.2 },
-  { id: "class2", name: "Class 10-B", subject: "Physics", students: 38, schedule: "Tue, Thu - 10:00 AM", room: "Room 301", avgAttendance: 91.2, avgGrade: 75.8 },
-  { id: "class3", name: "Class 11-A", subject: "Chemistry", students: 35, schedule: "Mon, Wed, Fri - 11:00 AM", room: "Lab 2", avgAttendance: 89.7, avgGrade: 72.5 },
-  { id: "class4", name: "Class 11-B", subject: "Chemistry", students: 40, schedule: "Tue, Thu - 02:00 PM", room: "Lab 2", avgAttendance: 92.3, avgGrade: 76.1 }
-];
+import { useTeacherClasses } from "./hooks/useTeacherData";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "../../components/ui/Badge";
 
 export const TeacherClasses = () => {
+  const navigate = useNavigate();
+  const { data: classes, isLoading, isError } = useTeacherClasses();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <p className="text-slate-500 font-medium animate-pulse">Syncing your academic units...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-50 border-2 border-red-100 p-8 rounded-2xl text-center">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h3 className="text-lg font-bold text-red-900">Database Sync Failed</h3>
+        <p className="text-red-600 mt-2">We couldn't load your assigned classes. Please verify your connection.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900">My Classes</h2>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          <Plus className="w-5 h-5" />
-          Add Class
-        </button>
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">My Classes</h2>
+          <p className="text-slate-500 font-medium mt-1">Real-time overview of your assigned academic groups</p>
+        </div>
+        <Badge variant="primary" className="px-4 py-1.5 rounded-full text-xs font-bold">
+          {classes?.length || 0} ACTIVE UNITS
+        </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {myClasses.map((cls) => (
-          <Card key={cls.id} className="p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">{cls.name}</h3>
-                <p className="text-blue-600 font-medium">{cls.subject}</p>
+      {!classes || classes.length === 0 ? (
+        <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2rem] p-20 text-center">
+          <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <BookOpen className="w-10 h-10 text-slate-300" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900">No Assignments Found</h3>
+          <p className="text-slate-500 mt-2 max-w-sm mx-auto">You haven't been assigned to any classes yet. Please contact the administrator to synchronize your profile.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {classes.map((cls) => (
+            <div key={cls._id} className="bg-white rounded-[2rem] shadow-sm border border-slate-200/60 p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
+              
+              <div className="flex items-start justify-between mb-8 relative z-10">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-blue-600/30 group-hover:rotate-6 transition-transform">
+                  <GraduationCap className="w-8 h-8" />
+                </div>
+                <div className="flex flex-col text-right">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Session</span>
+                  <span className="text-slate-900 font-bold">{cls.academicYear || "2025-26"}</span>
+                </div>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
 
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">Total Students</span>
-                <span className="font-semibold text-slate-900">{cls.students}</span>
+              <div className="mb-8 relative z-10">
+                <div className="flex items-center gap-3 mb-3">
+                  <h3 className="text-3xl font-black text-slate-900 leading-tight">{cls.name}</h3>
+                  <Badge variant="primary" className="px-4 py-1.5 rounded-xl font-black text-xs uppercase tracking-tighter shadow-sm">{cls.section}</Badge>
+                </div>
+                <div className="flex items-center gap-3 text-slate-500 font-bold">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center border border-slate-200/50">
+                    <BookOpen className="w-5 h-5 text-slate-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest leading-none mb-1">Department</span>
+                    <span className="text-slate-800 text-sm font-black">{cls.department || "Academic Unit"}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">Avg Attendance</span>
-                <span className="font-semibold text-green-600">{cls.avgAttendance}%</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">Avg Grade</span>
-                <span className="font-semibold text-purple-600">{cls.avgGrade}%</span>
-              </div>
-            </div>
 
-            <div className="pt-4 border-t border-slate-200">
-              <div className="flex items-center gap-2 text-sm text-slate-600 mb-2">
-                <Clock className="w-4 h-4" />
-                {cls.schedule}
+              <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+                <div className="bg-slate-50/50 rounded-3xl p-4 border border-slate-100/50 backdrop-blur-sm group-hover:bg-white transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-3.5 h-3.5 text-blue-500" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Room Number</p>
+                  </div>
+                  <p className="text-xl font-black text-slate-900">{cls.roomNumber || "N/A"}</p>
+                </div>
+                <div className="bg-slate-50/50 rounded-3xl p-4 border border-slate-100/50 backdrop-blur-sm group-hover:bg-white transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-3.5 h-3.5 text-indigo-500" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned</p>
+                  </div>
+                  <p className="text-xl font-black text-slate-900">{cls.capacity || "40"}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <BookOpen className="w-4 h-4" />
-                {cls.room}
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              <button className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
-                View Details
-              </button>
-              <button className="px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium">
-                Mark Attendance
-              </button>
+              <div className="grid grid-cols-2 gap-4 relative z-10">
+                <button 
+                  onClick={() => navigate(`/teacher/dashboard/attendance`)}
+                  className="py-4 bg-slate-950 text-white rounded-[1.5rem] text-xs font-black hover:bg-blue-600 transition-all flex items-center justify-center gap-2 shadow-2xl shadow-slate-950/10 group/btn"
+                >
+                  <ArrowRight className="w-4 h-4 text-blue-400 group-hover/btn:text-white transition-colors" />
+                  Mark Attendance
+                </button>
+                <button className="py-4 bg-slate-50 text-slate-900 rounded-[1.5rem] text-xs font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-2 border border-slate-100">
+                  Unit Analytics
+                </button>
+              </div>
             </div>
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

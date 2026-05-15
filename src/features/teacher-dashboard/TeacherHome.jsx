@@ -1,8 +1,8 @@
-import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus, Users } from "lucide-react";
+import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus, Users, BookOpen } from "lucide-react";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { useAuth } from "../../app/context/AuthContext";
-import { useTeacherDashboard } from "./hooks/useTeacherData";
+import { useTeacherDashboard, useTeacherClasses } from "./hooks/useTeacherData";
 import { AsyncWrapper } from "../../components/ui/AsyncWrapper";
 import { DashboardSkeleton } from "../../components/ui/skeletons/DashboardSkeleton";
 import { useNavigate } from "react-router-dom";
@@ -11,54 +11,12 @@ import { useQuery } from "@tanstack/react-query";
 import { TimetableUploadModal } from "./components/TimetableUploadModal";
 import api from "../../lib/api";
 
-const todaySchedule = [
-  {
-    time: "09:00 - 10:00 AM",
-    subject: "Physics",
-    class: "Class 10-A",
-    room: "Room 301",
-    topic: "Newton's Laws of Motion",
-    status: "completed"
-  },
-  {
-    time: "10:15 - 11:15 AM",
-    subject: "Physics",
-    class: "Class 10-B",
-    room: "Room 301",
-    topic: "Force and Momentum",
-    status: "ongoing"
-  },
-  {
-    time: "11:30 - 12:30 PM",
-    subject: "Chemistry",
-    class: "Class 11-A",
-    room: "Lab 2",
-    topic: "Chemical Bonding",
-    status: "upcoming"
-  },
-  {
-    time: "02:00 - 03:00 PM",
-    subject: "Chemistry",
-    class: "Class 11-B",
-    room: "Lab 2",
-    topic: "Acids and Bases",
-    status: "upcoming"
-  }
-];
-
-const recentActivities = [
-  { id: "1", type: "attendance", message: "Marked attendance for Class 10-A - 40/42 present", time: "30 min ago", icon: UserCheck, color: "text-green-600", bg: "bg-green-100" },
-  { id: "2", type: "assignment", message: "28 students submitted Physics Lab Report", time: "1 hour ago", icon: FileText, color: "text-blue-600", bg: "bg-blue-100" },
-  { id: "3", type: "grade", message: "Graded Chemistry Quiz for Class 11-A", time: "2 hours ago", icon: Award, color: "text-purple-600", bg: "bg-purple-100" },
-  { id: "4", type: "meeting", message: "Parent-teacher meeting with student's parents", time: "3 hours ago", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-100" },
-  { id: "5", type: "announcement", message: "Posted announcement about Science Fair on Feb 15", time: "5 hours ago", icon: Bell, color: "text-indigo-600", bg: "bg-indigo-100" }
-];
-
 export const TeacherHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const { data: stats, isLoading, isError } = useTeacherDashboard();
+  const { data: classes } = useTeacherClasses();
 
   const { data: permissionData } = useQuery({
     queryKey: ['timetable-permission'],
@@ -69,28 +27,36 @@ export const TeacherHome = () => {
   });
 
   const dashboardStats = [
-    { label: "Assigned Classes", value: stats?.totalClasses || "0", change: "Current session", icon: UserCheck, color: "bg-blue-500" },
-    { label: "My Students", value: stats?.totalAssignedStudents || "0", change: "Linked accounts", icon: Users, color: "bg-indigo-500" },
-    { label: "Active Assignments", value: stats?.activeAssignments || "0", change: "Due this week", icon: FileText, color: "bg-green-500" },
-    { label: "Pending Attendance", value: stats?.pendingAttendance || "0", change: "Action required", icon: Clock, color: "bg-orange-500" }
+    { label: "Academic Units", value: stats?.totalClasses || "0", change: "Active groups", icon: UserCheck, color: "bg-blue-600" },
+    { label: "Active Students", value: stats?.totalAssignedStudents || "0", change: "Synced enrollment", icon: Users, color: "bg-indigo-600" },
+    { label: "Active Assignments", value: stats?.activeAssignments || "0", change: "Action required", icon: FileText, color: "bg-emerald-600" },
+    { label: "Attendance Pulse", value: stats?.pendingAttendance || "0", change: "Pending updates", icon: Clock, color: "bg-orange-600" }
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl shadow-sm mb-6">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">Staff Portal</h1>
-              <p className="text-blue-100 text-sm">Welcome back, {user?.name}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-blue-100">Identity ID</p>
-                <p className="text-sm font-semibold">{user?._id.slice(-6).toUpperCase()}</p>
+    <div className="space-y-8 min-h-screen bg-slate-50/30">
+      {/* Premium Hero Section */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        <div className="absolute -right-24 -top-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
+        
+        <div className="p-10 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
+            <div className="text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/20 text-blue-300 text-xs font-black uppercase tracking-widest mb-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                Staff Environment Active
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-lg font-bold border-2 border-white/30 text-white">
+              <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">System Node: {user?.name}</h1>
+              <p className="text-slate-400 font-medium text-lg max-w-md">Orchestrating academic units and student progression metrics.</p>
+            </div>
+            
+            <div className="flex items-center gap-6 bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-white/10 shadow-2xl">
+              <div className="text-right">
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Neural ID</p>
+                <p className="text-lg font-black text-white">{user?._id.slice(-8).toUpperCase()}</p>
+              </div>
+              <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-[1.5rem] flex items-center justify-center text-2xl font-black border-4 border-white/10 shadow-2xl text-white transform hover:rotate-6 transition-transform">
                 {user?.name.split(" ").map(n => n[0]).join("")}
               </div>
             </div>
@@ -99,20 +65,20 @@ export const TeacherHome = () => {
           <AsyncWrapper 
             isLoading={isLoading} 
             isError={isError}
-            loadingFallback={<div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse">
-              {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/10 rounded-xl" />)}
+            loadingFallback={<div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-pulse">
+              {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white/5 rounded-3xl" />)}
             </div>}
           >
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {dashboardStats.map((stat, idx) => (
-                <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <div className="flex items-center gap-3">
-                    <div className={`${stat.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
-                      <stat.icon className="w-5 h-5 text-white" />
+                <div key={idx} className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/5 hover:border-white/20 transition-all group/stat">
+                  <div className="flex items-center gap-4">
+                    <div className={`${stat.color} w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform group-hover/stat:scale-110 transition-transform`}>
+                      <stat.icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <p className="text-xl font-bold">{stat.value}</p>
-                      <p className="text-xs text-blue-100">{stat.label}</p>
+                      <p className="text-2xl font-black text-white tracking-tight">{stat.value}</p>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">{stat.label}</p>
                     </div>
                   </div>
                 </div>
@@ -122,114 +88,134 @@ export const TeacherHome = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="p-6">
-        <CardTitle className="mb-4">Quick Actions</CardTitle>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button 
-            onClick={() => navigate("/teacher/dashboard/attendance")}
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50 transition-all"
-          >
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-blue-600" />
-            </div>
-            <span className="text-sm font-medium text-slate-700">Mark Attendance</span>
-          </button>
-          <button 
-            onClick={() => navigate("/teacher/dashboard/assignments")}
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-green-500 hover:bg-green-50 transition-all"
-          >
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Plus className="w-6 h-6 text-green-600" />
-            </div>
-            <span className="text-sm font-medium text-slate-700">Create Assignment</span>
-          </button>
-          <button 
-            onClick={() => navigate("/teacher/dashboard/grades")}
-            className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-purple-500 hover:bg-purple-50 transition-all"
-          >
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Award className="w-6 h-6 text-purple-600" />
-            </div>
-            <span className="text-sm font-medium text-slate-700">Submit Grades</span>
-          </button>
-          
-          {permissionData?.canUpload && (
-            <button 
-              onClick={() => setIsUploadModalOpen(true)}
-              className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/30 hover:border-blue-500 hover:bg-blue-50 transition-all"
-            >
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Plus className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">Upload Timetable</span>
-            </button>
-          )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Quick Actions Grid */}
+          <Card className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60">
+            <CardTitle className="text-xl font-black text-slate-900 mb-8 flex items-center gap-3">
+              <Activity className="w-6 h-6 text-blue-600" />
+              Command Center
+            </CardTitle>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              <button 
+                onClick={() => navigate("/teacher/dashboard/attendance")}
+                className="group flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-dashed border-slate-100 hover:border-blue-600 hover:bg-blue-50/50 transition-all duration-300"
+              >
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                  <UserCheck className="w-8 h-8 text-blue-600" />
+                </div>
+                <span className="text-xs font-black text-slate-900 uppercase tracking-widest text-center">Sync Attendance</span>
+              </button>
+              <button 
+                onClick={() => navigate("/teacher/dashboard/assignments")}
+                className="group flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-dashed border-slate-100 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all duration-300"
+              >
+                <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                  <FileText className="w-8 h-8 text-emerald-600" />
+                </div>
+                <span className="text-xs font-black text-slate-900 uppercase tracking-widest text-center">New Assignment</span>
+              </button>
+              
+              {permissionData?.canUpload && (
+                <button 
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="group flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-dashed border-indigo-200 bg-indigo-50/20 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all duration-300"
+                >
+                  <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                    <Plus className="w-8 h-8 text-indigo-600" />
+                  </div>
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-widest text-center">Push Timetable</span>
+                </button>
+              )}
 
-          <button className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-orange-500 hover:bg-orange-50 transition-all">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Bell className="w-6 h-6 text-orange-600" />
+              <button className="group flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-dashed border-slate-100 hover:border-orange-600 hover:bg-orange-50/50 transition-all duration-300">
+                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                  <Bell className="w-8 h-8 text-orange-600" />
+                </div>
+                <span className="text-xs font-black text-slate-900 uppercase tracking-widest text-center">Broadcast Alert</span>
+              </button>
             </div>
-            <span className="text-sm font-medium text-slate-700">Send Announcement</span>
-          </button>
+          </Card>
+
+          <Card className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden relative">
+            <div className="flex items-center justify-between mb-8">
+              <CardTitle className="text-xl font-black text-slate-900">Current Unit Deployment</CardTitle>
+              <button onClick={() => navigate('/teacher/dashboard/classes')} className="text-sm font-black text-blue-600 hover:underline flex items-center gap-2 uppercase tracking-widest">
+                Expand View <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {!classes || classes.length === 0 ? (
+              <div className="text-center py-20 bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500 font-bold">No academic units detected in current sync cycle.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {classes.slice(0, 4).map((cls, idx) => (
+                  <div key={idx} className="group p-6 rounded-[2rem] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <Users className="w-6 h-6" />
+                      </div>
+                      <Badge variant="primary" className="px-3 py-1 rounded-lg text-[10px] font-black uppercase shadow-sm">{cls.section}</Badge>
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 mb-1">Class {cls.name}</h3>
+                    <div className="flex items-center gap-2 text-slate-500 font-bold text-xs mt-4">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{cls.roomNumber || "301"} • {cls.academicYear || "Active"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
-      </Card>
+
+        <div className="space-y-8">
+          <Card className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60">
+            <CardTitle className="text-xl font-black text-slate-900 mb-8">System Pulse</CardTitle>
+            <div className="space-y-6">
+              {[
+                { type: "attendance", msg: "Attendance synclog: Class 10-A verified", time: "12m ago", color: "text-emerald-600", bg: "bg-emerald-100" },
+                { type: "assignment", msg: "New submission batch: Physics Lab", time: "44m ago", color: "text-blue-600", bg: "bg-blue-100" },
+                { type: "system", msg: "Timetable permissions updated by Root", time: "2h ago", color: "text-indigo-600", bg: "bg-indigo-100" },
+                { type: "grade", msg: "Gradebook entry locked for Unit 4", time: "4h ago", color: "text-purple-600", bg: "bg-purple-100" }
+              ].map((activity, idx) => (
+                <div key={idx} className="flex gap-4 group cursor-default">
+                  <div className={`w-12 h-12 rounded-2xl ${activity.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                    <Activity className={`w-6 h-6 ${activity.color}`} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-slate-900 font-bold leading-tight group-hover:text-blue-600 transition-colors">{activity.msg}</p>
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-8 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')] opacity-20" />
+            <div className="relative z-10 text-center">
+              <Star className="w-12 h-12 text-yellow-400 mx-auto mb-4 animate-bounce" />
+              <h3 className="text-xl font-black mb-2">Academic Performance</h3>
+              <p className="text-indigo-100 text-sm font-medium mb-6">Unit performance metrics are trending upwards this session.</p>
+              <button className="w-full py-4 bg-white/10 backdrop-blur-md rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all">
+                Generate Unit Report
+              </button>
+            </div>
+          </Card>
+        </div>
+      </div>
 
       <TimetableUploadModal 
         isOpen={isUploadModalOpen} 
         onClose={() => setIsUploadModalOpen(false)} 
       />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle>Today's Schedule</CardTitle>
-            <span className="text-sm text-slate-500">Scheduled Classes</span>
-          </div>
-          <div className="space-y-3">
-            {todaySchedule.map((cls, idx) => (
-              <div key={idx} className={`p-4 rounded-lg border-2 ${cls.status === "completed" ? "border-green-200 bg-green-50" : cls.status === "ongoing" ? "border-blue-200 bg-blue-50" : "border-slate-200 bg-white"}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${cls.status === "completed" ? "bg-green-500" : cls.status === "ongoing" ? "bg-blue-500 animate-pulse" : "bg-slate-300"}`} />
-                    <div>
-                      <h3 className="font-semibold text-slate-900">{cls.subject}</h3>
-                      <p className="text-sm text-slate-500">{cls.class} • {cls.room}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-slate-700">{cls.time}</p>
-                    <Badge variant={cls.status === "completed" ? "success" : cls.status === "ongoing" ? "primary" : "default"}>
-                      {cls.status.charAt(0).toUpperCase() + cls.status.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-                <p className="text-sm text-slate-600 ml-5">Topic: {cls.topic}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <CardTitle className="mb-4">Recent Activity</CardTitle>
-          <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex gap-3">
-                <div className={`w-10 h-10 rounded-full ${activity.bg} flex items-center justify-center flex-shrink-0`}>
-                  <activity.icon className={`w-5 h-5 ${activity.color}`} />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-slate-900">{activity.message}</p>
-                  <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-            View All Activity
-          </button>
-        </Card>
-      </div>
     </div>
   );
 };
+
+// Add Activity icon import
+import { Activity } from "lucide-react";

@@ -55,7 +55,12 @@ exports.getTeachers = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/students
 // @access  Private/Admin
 exports.getStudents = asyncHandler(async (req, res) => {
-  const students = await Student.find({})
+  const filter = {};
+  if (req.query.class) {
+    filter.class = req.query.class;
+  }
+
+  const students = await Student.find(filter)
     .populate('user', 'name email isActive')
     .populate('class', 'name section')
     .sort({ createdAt: -1 });

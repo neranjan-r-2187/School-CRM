@@ -71,12 +71,28 @@ class StudentService {
     const filter = {};
     if (query.class) filter.class = query.class;
     
-    // If teacher is specified, find students assigned to that teacher
+    // If teacher is specified, find students in classes managed by that teacher
     if (query.teacherId) {
       const Teacher = require('../models/Teacher');
+      const Class = require('../models/Class');
       const teacher = await Teacher.findById(query.teacherId);
+      
       if (teacher) {
-        filter._id = { $in: teacher.assignedStudents };
+        // Find all classes where this teacher is assigned or leading
+        const classes = await Class.find({
+          $or: [
+            { _id: { $in: teacher.assignedClasses } },
+            { classTeacher: teacher._id }
+          ]
+        });
+        
+        const classIds = classes.map(c => c._id);
+        
+        // Filter students by these classes OR if they are explicitly assigned to the teacher
+        filter.$or = [
+          { class: { $in: classIds } },
+          { _id: { $in: teacher.assignedStudents } }
+        ];
       }
     }
     

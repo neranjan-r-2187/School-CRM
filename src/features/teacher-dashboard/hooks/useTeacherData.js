@@ -28,6 +28,19 @@ export const useTeacherClasses = () => {
 };
 
 /**
+ * Hook to fetch teacher's assigned subjects
+ */
+export const useTeacherSubjects = () => {
+  return useQuery({
+    queryKey: ['teacher-subjects'],
+    queryFn: async () => {
+      const { data } = await api.get('/teachers/subjects');
+      return data.data;
+    },
+  });
+};
+
+/**
  * Hook to fetch teacher's assignments
  */
 export const useTeacherAssignments = () => {

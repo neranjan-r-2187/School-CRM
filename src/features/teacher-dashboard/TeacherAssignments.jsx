@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Plus, Clock, Loader2, X, AlertCircle } from "lucide-react";
 import { Badge } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
-import { useTeacherAssignments, useTeacherClasses, useCreateAssignment } from "./hooks/useTeacherData";
+import { useTeacherAssignments, useTeacherClasses, useCreateAssignment, useTeacherSubjects } from "./hooks/useTeacherData";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../lib/api";
 import { format } from "date-fns";
@@ -23,12 +23,8 @@ export const TeacherAssignments = () => {
 
   const { data: assignments, isLoading: assignmentsLoading, isError: assignmentsError } = useTeacherAssignments();
   const { data: classes } = useTeacherClasses();
+  const { data: subjects } = useTeacherSubjects();
   const createAssignment = useCreateAssignment();
-
-  // Derive subjects from assignments data
-  const subjects = assignments 
-    ? Array.from(new Set(assignments.map(a => JSON.stringify(a.subject)))).map(s => JSON.parse(s))
-    : [];
 
   const handleCreate = async (e) => {
     e.preventDefault();

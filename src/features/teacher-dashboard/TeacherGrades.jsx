@@ -1,87 +1,122 @@
-import { Award, TrendingUp, AlertCircle } from "lucide-react";
+import { Award, TrendingUp, AlertCircle, Loader2, ChevronRight } from "lucide-react";
 import { Card } from "../../components/ui/Card";
-
-const myClasses = [
-  { id: "class1", name: "Class 10-A", subject: "Physics" },
-  { id: "class2", name: "Class 10-B", subject: "Physics" },
-  { id: "class3", name: "Class 11-A", subject: "Chemistry" },
-  { id: "class4", name: "Class 11-B", subject: "Chemistry" }
-];
+import { useTeacherClasses, useTeacherSubjects } from "./hooks/useTeacherData";
+import { useState } from "react";
+import { Badge } from "../../components/ui/Badge";
 
 export const TeacherGrades = () => {
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const { data: classes, isLoading: classesLoading } = useTeacherClasses();
+  const { data: subjects, isLoading: subjectsLoading } = useTeacherSubjects();
+
   return (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Submit Grades</h2>
+    <div className="space-y-8">
+      <Card className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Grade Management</h2>
+            <p className="text-slate-500 font-medium mt-1">Submit and analyze student performance metrics</p>
+          </div>
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center">
+            <Award className="w-8 h-8 text-purple-600" />
+          </div>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <select className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Select Class</option>
-            {myClasses.map((cls) => (
-              <option key={cls.id}>{cls.name} - {cls.subject}</option>
-            ))}
-          </select>
-          <select className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Select Exam</option>
-            <option>Unit Test 1</option>
-            <option>Mid Term</option>
-            <option>Unit Test 2</option>
-            <option>Final Exam</option>
-          </select>
-          <select className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Select Subject</option>
-            <option>Physics</option>
-            <option>Chemistry</option>
-          </select>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Load Students
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Class Unit</label>
+            <select 
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-slate-700 transition-all appearance-none cursor-pointer"
+            >
+              <option value="">Select Unit</option>
+              {classes?.map((cls) => (
+                <option key={cls._id} value={cls._id}>{cls.name} - {cls.section}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Academic Subject</label>
+            <select 
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-slate-700 transition-all appearance-none cursor-pointer"
+            >
+              <option value="">Select Subject</option>
+              {subjects?.map((sub) => (
+                <option key={sub._id} value={sub._id}>{sub.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assessment Type</label>
+            <select className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-slate-700 transition-all appearance-none cursor-pointer">
+              <option>Mid Term</option>
+              <option>Final Exam</option>
+              <option>Unit Test 1</option>
+              <option>Unit Test 2</option>
+            </select>
+          </div>
+
+          <div className="flex items-end">
+            <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2 group">
+              Initialise Entry
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
 
-        <div className="text-center py-12 text-slate-500">
-          <Award className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-          <p>Select class, exam, and subject to enter grades</p>
+        <div className="bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-200 py-24 text-center">
+          <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <Award className="w-10 h-10 text-slate-300" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900">Configure Parameters</h3>
+          <p className="text-slate-500 mt-2 max-w-sm mx-auto">Select a class and subject to load the student roster and begin grade entry.</p>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <Card className="p-8 bg-white rounded-[2rem] shadow-sm border border-slate-200/60 group hover:shadow-xl transition-all">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+              <TrendingUp className="w-7 h-7 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600">Class Average</p>
-              <p className="text-2xl font-bold text-slate-900">76.2%</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Class Average</p>
+              <p className="text-3xl font-black text-slate-900 tracking-tight">76.2%</p>
             </div>
           </div>
-          <p className="text-sm text-green-600">+3.1% improvement</p>
+          <Badge variant="success" className="px-4 py-1 rounded-full font-bold text-[10px]">+3.1% FROM PREVIOUS</Badge>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Award className="w-6 h-6 text-green-600" />
+        <Card className="p-8 bg-white rounded-[2rem] shadow-sm border border-slate-200/60 group hover:shadow-xl transition-all">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+              <Award className="w-7 h-7 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600">Above 80%</p>
-              <p className="text-2xl font-bold text-slate-900">62</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elite Performers</p>
+              <p className="text-3xl font-black text-slate-900 tracking-tight">62</p>
             </div>
           </div>
-          <p className="text-sm text-slate-600">Out of 155 students</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Scored above 80%</p>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-red-600" />
+        <Card className="p-8 bg-white rounded-[2rem] shadow-sm border border-slate-200/60 group hover:shadow-xl transition-all">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+              <AlertCircle className="w-7 h-7 text-rose-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600">Below 50%</p>
-              <p className="text-2xl font-bold text-slate-900">8</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical Intervention</p>
+              <p className="text-3xl font-black text-slate-900 tracking-tight">8</p>
             </div>
           </div>
-          <p className="text-sm text-slate-600">Need intervention</p>
+          <p className="text-xs font-bold text-rose-500 uppercase tracking-widest">Urgent review required</p>
         </Card>
       </div>
     </div>

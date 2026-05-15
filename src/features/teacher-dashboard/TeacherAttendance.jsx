@@ -120,7 +120,7 @@ export const TeacherAttendance = () => {
                     {students?.map((student) => (
                       <tr key={student._id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
-                          <p className="font-medium text-slate-900">{student.name}</p>
+                          <p className="font-medium text-slate-900">{student.user?.name || "Unknown Student"}</p>
                           <p className="text-xs text-slate-500">ID: {student.studentId}</p>
                         </td>
                         <td className="px-6 py-4">
