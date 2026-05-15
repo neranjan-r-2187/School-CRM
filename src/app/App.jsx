@@ -46,6 +46,7 @@ import { AdminReports } from "./pages/admin/AdminReports";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { AdminStudentManagement } from "./pages/admin/AdminStudentManagement";
 import { AdminTeacherManagement } from "./pages/admin/AdminTeacherManagement";
+import { AdminTimetableApprovals } from "./pages/admin/AdminTimetableApprovals";
 import { AdminTicketManagement } from "./pages/support/AdminTicketManagement";
 import { UserManagement } from "./pages/admin/UserManagement";
 
@@ -155,6 +156,7 @@ const AppContent = () => {
         <Route path="fees" element={<AdminFeesManagement />} />
         <Route path="reports" element={<AdminReports />} />
         <Route path="tickets" element={<AdminTicketManagement />} />
+        <Route path="timetable-approvals" element={<AdminTimetableApprovals />} />
         <Route path="chat" element={<ChatInterface />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>

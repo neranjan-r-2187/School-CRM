@@ -15,7 +15,11 @@ const {
   getParentStudentLinks,
   linkTeacherStudent,
   unlinkTeacherStudent,
-  getTeacherStudentLinks
+  getTeacherStudentLinks,
+  toggleTeacherTimetablePermission,
+  getTimetableApprovals,
+  approveTimetable,
+  rejectTimetable
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { ROLES } = require('../constants');
@@ -53,5 +57,11 @@ router.get('/parent-student-links', getParentStudentLinks);
 router.post('/link-teacher-student', linkTeacherStudent);
 router.delete('/unlink-teacher-student', unlinkTeacherStudent);
 router.get('/teacher-student-links', getTeacherStudentLinks);
+
+// Timetable Management
+router.patch('/teachers/:id/toggle-timetable-permission', toggleTeacherTimetablePermission);
+router.get('/timetable-approvals', getTimetableApprovals);
+router.patch('/timetable-approvals/:id/approve', approveTimetable);
+router.patch('/timetable-approvals/:id/reject', rejectTimetable);
 
 module.exports = router;

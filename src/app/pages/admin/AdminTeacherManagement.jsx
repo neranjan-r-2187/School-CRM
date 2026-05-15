@@ -87,6 +87,19 @@ export const AdminTeacherManagement = () => {
     }
   });
 
+  const toggleTimetablePermissionMutation = useMutation({
+    mutationFn: async (teacherId) => {
+      await api.patch(`/admin/teachers/${teacherId}/toggle-timetable-permission`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["teachers"]);
+      toast.success("Timetable permission updated");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to update permission");
+    }
+  });
+
   const filteredTeachers = teachers.filter((teacher) => {
     const name = teacher.user?.name || "";
     const email = teacher.user?.email || "";
@@ -291,10 +304,19 @@ export const AdminTeacherManagement = () => {
                    {teacher.user?.isActive ? "Active" : "Inactive"}
                  </span>
                </div>
-               <div className="flex items-center justify-between">
-                 <span className="text-slate-600">Email:</span>
-                 <span className="text-slate-900 truncate max-w-[150px]">{teacher.user?.email}</span>
-               </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">Email:</span>
+                  <span className="text-slate-900 truncate max-w-[150px]">{teacher.user?.email}</span>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-slate-600">Timetable Access:</span>
+                  <button 
+                    onClick={() => toggleTimetablePermissionMutation.mutate(teacher._id)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${teacher.canUploadTimetable ? 'bg-blue-600' : 'bg-slate-200'}`}
+                  >
+                    <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${teacher.canUploadTimetable ? 'translate-x-5' : 'translate-x-1'}`} />
+                  </button>
+                </div>
                <div className="pt-2 border-t border-slate-50 mt-2">
                  <div className="flex items-center justify-between mb-2">
                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Students</span>

@@ -29,6 +29,10 @@ const teacherSchema = new mongoose.Schema(
         ref: 'Student',
       },
     ],
+    canUploadTimetable: {
+      type: Boolean,
+      default: false,
+    },
     department: {
       type: String,
       trim: true,

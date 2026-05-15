@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Book,
   MessageSquare,
+  Calendar,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 import { useChatContext } from "../../context/ChatContext";
@@ -24,6 +25,7 @@ export const AdminLayout = () => {
     { id: "students", path: "/admin/dashboard/students", label: "Students", icon: GraduationCap },
     { id: "teachers", path: "/admin/dashboard/teachers", label: "Teachers", icon: Users },
     { id: "classes", path: "/admin/dashboard/classes", label: "Classes", icon: Book },
+    { id: "timetable", path: "/admin/dashboard/timetable-approvals", label: "Timetable Approvals", icon: Calendar },
     { id: "fees", path: "/admin/dashboard/fees", label: "Fees & Payments", icon: DollarSign },
     { id: "reports", path: "/admin/dashboard/reports", label: "Reports", icon: BarChart3 },
     { id: "tickets", path: "/admin/dashboard/tickets", label: "Support Tickets", icon: TicketIcon, badge: openTicketsCount },

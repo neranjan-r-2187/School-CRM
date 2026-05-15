@@ -17,6 +17,7 @@ const doubtRoutes = require('./routes/doubtRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const parentDashboardRoutes = require('./routes/parentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const timetableRoutes = require('./routes/timetableRoutes');
 
 
 
@@ -74,6 +75,7 @@ app.use('/api/doubts', doubtRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/parents', parentDashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/timetables', timetableRoutes);
 
 
 

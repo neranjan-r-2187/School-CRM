@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const Parent = require('../models/Parent');
+const Timetable = require('../models/Timetable');
 const asyncHandler = require('../middleware/asyncHandler');
 const sendResponse = require('../utils/apiResponse');
 const { HTTP_STATUS, ROLES } = require('../constants');
@@ -373,4 +374,68 @@ exports.getTeacherStudentLinks = asyncHandler(async (req, res) => {
     });
 
   sendResponse(res, HTTP_STATUS.OK, teachers, 'Teacher-student links fetched successfully');
+});
+
+// @desc    Toggle teacher timetable upload permission
+// @route   PATCH /api/admin/teachers/:id/toggle-timetable-permission
+// @access  Private/Admin
+exports.toggleTeacherTimetablePermission = asyncHandler(async (req, res) => {
+  const teacher = await Teacher.findById(req.params.id);
+  if (!teacher) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Teacher not found');
+  }
+
+  teacher.canUploadTimetable = !teacher.canUploadTimetable;
+  await teacher.save();
+
+  sendResponse(res, HTTP_STATUS.OK, teacher, `Timetable upload permission ${teacher.canUploadTimetable ? 'enabled' : 'disabled'} for teacher`);
+});
+
+// @desc    Get all timetable approvals
+// @route   GET /api/admin/timetable-approvals
+// @access  Private/Admin
+exports.getTimetableApprovals = asyncHandler(async (req, res) => {
+  const approvals = await Timetable.find({ status: 'Pending' })
+    .populate('class', 'name section')
+    .populate('uploadedBy', 'name email')
+    .sort({ createdAt: -1 });
+
+  sendResponse(res, HTTP_STATUS.OK, approvals, 'Timetable approvals fetched successfully');
+});
+
+// @desc    Approve timetable
+// @route   PATCH /api/admin/timetable-approvals/:id/approve
+// @access  Private/Admin
+exports.approveTimetable = asyncHandler(async (req, res) => {
+  const timetable = await Timetable.findById(req.params.id);
+  if (!timetable) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Timetable not found');
+  }
+
+  timetable.status = 'Approved';
+  timetable.approvedBy = req.user._id;
+  timetable.approvedAt = new Date();
+  await timetable.save();
+
+  sendResponse(res, HTTP_STATUS.OK, timetable, 'Timetable approved successfully');
+});
+
+// @desc    Reject timetable
+// @route   PATCH /api/admin/timetable-approvals/:id/reject
+// @access  Private/Admin
+exports.rejectTimetable = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+  const timetable = await Timetable.findById(req.params.id);
+  if (!timetable) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Timetable not found');
+  }
+
+  timetable.status = 'Rejected';
+  timetable.rejectionReason = reason || 'No reason provided';
+  await timetable.save();
+
+  sendResponse(res, HTTP_STATUS.OK, timetable, 'Timetable rejected successfully');
 });

@@ -6,6 +6,10 @@ import { useTeacherDashboard } from "./hooks/useTeacherData";
 import { AsyncWrapper } from "../../components/ui/AsyncWrapper";
 import { DashboardSkeleton } from "../../components/ui/skeletons/DashboardSkeleton";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { TimetableUploadModal } from "./components/TimetableUploadModal";
+import api from "../../lib/api";
 
 const todaySchedule = [
   {
@@ -53,7 +57,16 @@ const recentActivities = [
 export const TeacherHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const { data: stats, isLoading, isError } = useTeacherDashboard();
+
+  const { data: permissionData } = useQuery({
+    queryKey: ['timetable-permission'],
+    queryFn: async () => {
+      const res = await api.get('/timetables/check-permission');
+      return res.data.data;
+    }
+  });
 
   const dashboardStats = [
     { label: "Assigned Classes", value: stats?.totalClasses || "0", change: "Current session", icon: UserCheck, color: "bg-blue-500" },
@@ -140,6 +153,19 @@ export const TeacherHome = () => {
             </div>
             <span className="text-sm font-medium text-slate-700">Submit Grades</span>
           </button>
+          
+          {permissionData?.canUpload && (
+            <button 
+              onClick={() => setIsUploadModalOpen(true)}
+              className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/30 hover:border-blue-500 hover:bg-blue-50 transition-all"
+            >
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Plus className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-slate-700">Upload Timetable</span>
+            </button>
+          )}
+
           <button className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-orange-500 hover:bg-orange-50 transition-all">
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <Bell className="w-6 h-6 text-orange-600" />
@@ -148,6 +174,11 @@ export const TeacherHome = () => {
           </button>
         </div>
       </Card>
+
+      <TimetableUploadModal 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)} 
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6">
