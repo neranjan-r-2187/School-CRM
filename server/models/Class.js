@@ -22,6 +22,11 @@ const classSchema = new mongoose.Schema(
     },
     roomNumber: String,
     academicYear: String,
+    capacity: Number,
+    subjects: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subject'
+    }],
     isActive: {
       type: Boolean,
       default: true,

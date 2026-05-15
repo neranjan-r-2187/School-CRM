@@ -201,12 +201,26 @@ exports.deleteUser = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/classes
 // @access  Private/Admin
 exports.createClass = asyncHandler(async (req, res) => {
-  const { name, section, classTeacherId } = req.body;
-  const newClass = await Class.create({
+  const { name, section, classTeacherId, ...otherData } = req.body;
+  
+  const classObj = {
     name,
     section,
-    classTeacher: classTeacherId
+    ...otherData
+  };
+
+  if (classTeacherId) {
+    classObj.classTeacher = classTeacherId;
+  }
+
+  let newClass = await Class.create(classObj);
+  
+  // Populate for immediate UI update
+  newClass = await Class.findById(newClass._id).populate({
+    path: 'classTeacher',
+    populate: { path: 'user', select: 'name' }
   });
+
   sendResponse(res, HTTP_STATUS.CREATED, newClass, 'Class created successfully');
 });
 
@@ -214,7 +228,26 @@ exports.createClass = asyncHandler(async (req, res) => {
 // @route   PUT /api/admin/classes/:id
 // @access  Private/Admin
 exports.updateClass = asyncHandler(async (req, res) => {
-  const updatedClass = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const { classTeacherId, ...updateData } = req.body;
+  
+  if (classTeacherId) {
+    updateData.classTeacher = classTeacherId;
+  }
+
+  const updatedClass = await Class.findByIdAndUpdate(
+    req.params.id, 
+    updateData, 
+    { new: true, runValidators: true }
+  ).populate({
+    path: 'classTeacher',
+    populate: { path: 'user', select: 'name' }
+  });
+
+  if (!updatedClass) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Class not found');
+  }
+
   sendResponse(res, HTTP_STATUS.OK, updatedClass, 'Class updated successfully');
 });
 

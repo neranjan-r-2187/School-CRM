@@ -1,4 +1,4 @@
-import { Users, BookOpen, UserCheck, TrendingUp, Plus, Edit, Eye, Loader2, X, Trash2, GraduationCap, Calendar } from "lucide-react";
+import { Users, BookOpen, UserCheck, TrendingUp, Plus, Edit, Eye, Loader2, X, Trash2, GraduationCap, Calendar, MapPin, Hash, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
@@ -12,7 +12,15 @@ export const AdminClassManagement = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
-  const [formData, setFormData] = useState({ name: "", section: "", classTeacherId: "" });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    section: "", 
+    classTeacherId: "",
+    roomNumber: "",
+    academicYear: new Date().getFullYear().toString(),
+    capacity: 40,
+    isActive: true
+  });
 
   // Fetch classes from API
   const { data: classesResponse, isLoading: isLoadingClasses, isError: isErrorClasses } = useQuery({
@@ -38,7 +46,8 @@ export const AdminClassManagement = () => {
   // Mutations
   const createClassMutation = useMutation({
     mutationFn: async (newClass) => {
-      await api.post("/admin/classes", newClass);
+      const response = await api.post("/admin/classes", newClass);
+      return response.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
@@ -52,7 +61,8 @@ export const AdminClassManagement = () => {
 
   const updateClassMutation = useMutation({
     mutationFn: async ({ id, ...data }) => {
-      await api.put(`/admin/classes/${id}`, data);
+      const response = await api.put(`/admin/classes/${id}`, data);
+      return response.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
@@ -81,13 +91,25 @@ export const AdminClassManagement = () => {
     if (cls) {
       setEditingClass(cls);
       setFormData({ 
-        name: cls.name, 
-        section: cls.section, 
-        classTeacherId: cls.classTeacher?._id || cls.classTeacher || "" 
+        name: cls.name || "", 
+        section: cls.section || "", 
+        classTeacherId: cls.classTeacher?._id || cls.classTeacher || "",
+        roomNumber: cls.roomNumber || "",
+        academicYear: cls.academicYear || new Date().getFullYear().toString(),
+        capacity: cls.capacity || 40,
+        isActive: cls.isActive !== undefined ? cls.isActive : true
       });
     } else {
       setEditingClass(null);
-      setFormData({ name: "", section: "", classTeacherId: "" });
+      setFormData({ 
+        name: "", 
+        section: "", 
+        classTeacherId: "",
+        roomNumber: "",
+        academicYear: new Date().getFullYear().toString(),
+        capacity: 40,
+        isActive: true
+      });
     }
     setIsModalOpen(true);
   };
@@ -106,87 +128,98 @@ export const AdminClassManagement = () => {
     }
   };
 
-  if (isLoadingClasses) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin w-8 h-8 text-blue-600" /></div>;
+  if (isLoadingClasses) return <div className="flex items-center justify-center min-h-screen bg-slate-50"><Loader2 className="animate-spin w-8 h-8 text-blue-600" /></div>;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-8 min-h-screen bg-slate-50/50">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Class Management</h1>
-          <p className="text-slate-600 mt-1">Configure academic structure and teacher assignments</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Academic Units</h1>
+          <p className="text-slate-500 mt-1 font-medium text-lg">Manage school classes, assignments and occupancy</p>
         </div>
-        <button onClick={() => handleOpenModal()} className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-black transition-all shadow-lg shadow-slate-950/20 font-bold text-sm">
-          <Plus className="w-4 h-4" />
-          Add New Class
+        <button onClick={() => handleOpenModal()} className="flex items-center gap-2 px-8 py-3.5 bg-slate-900 text-white rounded-2xl hover:bg-black transition-all shadow-xl shadow-slate-950/20 font-black text-sm">
+          <Plus className="w-5 h-5" />
+          Initialize New Class
         </button>
       </div>
 
       {isErrorClasses && (
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl flex items-center gap-3 font-medium">
-          <TrendingUp className="w-5 h-5" />
-          Failed to load classes. Please try again later.
+        <div className="bg-red-50 border-2 border-red-100 text-red-600 p-6 rounded-2xl flex items-center gap-4 font-bold">
+          <Activity className="w-6 h-6" />
+          Neural Link Interrupted: Failed to synchronize with class database.
         </div>
       )}
 
       {classes.length === 0 ? (
-        <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-20 text-center">
-          <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <BookOpen className="w-10 h-10 text-slate-300" />
+        <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] p-24 text-center">
+          <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <BookOpen className="w-12 h-12 text-slate-300" />
           </div>
-          <h3 className="text-xl font-black text-slate-900">Academic Structure is Empty</h3>
-          <p className="text-slate-500 mt-2 max-w-sm mx-auto font-medium">Define your school's classes and sections to begin managing students and faculty.</p>
-          <button onClick={() => handleOpenModal()} className="mt-8 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
-            Create First Class
+          <h3 className="text-3xl font-black text-slate-900">Void Academic Space</h3>
+          <p className="text-slate-500 mt-3 max-w-sm mx-auto font-medium text-lg">Your institution has no defined academic units. Create the first class to begin enrollment.</p>
+          <button onClick={() => handleOpenModal()} className="mt-10 px-10 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all shadow-2xl shadow-blue-600/30">
+            Establish First Class
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {classes.map((cls) => (
-            <div key={cls._id} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                  <BookOpen className="w-7 h-7" />
+            <div key={cls._id} className="bg-white rounded-[2rem] shadow-sm border border-slate-200/60 p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
+              
+              <div className="flex items-start justify-between mb-8 relative z-10">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-blue-600/30 group-hover:rotate-6 transition-transform">
+                  <BookOpen className="w-8 h-8" />
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleOpenModal(cls)} className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
-                    <Edit className="w-4 h-4" />
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                  <button onClick={() => handleOpenModal(cls)} className="p-3 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all">
+                    <Edit className="w-5 h-5" />
                   </button>
-                  <button onClick={() => { if(window.confirm("Delete this class?")) deleteClassMutation.mutate(cls._id); }} className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={() => { if(window.confirm("Permanent deletion of this academic unit?")) deleteClassMutation.mutate(cls._id); }} className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all">
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-2xl font-black text-slate-900">Class {cls.name}</h3>
-                  <Badge variant="primary" className="h-6">{cls.section}</Badge>
+              <div className="mb-8 relative z-10">
+                <div className="flex items-center gap-3 mb-3">
+                  <h3 className="text-3xl font-black text-slate-900 leading-tight">Class {cls.name}</h3>
+                  <Badge variant="primary" className="px-4 py-1.5 rounded-xl font-black text-xs uppercase tracking-tighter shadow-sm">{cls.section}</Badge>
                 </div>
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                    <UserCheck className="w-4 h-4 text-slate-400" />
+                <div className="flex items-center gap-3 text-slate-500 font-bold">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center border border-slate-200/50">
+                    <UserCheck className="w-5 h-5 text-slate-600" />
                   </div>
-                  <span>{cls.classTeacher?.user?.name || cls.classTeacher?.name || "Unassigned Teacher"}</span>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest leading-none mb-1">Assigned Custodian</span>
+                    <span className="text-slate-800 text-sm">{cls.classTeacher?.user?.name || cls.classTeacher?.name || "Unassigned"}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Students</p>
-                  <p className="text-xl font-black text-slate-900">--</p>
+              <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+                <div className="bg-slate-50/50 rounded-3xl p-4 border border-slate-100/50 backdrop-blur-sm group-hover:bg-white transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</p>
+                  </div>
+                  <p className="text-xl font-black text-slate-900">{cls.roomNumber || "N/A"}</p>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Schedule</p>
-                  <p className="text-xs font-bold text-blue-600">Active</p>
+                <div className="bg-slate-50/50 rounded-3xl p-4 border border-slate-100/50 backdrop-blur-sm group-hover:bg-white transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-3.5 h-3.5 text-indigo-500" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capacity</p>
+                  </div>
+                  <p className="text-xl font-black text-slate-900">{cls.capacity || "40"}</p>
                 </div>
               </div>
 
               <button 
                 onClick={() => navigate('/admin/dashboard/timetable-approvals')}
-                className="w-full py-3 bg-slate-50 text-slate-900 rounded-2xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 border border-slate-100 group/btn"
+                className="w-full py-4 bg-slate-950 text-white rounded-[1.5rem] text-sm font-black hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-slate-950/10 group/btn relative z-10"
               >
-                <Calendar className="w-4 h-4 text-blue-600 group-hover/btn:text-white" />
-                Manage Timetable
+                <Calendar className="w-5 h-5 text-blue-400 group-hover/btn:text-white transition-colors" />
+                Academic Schedule
               </button>
             </div>
           ))}
@@ -194,84 +227,131 @@ export const AdminClassManagement = () => {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-300 border border-white/20">
-            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xl flex items-center justify-center z-50 p-4 animate-in fade-in duration-500">
+          <div className="bg-white rounded-[3rem] shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in duration-300 border border-white/20">
+            <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
               <div>
-                <h2 className="text-2xl font-black text-slate-900">{editingClass ? "Refine Class" : "Initialize Class"}</h2>
-                <p className="text-sm text-slate-500 mt-1 font-medium">Configure academic parameters</p>
+                <h2 className="text-3xl font-black text-slate-900">{editingClass ? "Reconfigure Unit" : "Initialize Unit"}</h2>
+                <p className="text-slate-500 mt-2 font-bold text-lg">Setting academic parameters for {formData.name || "new unit"}</p>
               </div>
-              <button onClick={handleCloseModal} className="w-10 h-10 flex items-center justify-center hover:bg-slate-200 rounded-2xl transition-all">
-                <X className="w-6 h-6 text-slate-500" />
+              <button onClick={handleCloseModal} className="w-14 h-14 flex items-center justify-center hover:bg-slate-200 rounded-[1.5rem] transition-all group">
+                <X className="w-8 h-8 text-slate-400 group-hover:text-slate-900 transition-colors" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Class Identifier</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.name} 
-                  onChange={e => setFormData({...formData, name: e.target.value})} 
-                  className="w-full bg-slate-50 border-2 border-transparent rounded-2xl p-4 outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-slate-900" 
-                  placeholder="e.g. 10 or Senior-A" 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Section</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.section} 
-                  onChange={e => setFormData({...formData, section: e.target.value})} 
-                  className="w-full bg-slate-50 border-2 border-transparent rounded-2xl p-4 outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-slate-900" 
-                  placeholder="e.g. A, B, Alpha" 
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Class Custodian (Teacher)</label>
-                <div className="relative">
-                  <select
-                    value={formData.classTeacherId}
-                    onChange={e => setFormData({...formData, classTeacherId: e.target.value})}
-                    className="w-full bg-slate-50 border-2 border-transparent rounded-2xl p-4 outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-slate-900 appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Faculty Member</option>
-                    {teachers.map(t => (
-                      <option key={t._id} value={t._id}>
-                        {t.user?.name || "Unknown"} — {t.department || "General"}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <TrendingUp className="w-5 h-5 rotate-90" />
+            <form onSubmit={handleSubmit} className="p-10 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Class Identifier</label>
+                  <div className="relative">
+                    <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={formData.name} 
+                      onChange={e => setFormData({...formData, name: e.target.value})} 
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-6 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 placeholder:text-slate-300" 
+                      placeholder="e.g. 10" 
+                    />
                   </div>
                 </div>
-                {isLoadingTeachers && <p className="text-[10px] text-blue-600 animate-pulse font-black uppercase tracking-widest">Syncing faculty database...</p>}
+                
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Section</label>
+                  <div className="relative">
+                    <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={formData.section} 
+                      onChange={e => setFormData({...formData, section: e.target.value})} 
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-6 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 placeholder:text-slate-300" 
+                      placeholder="e.g. A" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Assigned Room</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      value={formData.roomNumber} 
+                      onChange={e => setFormData({...formData, roomNumber: e.target.value})} 
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-6 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 placeholder:text-slate-300" 
+                      placeholder="Room 301" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Academic Year</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      value={formData.academicYear} 
+                      onChange={e => setFormData({...formData, academicYear: e.target.value})} 
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-6 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 placeholder:text-slate-300" 
+                      placeholder="2025-26" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Max Occupancy</label>
+                  <div className="relative">
+                    <Users className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="number" 
+                      value={formData.capacity} 
+                      onChange={e => setFormData({...formData, capacity: parseInt(e.target.value)})} 
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-6 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 placeholder:text-slate-300" 
+                      placeholder="40" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Lead Custodian</label>
+                  <div className="relative">
+                    <UserCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                    <select
+                      value={formData.classTeacherId}
+                      onChange={e => setFormData({...formData, classTeacherId: e.target.value})}
+                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-12 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 appearance-none cursor-pointer"
+                    >
+                      <option value="">Select Faculty</option>
+                      {teachers.map(t => (
+                        <option key={t._id} value={t._id}>
+                          {t.user?.name || "Unknown"} — {t.department || "General"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-6 flex gap-4">
+              <div className="pt-8 flex gap-6">
                 <button 
                   type="button" 
                   onClick={handleCloseModal} 
-                  className="flex-1 px-6 py-4 rounded-2xl text-sm font-black text-slate-500 hover:bg-slate-100 transition-all"
+                  className="flex-1 px-8 py-5 rounded-2xl text-sm font-black text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all"
                 >
-                  Discard
+                  Discard Changes
                 </button>
                 <button 
                   type="submit" 
                   disabled={createClassMutation.isPending || updateClassMutation.isPending} 
-                  className="flex-[2] bg-slate-900 text-white p-4 rounded-2xl hover:bg-black font-black text-sm shadow-xl shadow-slate-950/20 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+                  className="flex-[2] bg-slate-950 text-white p-5 rounded-[1.5rem] hover:bg-blue-600 font-black text-sm shadow-2xl shadow-slate-950/20 disabled:opacity-50 transition-all flex items-center justify-center gap-4"
                 >
                   {(createClassMutation.isPending || updateClassMutation.isPending) ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
                     <>
-                      <Plus className="w-5 h-5" />
-                      {editingClass ? "Commit Changes" : "Create Instance"}
+                      <Plus className="w-6 h-6" />
+                      {editingClass ? "Commit Reconfiguration" : "Establish Unit"}
                     </>
                   )}
                 </button>
