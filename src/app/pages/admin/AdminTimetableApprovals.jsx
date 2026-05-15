@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, XCircle, Eye, Clock, Calendar, User, BookOpen, MapPin, Loader2, MessageSquare } from "lucide-react";
 import api from "../../../lib/api";
 import { toast } from "sonner";
-import { Card, CardTitle } from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
+import { Card, CardTitle } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
 
 export const AdminTimetableApprovals = () => {
   const queryClient = useQueryClient();
