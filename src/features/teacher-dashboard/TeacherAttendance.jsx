@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserCheck, Timer, UserX, Loader2, Check } from "lucide-react";
+import { UserCheck, Timer, UserX, Loader2, Check, Clock, MapPin } from "lucide-react";
 import { Card } from "../../components/ui/Card";
 import { useTeacherClasses, useSubmitAttendance } from "./hooks/useTeacherData";
 import { useQuery } from "@tanstack/react-query";
@@ -91,8 +91,21 @@ export const TeacherAttendance = () => {
 
         {selectedClassId ? (
           <div className="mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-800">Student List ({students?.length || 0})</h3>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div>
+                <h3 className="font-black text-slate-900 text-lg">
+                  {classes.find(c => c._id === selectedClassId)?.name} Deployment
+                </h3>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <Clock className="w-3 h-3" /> {classes.find(c => c._id === selectedClassId)?.academicYear || "Active Session"}
+                  </span>
+                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                  <span className="flex items-center gap-1 text-[10px] font-black text-blue-600 uppercase tracking-widest">
+                    <MapPin className="w-3 h-3" /> Room {classes.find(c => c._id === selectedClassId)?.roomNumber || "TBD"}
+                  </span>
+                </div>
+              </div>
               <div className="flex gap-4 text-sm">
                 <span className="flex items-center gap-1 text-green-600 font-medium">
                   <Check className="w-4 h-4" /> Present: {Object.values(markedRecords).filter(v => v === ATTENDANCE_STATUS.PRESENT).length}

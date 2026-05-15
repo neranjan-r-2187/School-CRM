@@ -67,6 +67,14 @@ exports.getStudents = asyncHandler(async (req, res) => {
   sendResponse(res, HTTP_STATUS.OK, students, 'Students fetched successfully');
 });
 
+// @desc    Get admin dashboard stats
+// @route   GET /api/admin/dashboard
+// @access  Private/Admin
+exports.getDashboard = asyncHandler(async (req, res) => {
+  const stats = await dashboardService.getAdminStats();
+  sendResponse(res, HTTP_STATUS.OK, stats, 'Admin dashboard data retrieved successfully');
+});
+
 
 // @desc    Create a new user
 // @route   POST /api/admin/users

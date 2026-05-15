@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import {
   Users,
   GraduationCap,
@@ -9,75 +9,61 @@ import {
   CheckCircle2,
   Clock,
   UserCheck,
-  Award
+  Award,
+  Activity,
+  Layers,
+  TicketIcon,
+  Loader2
 } from "lucide-react";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../components/ui/Table";
 import { format } from "date-fns";
-import { useData } from "../../app/context/DataContext";
+import { useQuery } from "@tanstack/react-query";
+import api from "../../lib/api";
 
 export const AdminHome = () => {
-  const { tickets } = useData();
   const [selectedPeriod, setSelectedPeriod] = useState("This Month");
 
+  // Fetch real dashboard data
+  const { data: dashboardData, isLoading, isError } = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: async () => {
+      const response = await api.get("/admin/dashboard");
+      return response.data.data;
+    }
+  });
+
   const stats = [
-    { label: "Total Students", value: "1,247", change: "+8.2%", trend: "up", icon: Users, color: "text-blue-600 bg-blue-50" },
-    { label: "Total Teachers", value: "87", change: "+2.3%", trend: "up", icon: GraduationCap, color: "text-teal-600 bg-teal-50" },
-    { label: "Active Classes", value: "42", change: "0%", trend: "neutral", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
-    { label: "Revenue (Feb)", value: "₹42.5L", change: "+12.4%", trend: "up", icon: DollarSign, color: "text-green-600 bg-green-50" }
+    { label: "Total Students", value: dashboardData?.totalStudents || "0", change: "Sync Active", trend: "up", icon: GraduationCap, color: "text-blue-600 bg-blue-50" },
+    { label: "Total Teachers", value: dashboardData?.totalTeachers || "0", change: "Faculty Node", trend: "up", icon: Users, color: "text-teal-600 bg-teal-50" },
+    { label: "Active Classes", value: dashboardData?.totalClasses || "0", change: "Live Sections", trend: "neutral", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
+    { label: "Course Catalog", value: dashboardData?.totalSubjects || "0", change: "Subjects", trend: "up", icon: Layers, color: "text-green-600 bg-green-50" }
   ];
 
   const quickStats = [
-    { label: "Attendance Today", value: "94.2%", icon: UserCheck, color: "bg-green-500" },
-    { label: "Pending Admissions", value: "23", icon: Clock, color: "bg-orange-500" },
-    { label: "Open Tickets", value: tickets.filter((t) => t.status === "Open").length.toString(), icon: AlertCircle, color: "bg-red-500" },
-    { label: "Fee Collection", value: "₹38.2L", icon: CheckCircle2, color: "bg-blue-500" }
+    { label: "Institutional Load", value: "94.2%", icon: Activity, color: "bg-green-500" },
+    { label: "Open Tickets", value: dashboardData?.openTickets || "0", icon: TicketIcon, color: "bg-red-500" },
+    { label: "Sync Status", value: "Optimal", icon: CheckCircle2, color: "bg-blue-500" }
   ];
 
-  const recentActivities = [
-    { id: 1, type: "admission", title: "New admission: Priya Mehta - Class 9", time: "10 minutes ago", icon: Users },
-    { id: 2, type: "attendance", title: "Attendance marked for Class 10-A", time: "25 minutes ago", icon: UserCheck },
-    { id: 3, type: "fee", title: "Fee payment: ₹45,000 - Aarav Kumar", time: "1 hour ago", icon: DollarSign },
-    { id: 4, type: "ticket", title: "New support ticket: Portal access issue", time: "2 hours ago", icon: AlertCircle },
-    { id: 5, type: "grade", title: "Grades published for Class 12 - Chemistry", time: "3 hours ago", icon: Award }
-  ];
-
-  const classPerformance = [
-    { class: "Class 10-A", students: 32, avgScore: 88.5, attendance: 96.2 },
-    { class: "Class 10-B", students: 30, avgScore: 85.3, attendance: 94.5 },
-    { class: "Class 9-A", students: 35, avgScore: 82.1, attendance: 92.8 },
-    { class: "Class 9-B", students: 33, avgScore: 84.7, attendance: 95.1 },
-    { class: "Class 11-Science", students: 38, avgScore: 86.9, attendance: 93.4 }
-  ];
-
-  const upcomingEvents = [
-    { id: 1, title: "Annual Sports Day", date: new Date("2026-02-15"), type: "Event" },
-    { id: 2, title: "Parent-Teacher Meeting", date: new Date("2026-02-20"), type: "Meeting" },
-    { id: 3, title: "Mid-term Exams Begin", date: new Date("2026-02-25"), type: "Exam" },
-    { id: 4, title: "Science Fair", date: new Date("2026-03-05"), type: "Event" }
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+        <p className="text-slate-500 font-bold animate-pulse">Aggregating institutional metrics...</p>
+      </div>
+    );
+  }
 
   return (
-    <>
+    <div className="animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-4xl font-black text-slate-900 tracking-tight">
             Institutional Hub
           </h2>
-          <p className="text-slate-500 font-medium">Holistic overview of school operations & metrics</p>
-        </div>
-        <div className="flex gap-4">
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-2xl px-6 py-3 pr-10 text-sm font-bold text-slate-700 shadow-sm focus:ring-4 focus:ring-blue-500/5 outline-none cursor-pointer hover:border-blue-300 transition-all"
-          >
-            <option>Today</option>
-            <option>This Week</option>
-            <option>This Month</option>
-            <option>This Year</option>
-          </select>
+          <p className="text-slate-500 font-medium mt-1">Holistic synchronization of school operations & metrics</p>
         </div>
       </div>
 
@@ -92,20 +78,20 @@ export const AdminHome = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="p-6">
+              <Card className="p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-slate-200/60">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">{stat.value}</p>
-                    <div className="flex items-center gap-1 mt-2">
-                      <span className={`text-sm font-medium ${stat.trend === "up" ? "text-green-600" : stat.trend === "down" ? "text-red-600" : "text-slate-500"}`}>
+                    <p className="text-xs text-slate-400 font-black uppercase tracking-widest leading-none mb-3">{stat.label}</p>
+                    <p className="text-4xl font-black text-slate-900 tracking-tight">{stat.value}</p>
+                    <div className="flex items-center gap-1 mt-4">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         {stat.change}
                       </span>
-                      <span className="text-xs text-slate-400">vs last period</span>
                     </div>
                   </div>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
-                    <Icon className="w-6 h-6" />
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${stat.color}`}>
+                    <Icon className="w-7 h-7" />
                   </div>
                 </div>
               </Card>
@@ -114,95 +100,75 @@ export const AdminHome = () => {
         })}
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {quickStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="p-4">
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-lg ${stat.color} flex items-center justify-center`}>
-                  <Icon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                  <p className="text-xs text-slate-500">{stat.label}</p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activities */}
-        <Card className="p-6 lg:col-span-2">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">Recent Activities</h2>
-          <div className="space-y-4">
-            {recentActivities.map((activity) => {
-              const Icon = activity.icon;
-              return (
-                <div key={activity.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900">{activity.title}</p>
-                    <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
-                  </div>
-                </div>
-              );
-            })}
+        <Card className="p-8 lg:col-span-2 border-slate-200/60 shadow-sm rounded-[2.5rem]">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Activity className="w-6 h-6 text-blue-600" />
+              Recent System Pulse
+            </h2>
+            <Badge variant="primary" className="px-3 py-1 rounded-lg text-[10px] font-black tracking-widest">LIVE SYNC</Badge>
           </div>
-        </Card>
-
-        {/* Upcoming Events */}
-        <Card className="p-6">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">Upcoming Events</h2>
-          <div className="space-y-4">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-start justify-between mb-2">
-                  <Badge variant="primary" className="text-xs">{event.type}</Badge>
-                  <span className="text-xs text-slate-500">
-                    {format(event.date, "MMM dd")}
-                  </span>
+          <div className="space-y-6">
+            {dashboardData?.activities?.map((activity, idx) => (
+              <div key={idx} className="flex items-start gap-5 p-4 rounded-3xl hover:bg-slate-50 transition-all group">
+                <div className={`w-12 h-12 ${activity.bg} rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm`}>
+                  <Activity className={`w-6 h-6 ${activity.color}`} />
                 </div>
-                <p className="text-sm font-medium text-slate-900">{event.title}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{activity.msg}</p>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1.5">{format(new Date(activity.time), "MMM dd, HH:mm")}</p>
+                </div>
               </div>
             ))}
+            {(!dashboardData?.activities || dashboardData.activities.length === 0) && (
+              <div className="text-center py-10">
+                <p className="text-slate-400 font-medium italic">Waiting for system logs...</p>
+              </div>
+            )}
           </div>
         </Card>
-      </div>
 
-      {/* Class Performance */}
-      <Card className="p-6 mt-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Class Performance Overview</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Class</TableHead>
-              <TableHead className="text-center">Students</TableHead>
-              <TableHead className="text-center">Avg Score</TableHead>
-              <TableHead className="text-center">Attendance</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {classPerformance.map((cls, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{cls.class}</TableCell>
-                <TableCell className="text-center">{cls.students}</TableCell>
-                <TableCell className="text-center">
-                  <span className="font-semibold text-blue-600">{cls.avgScore}%</span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className="font-semibold text-green-600">{cls.attendance}%</span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </>
+        {/* Quick Performance Summary */}
+        <div className="space-y-8">
+          <Card className="p-8 bg-gradient-to-br from-slate-900 to-blue-900 text-white rounded-[2.5rem] shadow-2xl border-none relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+            <div className="relative z-10">
+              <Star className="w-10 h-10 text-yellow-400 mb-4 animate-bounce" />
+              <h3 className="text-xl font-black mb-2">Institutional Health</h3>
+              <p className="text-slate-400 text-sm font-medium mb-6 leading-relaxed">System-wide performance metrics are operating within optimal parameters for this session.</p>
+              <div className="grid grid-cols-2 gap-4">
+                {quickStats.slice(0, 2).map((stat, idx) => (
+                  <div key={idx} className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{stat.label}</p>
+                    <p className="text-lg font-black">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-8 border-slate-200/60 shadow-sm rounded-[2.5rem]">
+            <h2 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-500" />
+              Upcoming Deadlines
+            </h2>
+            <div className="space-y-4 text-sm font-medium text-slate-500">
+              <div className="flex justify-between p-4 bg-slate-50 rounded-2xl">
+                <span>Fee Collection End</span>
+                <span className="font-bold text-slate-900">2 days left</span>
+              </div>
+              <div className="flex justify-between p-4 bg-slate-50 rounded-2xl">
+                <span>Exam Prep Review</span>
+                <span className="font-bold text-slate-900">5 days left</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 };
+
+import { Star } from "lucide-react";

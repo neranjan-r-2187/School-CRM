@@ -4,6 +4,7 @@ const {
   getUsers,
   getTeachers,
   getStudents,
+  getDashboard,
   createUser,
   createClass,
   updateClass,
@@ -34,6 +35,7 @@ router.route('/users')
 
 router.get('/teachers', getTeachers);
 router.get('/students', getStudents);
+router.get('/dashboard', getDashboard);
 
 router.route('/classes')
   .post(createClass);

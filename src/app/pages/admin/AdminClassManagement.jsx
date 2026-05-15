@@ -51,6 +51,10 @@ export const AdminClassManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["teacher-classes"]);
+      queryClient.invalidateQueries(["teacher-dashboard"]);
+      queryClient.invalidateQueries(["students"]);
       toast.success("Class created successfully");
       handleCloseModal();
     },
@@ -66,6 +70,10 @@ export const AdminClassManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["teacher-classes"]);
+      queryClient.invalidateQueries(["teacher-dashboard"]);
+      queryClient.invalidateQueries(["student-dashboard"]);
       toast.success("Class updated successfully");
       handleCloseModal();
     },
@@ -80,6 +88,8 @@ export const AdminClassManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["classes"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["teacher-classes"]);
       toast.success("Class deleted successfully");
     },
     onError: (err) => {

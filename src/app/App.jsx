@@ -46,6 +46,7 @@ import { AdminReports } from "./pages/admin/AdminReports";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { AdminStudentManagement } from "./pages/admin/AdminStudentManagement";
 import { AdminTeacherManagement } from "./pages/admin/AdminTeacherManagement";
+import { AdminSubjectManagement } from "./pages/admin/AdminSubjectManagement";
 import { AdminTimetableApprovals } from "./pages/admin/AdminTimetableApprovals";
 import { AdminTicketManagement } from "./pages/support/AdminTicketManagement";
 import { UserManagement } from "./pages/admin/UserManagement";
@@ -152,6 +153,7 @@ const AppContent = () => {
         <Route path="users" element={<UserManagement />} />
         <Route path="students" element={<AdminStudentManagement />} />
         <Route path="teachers" element={<AdminTeacherManagement />} />
+        <Route path="subjects" element={<AdminSubjectManagement />} />
         <Route path="classes" element={<AdminClassManagement />} />
         <Route path="fees" element={<AdminFeesManagement />} />
         <Route path="reports" element={<AdminReports />} />

@@ -52,6 +52,7 @@ export const AdminTeacherManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["teachers"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
       toast.success("Teacher removed successfully");
     },
     onError: (error) => {
@@ -65,6 +66,8 @@ export const AdminTeacherManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["teachers"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["teacher-dashboard"]);
       toast.success("Students assigned successfully");
       setAssigningTeacher(null);
       setSelectedStudents([]);
@@ -80,6 +83,8 @@ export const AdminTeacherManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["teachers"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["teacher-dashboard"]);
       toast.success("Student unlinked successfully");
     },
     onError: (error) => {
@@ -93,6 +98,7 @@ export const AdminTeacherManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["teachers"]);
+      queryClient.invalidateQueries(["timetable-permission"]);
       toast.success("Timetable permission updated");
     },
     onError: (error) => {

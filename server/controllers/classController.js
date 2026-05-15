@@ -11,6 +11,9 @@ exports.getClasses = asyncHandler(async (req, res) => {
   const features = new APIFeatures(Class.find().populate({
     path: 'classTeacher',
     populate: { path: 'user', select: 'name' }
+  }).populate({
+    path: 'subjects',
+    populate: { path: 'teacher', populate: { path: 'user', select: 'name' } }
   }), req.query)
     .filter()
     .sort()
@@ -29,6 +32,9 @@ exports.getClass = asyncHandler(async (req, res) => {
   const classItem = await Class.findById(req.params.id).populate({
     path: 'classTeacher',
     populate: { path: 'user', select: 'name' }
+  }).populate({
+    path: 'subjects',
+    populate: { path: 'teacher', populate: { path: 'user', select: 'name' } }
   });
 
   if (!classItem) {

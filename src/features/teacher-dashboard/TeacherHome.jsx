@@ -1,4 +1,4 @@
-import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus, Users, BookOpen } from "lucide-react";
+import { UserCheck, FileText, Award, MessageSquare, Bell, Star, AlertCircle, ChevronRight, Clock, Plus, Users, BookOpen, Activity, Loader2 } from "lucide-react";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { useAuth } from "../../app/context/AuthContext";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TimetableUploadModal } from "./components/TimetableUploadModal";
 import api from "../../lib/api";
+import { format } from "date-fns";
 
 export const TeacherHome = () => {
   const { user } = useAuth();
@@ -29,12 +30,12 @@ export const TeacherHome = () => {
   const dashboardStats = [
     { label: "Academic Units", value: stats?.totalClasses || "0", change: "Active groups", icon: UserCheck, color: "bg-blue-600" },
     { label: "Active Students", value: stats?.totalAssignedStudents || "0", change: "Synced enrollment", icon: Users, color: "bg-indigo-600" },
-    { label: "Active Assignments", value: stats?.activeAssignments || "0", change: "Action required", icon: FileText, color: "bg-emerald-600" },
+    { label: "Course Catalog", value: stats?.totalSubjects || "0", change: "Assigned modules", icon: BookOpen, color: "bg-purple-600" },
     { label: "Attendance Pulse", value: stats?.pendingAttendance || "0", change: "Pending updates", icon: Clock, color: "bg-orange-600" }
   ];
 
   return (
-    <div className="space-y-8 min-h-screen bg-slate-50/30">
+    <div className="space-y-8 min-h-screen bg-slate-50/30 animate-in fade-in duration-700">
       {/* Premium Hero Section */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
@@ -174,24 +175,27 @@ export const TeacherHome = () => {
 
         <div className="space-y-8">
           <Card className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60">
-            <CardTitle className="text-xl font-black text-slate-900 mb-8">System Pulse</CardTitle>
+            <CardTitle className="text-xl font-black text-slate-900 mb-8 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-600" />
+              Neural Pulse
+            </CardTitle>
             <div className="space-y-6">
-              {[
-                { type: "attendance", msg: "Attendance synclog: Class 10-A verified", time: "12m ago", color: "text-emerald-600", bg: "bg-emerald-100" },
-                { type: "assignment", msg: "New submission batch: Physics Lab", time: "44m ago", color: "text-blue-600", bg: "bg-blue-100" },
-                { type: "system", msg: "Timetable permissions updated by Root", time: "2h ago", color: "text-indigo-600", bg: "bg-indigo-100" },
-                { type: "grade", msg: "Gradebook entry locked for Unit 4", time: "4h ago", color: "text-purple-600", bg: "bg-purple-100" }
-              ].map((activity, idx) => (
+              {stats?.activities?.map((activity, idx) => (
                 <div key={idx} className="flex gap-4 group cursor-default">
-                  <div className={`w-12 h-12 rounded-2xl ${activity.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-2xl ${activity.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm`}>
                     <Activity className={`w-6 h-6 ${activity.color}`} />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-900 font-bold leading-tight group-hover:text-blue-600 transition-colors">{activity.msg}</p>
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{activity.time}</p>
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">
+                      {format(new Date(activity.time), "MMM dd, HH:mm")}
+                    </p>
                   </div>
                 </div>
               ))}
+              {(!stats?.activities || stats.activities.length === 0) && (
+                <div className="text-center py-10 italic text-slate-400 font-medium">No recent logs detected.</div>
+              )}
             </div>
           </Card>
 
@@ -216,6 +220,3 @@ export const TeacherHome = () => {
     </div>
   );
 };
-
-// Add Activity icon import
-import { Activity } from "lucide-react";

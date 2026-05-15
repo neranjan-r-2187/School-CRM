@@ -3,7 +3,10 @@ const Teacher = require('../models/Teacher');
 const Attendance = require('../models/Attendance');
 const Grade = require('../models/Grade');
 const Assignment = require('../models/Assignment');
-const { ATTENDANCE_STATUS } = require('../constants');
+const Class = require('../models/Class');
+const Subject = require('../models/Subject');
+const Ticket = require('../models/Ticket');
+const { ATTENDANCE_STATUS, ROLES } = require('../constants');
 
 /**
  * Dashboard Service
@@ -37,11 +40,30 @@ class DashboardService {
       dueDate: { $gte: new Date() }
     });
 
+    // 4. Get recent activities
+    const recentActivities = [
+      ...(await Attendance.find({ student: studentId }).sort({ createdAt: -1 }).limit(2).lean()).map(a => ({
+        type: 'attendance',
+        msg: `Attendance recorded: ${a.status}`,
+        time: a.createdAt,
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-100'
+      })),
+      ...(await Grade.find({ student: studentId }).sort({ createdAt: -1 }).limit(2).lean()).map(g => ({
+        type: 'grade',
+        msg: `Grade posted for ${g.subject}`,
+        time: g.createdAt,
+        color: 'text-purple-600',
+        bg: 'bg-purple-100'
+      }))
+    ].sort((a, b) => b.time - a.time).slice(0, 4);
+
     return {
       attendancePercentage: Math.round(attendancePercentage),
       averageGrade: Math.round(avgGrade),
       pendingAssignments,
-      totalSubjects: await Grade.distinct('subject', { student: studentId }).then(s => s.length)
+      totalSubjects: await Grade.distinct('subject', { student: studentId }).then(s => s.length),
+      activities: recentActivities
     };
   }
 
@@ -56,7 +78,6 @@ class DashboardService {
     const teacherId = teacher._id;
 
     // 1. Total Classes (Assigned + Leading)
-    const Class = require('../models/Class');
     const classes = await Class.find({
       $or: [
         { _id: { $in: teacher.assignedClasses } },
@@ -72,21 +93,84 @@ class DashboardService {
       dueDate: { $gte: new Date() }
     });
 
-    // 3. Pending Attendance Submissions (Simplified logic)
-    const pendingAttendance = totalClasses; 
+    // 3. Pending Attendance Submissions
+    // Logic: Count classes where attendance hasn't been marked today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const classesWithAttendance = await Attendance.distinct('class', { date: { $gte: today } });
+    const pendingAttendance = classes.filter(c => !classesWithAttendance.includes(c._id.toString())).length;
 
-    // 4. Total Students (Sum of students in all classes)
-    const Student = require('../models/Student');
+    // 4. Total Students
     const totalAssignedStudents = await Student.countDocuments({
       class: { $in: classes.map(c => c._id) }
     });
+
+    // 5. Total Subjects
+    const totalSubjects = await Subject.countDocuments({ teacher: teacherId });
+
+    // 6. Recent Activities
+    const recentActivities = [
+      ...(await Assignment.find({ teacher: teacherId }).sort({ createdAt: -1 }).limit(2).lean()).map(a => ({
+        type: 'assignment',
+        msg: `Assignment created: ${a.title}`,
+        time: a.createdAt,
+        color: 'text-blue-600',
+        bg: 'bg-blue-100'
+      })),
+      ...(await Attendance.find({ class: { $in: classes.map(c => c._id) } }).sort({ createdAt: -1 }).limit(2).lean()).map(a => ({
+        type: 'attendance',
+        msg: `Attendance updated for Class`,
+        time: a.createdAt,
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-100'
+      }))
+    ].sort((a, b) => b.time - a.time).slice(0, 4);
 
     return {
       totalClasses,
       activeAssignments,
       pendingAttendance,
       totalAssignedStudents,
-      department: teacher.department
+      totalSubjects,
+      department: teacher.department,
+      activities: recentActivities
+    };
+  }
+
+  /**
+   * Get Admin Dashboard stats
+   */
+  async getAdminStats() {
+    const totalStudents = await Student.countDocuments();
+    const totalTeachers = await Teacher.countDocuments();
+    const totalClasses = await Class.countDocuments();
+    const totalSubjects = await Subject.countDocuments();
+    const openTickets = await Ticket.countDocuments({ status: { $in: ['Open', 'In Progress'] } });
+
+    const recentActivities = [
+      ...(await Ticket.find({}).sort({ createdAt: -1 }).limit(3).lean()).map(t => ({
+        type: 'support',
+        msg: `Ticket ${t.ticketId}: ${t.status}`,
+        time: t.createdAt,
+        color: 'text-orange-600',
+        bg: 'bg-orange-100'
+      })),
+      ...(await Class.find({}).sort({ createdAt: -1 }).limit(2).lean()).map(c => ({
+        type: 'system',
+        msg: `Class ${c.name} updated`,
+        time: c.createdAt,
+        color: 'text-indigo-600',
+        bg: 'bg-indigo-100'
+      }))
+    ].sort((a, b) => b.time - a.time).slice(0, 5);
+
+    return {
+      totalStudents,
+      totalTeachers,
+      totalClasses,
+      totalSubjects,
+      openTickets,
+      activities: recentActivities
     };
   }
 }

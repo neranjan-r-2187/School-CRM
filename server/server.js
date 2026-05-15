@@ -18,6 +18,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const parentDashboardRoutes = require('./routes/parentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
+const subjectRoutes = require('./routes/subjectRoutes');
 
 
 
@@ -76,6 +77,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/parents', parentDashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/timetables', timetableRoutes);
+app.use('/api/subjects', subjectRoutes);
 
 
 
