@@ -8,7 +8,10 @@ const { HTTP_STATUS } = require('../constants');
 // @route   GET /api/classes
 // @access  Public
 exports.getClasses = asyncHandler(async (req, res) => {
-  const features = new APIFeatures(Class.find().populate('classTeacher', 'name'), req.query)
+  const features = new APIFeatures(Class.find().populate({
+    path: 'classTeacher',
+    populate: { path: 'user', select: 'name' }
+  }), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -23,7 +26,10 @@ exports.getClasses = asyncHandler(async (req, res) => {
 // @route   GET /api/classes/:id
 // @access  Public
 exports.getClass = asyncHandler(async (req, res) => {
-  const classItem = await Class.findById(req.params.id).populate('classTeacher');
+  const classItem = await Class.findById(req.params.id).populate({
+    path: 'classTeacher',
+    populate: { path: 'user', select: 'name' }
+  });
 
   if (!classItem) {
     res.status(HTTP_STATUS.NOT_FOUND);
