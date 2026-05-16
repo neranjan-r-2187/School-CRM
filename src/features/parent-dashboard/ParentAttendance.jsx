@@ -1,15 +1,21 @@
 import { motion } from "motion/react";
-import { CheckCircle2, AlertCircle, Clock, TrendingUp } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, TrendingUp, XCircle } from "lucide-react";
 import { Card, CardTitle } from "../../components/ui/Card";
-
-const attendanceStats = {
-  present: 145,
-  absent: 3,
-  late: 2,
-  percentage: "96.6%"
-};
+import { useParentStudentData } from "./hooks/useParentData";
 
 export const ParentAttendance = () => {
+  const { linkedStudents, selectedStudentId, setSelectedStudentId, studentData, isLoading } = useParentStudentData();
+
+  if (isLoading || !selectedStudentId) return <div className="py-20 text-center text-slate-400">Loading student data...</div>;
+
+  const attendance = studentData.attendance || [];
+  
+  const presentDays = attendance.filter(a => a.status === "present" || a.status === "Present").length;
+  const absentDays = attendance.filter(a => a.status === "absent" || a.status === "Absent").length;
+  const lateDays = attendance.filter(a => a.status === "late" || a.status === "Late").length;
+  const totalDays = attendance.length;
+  const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+
   return (
     <motion.div
       key="attendance"
@@ -18,9 +24,25 @@ export const ParentAttendance = () => {
       exit={{ opacity: 0 }}
       className="space-y-6"
     >
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Attendance Record</h1>
-        <p className="text-slate-500 mt-1">Monthly attendance tracking and statistics</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Attendance Record</h1>
+          <p className="text-slate-500 mt-1">Monthly attendance tracking and statistics</p>
+        </div>
+        
+        {linkedStudents.length > 1 && (
+          <select 
+            value={selectedStudentId}
+            onChange={(e) => setSelectedStudentId(e.target.value)}
+            className="px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700"
+          >
+            {linkedStudents.map(student => (
+              <option key={student._id} value={student._id}>
+                {student.user?.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -28,7 +50,7 @@ export const ParentAttendance = () => {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <p className="text-3xl font-bold text-green-600">{attendanceStats.present}</p>
+          <p className="text-3xl font-bold text-green-600">{presentDays}</p>
           <p className="text-sm text-slate-500 mt-1">Days Present</p>
         </Card>
 
@@ -36,7 +58,7 @@ export const ParentAttendance = () => {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <p className="text-3xl font-bold text-red-600">{attendanceStats.absent}</p>
+          <p className="text-3xl font-bold text-red-600">{absentDays}</p>
           <p className="text-sm text-slate-500 mt-1">Days Absent</p>
         </Card>
 
@@ -44,7 +66,7 @@ export const ParentAttendance = () => {
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Clock className="w-8 h-8 text-orange-600" />
           </div>
-          <p className="text-3xl font-bold text-orange-600">{attendanceStats.late}</p>
+          <p className="text-3xl font-bold text-orange-600">{lateDays}</p>
           <p className="text-sm text-slate-500 mt-1">Times Late</p>
         </Card>
 
@@ -52,18 +74,35 @@ export const ParentAttendance = () => {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <TrendingUp className="w-8 h-8 text-blue-600" />
           </div>
-          <p className="text-3xl font-bold text-blue-600">{attendanceStats.percentage}</p>
+          <p className="text-3xl font-bold text-blue-600">{totalDays > 0 ? percentage : "N/A"}%</p>
           <p className="text-sm text-slate-500 mt-1">Overall %</p>
         </Card>
       </div>
 
       <Card>
-        <CardTitle className="mb-4">Monthly Attendance Overview</CardTitle>
-        <div className="grid grid-cols-7 gap-2">
-          {/* Calendar view would go here */}
-          <p className="col-span-7 text-center text-slate-500 py-8">
-            Calendar view with detailed daily attendance
-          </p>
+        <CardTitle className="mb-6">Recent Records</CardTitle>
+        <div className="space-y-4">
+          {attendance.length > 0 ? attendance.slice(0, 10).map((record) => (
+            <div key={record._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  record.status === "present" || record.status === "Present" ? "bg-green-100 text-green-600" :
+                  record.status === "absent" || record.status === "Absent" ? "bg-red-100 text-red-600" :
+                  "bg-orange-100 text-orange-600"
+                }`}>
+                  {record.status === "present" || record.status === "Present" ? <CheckCircle2 className="w-5 h-5" /> :
+                   record.status === "absent" || record.status === "Absent" ? <XCircle className="w-5 h-5" /> :
+                   <Clock className="w-5 h-5" />}
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-900">{new Date(record.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <p className="text-sm text-slate-500 capitalize">{record.status}</p>
+                </div>
+              </div>
+            </div>
+          )) : (
+            <div className="py-10 text-center text-slate-400 italic">No attendance records found</div>
+          )}
         </div>
       </Card>
     </motion.div>

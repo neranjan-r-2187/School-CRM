@@ -2,14 +2,19 @@ import { motion } from "motion/react";
 import { Download } from "lucide-react";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
-
-const feesData = [
-  { id: 1, title: "Tuition Fee - Term 2", amount: "₹12,000", date: "Due Mar 15", status: "Pending" },
-  { id: 2, title: "Bus Fee - Feb", amount: "₹1,500", date: "Paid Feb 10", status: "Paid" },
-  { id: 3, title: "Lab Fee", amount: "₹3,000", date: "Paid Jan 20", status: "Paid" }
-];
+import { useParentStudentData } from "./hooks/useParentData";
 
 export const ParentFees = () => {
+  const { linkedStudents, selectedStudentId, setSelectedStudentId, studentData, isLoading } = useParentStudentData();
+
+  if (isLoading || !selectedStudentId) return <div className="py-20 text-center text-slate-400">Loading student data...</div>;
+
+  const fees = studentData.fees || [];
+  
+  const totalFees = fees.reduce((acc, f) => acc + (f.amount || 0), 0);
+  const paidFees = fees.filter(f => f.status === "Paid").reduce((acc, f) => acc + (f.amount || 0), 0);
+  const pendingFees = fees.filter(f => f.status !== "Paid").reduce((acc, f) => acc + (f.amount || 0), 0);
+
   return (
     <motion.div
       key="fees"
@@ -18,23 +23,39 @@ export const ParentFees = () => {
       exit={{ opacity: 0 }}
       className="space-y-6"
     >
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Fee Payments</h1>
-        <p className="text-slate-500 mt-1">Manage and track fee payments</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Fee Payments</h1>
+          <p className="text-slate-500 mt-1">Manage and track fee payments</p>
+        </div>
+        
+        {linkedStudents.length > 1 && (
+          <select 
+            value={selectedStudentId}
+            onChange={(e) => setSelectedStudentId(e.target.value)}
+            className="px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700"
+          >
+            {linkedStudents.map(student => (
+              <option key={student._id} value={student._id}>
+                {student.user?.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <p className="text-sm text-slate-500 font-medium mb-2">Total Fees (Annual)</p>
-          <p className="text-3xl font-bold text-slate-900">₹60,000</p>
+          <p className="text-sm text-slate-500 font-medium mb-2">Total Fees</p>
+          <p className="text-3xl font-bold text-slate-900">₹{totalFees.toLocaleString()}</p>
         </Card>
         <Card>
           <p className="text-sm text-slate-500 font-medium mb-2">Paid</p>
-          <p className="text-3xl font-bold text-green-600">₹48,000</p>
+          <p className="text-3xl font-bold text-green-600">₹{paidFees.toLocaleString()}</p>
         </Card>
         <Card>
           <p className="text-sm text-slate-500 font-medium mb-2">Pending</p>
-          <p className="text-3xl font-bold text-orange-600">₹12,000</p>
+          <p className="text-3xl font-bold text-orange-600">₹{pendingFees.toLocaleString()}</p>
         </Card>
       </div>
 
@@ -47,25 +68,27 @@ export const ParentFees = () => {
           </button>
         </div>
         <div className="space-y-3">
-          {feesData.map((fee) => (
-            <div key={fee.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
+          {fees.length > 0 ? fees.map((fee) => (
+            <div key={fee._id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
               <div className="flex-1">
-                <p className="font-semibold text-slate-900">{fee.title}</p>
-                <p className="text-sm text-slate-500 mt-1">{fee.date}</p>
+                <p className="font-semibold text-slate-900">{fee.title || fee.type}</p>
+                <p className="text-sm text-slate-500 mt-1">Due: {new Date(fee.dueDate).toLocaleDateString()}</p>
               </div>
               <div className="flex items-center gap-6">
-                <p className="text-lg font-bold text-slate-900">{fee.amount}</p>
+                <p className="text-lg font-bold text-slate-900">₹{fee.amount.toLocaleString()}</p>
                 <Badge variant={fee.status === "Paid" ? "success" : "warning"} className="min-w-[80px] justify-center px-4 py-2 text-sm">
                   {fee.status}
                 </Badge>
-                {fee.status === "Pending" && (
+                {fee.status !== "Paid" && (
                   <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                     Pay Now
                   </button>
                 )}
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="py-10 text-center text-slate-400 italic">No fee records found</div>
+          )}
         </div>
       </Card>
     </motion.div>

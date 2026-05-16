@@ -138,13 +138,13 @@ const AppContent = () => {
       <Route path="/parent/dashboard" element={<ProtectedRoute allowedRoles={["Parent", "Admin", "SuperAdmin"]}>
           <ParentLayout />
         </ProtectedRoute>}>
-        <Route index element={<ParentDashboard />} />
-        <Route path="progress" element={<ParentDashboard />} />
-        <Route path="attendance" element={<ParentDashboard />} />
-        <Route path="schedule" element={<ParentDashboard />} />
-        <Route path="fees" element={<ParentDashboard />} />
-        <Route path="chat" element={<ParentDashboard />} />
-        <Route path="support" element={<ParentDashboard />} />
+        <Route index element={<ParentHome />} />
+        <Route path="progress" element={<ParentProgress />} />
+        <Route path="attendance" element={<ParentAttendance />} />
+        <Route path="schedule" element={<ParentHome />} />
+        <Route path="fees" element={<ParentFees />} />
+        <Route path="chat" element={<ChatInterface />} />
+        <Route path="support" element={<SupportTickets />} />
       </Route>
       <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
           <AdminLayout />
@@ -188,7 +188,7 @@ const AppContent = () => {
         {
     /* General Routes */
   }
-        <Route path="dashboard" element={<GenericDashboard />} />
+        <Route path="dashboard" element={<RedirectBasedOnRole />} />
         <Route path="students" element={<StudentManagement />} />
         <Route path="admissions" element={<AdmissionsCRM />} />
         <Route path="academics" element={<AcademicsManagement />} />

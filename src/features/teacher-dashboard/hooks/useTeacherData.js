@@ -67,6 +67,8 @@ export const useCreateAssignment = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(['teacher-assignments']);
       queryClient.invalidateQueries(['teacher-dashboard']);
+      queryClient.invalidateQueries(['assignments']);
+      queryClient.invalidateQueries(['student-dashboard']);
     },
   });
 };
@@ -84,6 +86,9 @@ export const useSubmitAttendance = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['teacher-dashboard']);
+      queryClient.invalidateQueries(['attendance']);
+      queryClient.invalidateQueries(['student-dashboard']);
+      queryClient.invalidateQueries(['admin-dashboard']);
     },
   });
 };

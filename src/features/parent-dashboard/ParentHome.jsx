@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { TrendingUp, CheckCircle2, AlertCircle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useData } from "../../app/context/DataContext";
+import { useParentStudentData } from "./hooks/useParentData";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 
 const progressData = [
@@ -18,15 +19,16 @@ const feesData = [
   { id: 3, title: "Lab Fee", amount: "₹3,000", date: "Paid Jan 20", status: "Paid" }
 ];
 
-export const ParentHome = ({ data }) => {
+export const ParentHome = () => {
   const { threads } = useData();
+  const { linkedStudents, selectedStudentId, setSelectedStudentId, studentData, isLoading } = useParentStudentData();
 
-  if (!data) return <div className="py-20 text-center text-slate-400">Select a student to view overview</div>;
+  if (isLoading || !selectedStudentId) return <div className="py-20 text-center text-slate-400">Loading student data...</div>;
 
-  const { attendance = [], grades = [], fees = [], announcements = [] } = data;
+  const { attendance = [], grades = [], fees = [], announcements = [] } = studentData;
 
   const totalAttendance = attendance.length;
-  const presentAttendance = attendance.filter(a => a.status === "present").length;
+  const presentAttendance = attendance.filter(a => a.status === "present" || a.status === "Present").length;
   const attendancePercentage = totalAttendance > 0 
     ? ((presentAttendance / totalAttendance) * 100).toFixed(1) + "%"
     : "N/A";
@@ -36,7 +38,7 @@ export const ParentHome = ({ data }) => {
 
   const recentGrades = grades.slice(0, 5).map(g => ({
     subject: g.subject?.name || "Subject",
-    score: g.marksObtained,
+    score: g.marksObtained || g.score || 0,
     month: new Date(g.createdAt).toLocaleString('default', { month: 'short' })
   }));
 
@@ -48,6 +50,23 @@ export const ParentHome = ({ data }) => {
       exit={{ opacity: 0 }}
       className="space-y-6"
     >
+      {/* Student Selector */}
+      {linkedStudents.length > 1 && (
+        <div className="mb-6">
+          <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Viewing records for</label>
+          <select 
+            value={selectedStudentId}
+            onChange={(e) => setSelectedStudentId(e.target.value)}
+            className="px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700"
+          >
+            {linkedStudents.map(student => (
+              <option key={student._id} value={student._id}>
+                {student.user?.name} - {student.class?.name} ({student.class?.section})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>

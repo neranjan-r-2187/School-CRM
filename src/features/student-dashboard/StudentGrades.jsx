@@ -1,7 +1,11 @@
-import { useData } from "../../app/context/DataContext";
+import { useStudentGrades } from "./hooks/useStudentData";
+import { Loader2 } from "lucide-react";
 
 export const StudentGrades = () => {
-  const { grades } = useData();
+  const { data: grades, isLoading, isError } = useStudentGrades();
+
+  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>;
+  if (isError) return <div className="text-center text-red-500 py-10">Failed to load grades.</div>;
 
   return (
     <div className="space-y-6">
@@ -24,19 +28,19 @@ export const StudentGrades = () => {
               </tr>
             </thead>
             <tbody>
-              {(grades || []).map((grade, index) => (
+              {grades && grades.length > 0 ? grades.map((grade, index) => (
                 <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-4 font-medium text-slate-900">{grade.subject}</td>
-                  <td className="p-4 text-slate-700">{grade.exam}</td>
-                  <td className="p-4 text-center text-slate-700">{grade.marksObtained}</td>
-                  <td className="p-4 text-center text-slate-700">{grade.totalMarks}</td>
+                  <td className="p-4 font-medium text-slate-900">{grade.subject?.name || grade.subject}</td>
+                  <td className="p-4 text-slate-700">{grade.exam || "Term Exam"}</td>
+                  <td className="p-4 text-center text-slate-700">{grade.marksObtained || grade.score}</td>
+                  <td className="p-4 text-center text-slate-700">{grade.totalMarks || grade.maxScore}</td>
                   <td className="p-4 text-center">
                     <span className={`font-semibold ${
-                      grade.percentage >= 90 ? "text-green-600" : 
-                      grade.percentage >= 75 ? "text-blue-600" : 
-                      grade.percentage >= 60 ? "text-orange-600" : "text-red-600"
+                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 90 ? "text-green-600" : 
+                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 75 ? "text-blue-600" : 
+                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 60 ? "text-orange-600" : "text-red-600"
                     }`}>
-                      {grade.percentage}%
+                      {grade.percentage ? grade.percentage.toFixed(1) : ((grade.score / grade.maxScore) * 100).toFixed(1)}%
                     </span>
                   </td>
                   <td className="p-4 text-center">
@@ -45,7 +49,13 @@ export const StudentGrades = () => {
                     </span>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-slate-500">
+                    No grades available yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
