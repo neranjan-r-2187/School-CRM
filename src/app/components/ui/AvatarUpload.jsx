@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Camera, Loader2, User, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../lib/api";
+import api from "../../../lib/api";
 import { toast } from "sonner";
 
 export const AvatarUpload = ({ userId, currentAvatar, name, size = "large" }) => {
