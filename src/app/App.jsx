@@ -84,8 +84,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     // If user doesn't have permission, redirect to their home dashboard
     const homePath = user?.role === "Parent" ? "/parent/dashboard" : 
                     user?.role === "Student" ? "/student/dashboard" :
-                    user?.role === "Teacher" ? "/teacher/dashboard" : 
-                    user?.role === "Admin" || user?.role === "SuperAdmin" ? "/admin/dashboard" : "/login";
+                    (user?.role === "Teacher" || user?.role === "Staff") ? "/teacher/dashboard" : 
+                    (user?.role === "Admin" || user?.role === "SuperAdmin") ? "/admin/dashboard" : "/login";
     return <Navigate to={homePath} replace />;
   }
 

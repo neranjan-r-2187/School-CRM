@@ -6,7 +6,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
 
   const handleGoHome = () => {
     resetErrorBoundary();
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (

@@ -24,7 +24,7 @@ export const StudentGrades = () => {
               </tr>
             </thead>
             <tbody>
-              {grades.map((grade, index) => (
+              {(grades || []).map((grade, index) => (
                 <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="p-4 font-medium text-slate-900">{grade.subject}</td>
                   <td className="p-4 text-slate-700">{grade.exam}</td>
