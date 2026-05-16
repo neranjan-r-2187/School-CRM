@@ -32,6 +32,20 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(ROLES),
       default: ROLES.STUDENT,
     },
+    avatar: {
+      type: String,
+      default: '',
+    },
+    phoneNumber: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -56,8 +70,6 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-// Index for fast email lookups (redundant if unique: true is used, but keeping unique: true is primary)
 
 const User = mongoose.model('User', userSchema);
 

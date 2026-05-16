@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -55,6 +56,7 @@ app.use(cors({
 })); // Enable CORS for frontend requests
 app.use(express.json()); // Parse JSON payloads
 app.use(express.urlencoded({ extended: false }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
  
 
 

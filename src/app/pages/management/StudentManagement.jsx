@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { MoveToClassModal } from "../admin/MoveToClassModal";
 import api from "../../../lib/api";
 
 export function StudentManagement() {
@@ -29,6 +30,7 @@ export function StudentManagement() {
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [viewStudent, setViewStudent] = useState(null);
+  const [movingStudent, setMovingStudent] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Fetch students from API
@@ -138,8 +140,8 @@ export function StudentManagement() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Student Management</h1>
-          <p className="text-slate-600 mt-1">Manage and track all student records from the database</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Student Management</h1>
+          <p className="text-slate-500 font-medium mt-1">Holistic tracking of institutional enrollment node</p>
         </div>
       </div>
 
@@ -186,11 +188,15 @@ export function StudentManagement() {
             <tbody className="divide-y divide-slate-200">
               {filteredStudents.map((student) => <tr key={student._id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.user?.name)}&background=random`} alt={student.user?.name} className="w-10 h-10 rounded-full" />
+                    <div className="flex items-center gap-4">
+                      <img 
+                        src={student.user?.avatar ? (student.user.avatar.startsWith('http') ? student.user.avatar : `${api.defaults.baseURL}${student.user.avatar}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(student.user?.name)}&background=random`} 
+                        alt={student.user?.name} 
+                        className="w-12 h-12 rounded-2xl shadow-sm object-cover" 
+                      />
                       <div>
-                        <p className="font-semibold text-slate-900">{student.user?.name}</p>
-                        <p className="text-sm text-slate-500">{student.studentId}</p>
+                        <p className="font-black text-slate-900 leading-tight">{student.user?.name}</p>
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{student.studentId}</p>
                       </div>
                     </div>
                   </td>
@@ -205,9 +211,16 @@ export function StudentManagement() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setViewStudent(student)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => handleEdit(student)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"><Edit className="w-4 h-4" /></button>
-                      <button onClick={() => handleDelete(student)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                      <button 
+                        onClick={() => setMovingStudent(student)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="Relocate to Class"
+                      >
+                        <GraduationCap className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setViewStudent(student)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-4 h-4" /></button>
+                      <button onClick={() => handleEdit(student)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(student)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>)}
@@ -218,5 +231,12 @@ export function StudentManagement() {
           <p className="text-sm text-slate-600">Showing <span className="font-medium">{filteredStudents.length}</span> students from database</p>
         </div>
       </div>
+      {movingStudent && (
+        <MoveToClassModal 
+          isOpen={!!movingStudent}
+          onClose={() => setMovingStudent(null)}
+          student={movingStudent}
+        />
+      )}
     </div>;
 }

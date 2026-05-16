@@ -40,7 +40,7 @@ class DashboardService {
       dueDate: { $gte: new Date() }
     });
 
-    // 4. Get recent activities
+    // 4. Recent activities
     const recentActivities = [
       ...(await Attendance.find({ student: studentId }).sort({ createdAt: -1 }).limit(2).lean()).map(a => ({
         type: 'attendance',
@@ -77,7 +77,7 @@ class DashboardService {
 
     const teacherId = teacher._id;
 
-    // 1. Total Classes (Assigned + Leading)
+    // 1. Total Classes
     const classes = await Class.find({
       $or: [
         { _id: { $in: teacher.assignedClasses } },
@@ -93,8 +93,7 @@ class DashboardService {
       dueDate: { $gte: new Date() }
     });
 
-    // 3. Pending Attendance Submissions
-    // Logic: Count classes where attendance hasn't been marked today
+    // 3. Pending Attendance
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const classesWithAttendance = await Attendance.distinct('class', { date: { $gte: today } });
@@ -105,10 +104,7 @@ class DashboardService {
       class: { $in: classes.map(c => c._id) }
     });
 
-    // 5. Total Subjects
-    const totalSubjects = await Subject.countDocuments({ teacher: teacherId });
-
-    // 6. Recent Activities
+    // 5. Recent Activities
     const recentActivities = [
       ...(await Assignment.find({ teacher: teacherId }).sort({ createdAt: -1 }).limit(2).lean()).map(a => ({
         type: 'assignment',
@@ -131,46 +127,90 @@ class DashboardService {
       activeAssignments,
       pendingAttendance,
       totalAssignedStudents,
-      totalSubjects,
       department: teacher.department,
       activities: recentActivities
     };
   }
 
   /**
-   * Get Admin Dashboard stats
+   * Get comprehensive Admin Analytics
    */
-  async getAdminStats() {
-    const totalStudents = await Student.countDocuments();
-    const totalTeachers = await Teacher.countDocuments();
-    const totalClasses = await Class.countDocuments();
-    const totalSubjects = await Subject.countDocuments();
-    const openTickets = await Ticket.countDocuments({ status: { $in: ['Open', 'In Progress'] } });
+  async getAdminAnalytics() {
+    // 1. Enrollment Trends (last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const enrollmentTrends = await Student.aggregate([
+      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
 
-    const recentActivities = [
-      ...(await Ticket.find({}).sort({ createdAt: -1 }).limit(3).lean()).map(t => ({
-        type: 'support',
-        msg: `Ticket ${t.ticketId}: ${t.status}`,
-        time: t.createdAt,
-        color: 'text-orange-600',
-        bg: 'bg-orange-100'
-      })),
-      ...(await Class.find({}).sort({ createdAt: -1 }).limit(2).lean()).map(c => ({
-        type: 'system',
-        msg: `Class ${c.name} updated`,
-        time: c.createdAt,
-        color: 'text-indigo-600',
-        bg: 'bg-indigo-100'
-      }))
-    ].sort((a, b) => b.time - a.time).slice(0, 5);
+    // 2. Performance by Class
+    const classPerformance = await Grade.aggregate([
+      {
+        $group: {
+          _id: "$class",
+          avgScore: { $avg: { $divide: ["$marksObtained", "$totalMarks"] } },
+          totalStudents: { $addToSet: "$student" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'classes',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'classInfo'
+        }
+      },
+      { $unwind: "$classInfo" },
+      {
+        $project: {
+          name: "$classInfo.name",
+          section: "$classInfo.section",
+          avgScore: { $multiply: ["$avgScore", 100] },
+          studentCount: { $size: "$totalStudents" }
+        }
+      }
+    ]);
+
+    // 3. Attendance Overview
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const attendanceStats = await Attendance.aggregate([
+      { $match: { date: { $gte: today } } },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 4. Ticket Status Distribution
+    const ticketStats = await Ticket.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
     return {
-      totalStudents,
-      totalTeachers,
-      totalClasses,
-      totalSubjects,
-      openTickets,
-      activities: recentActivities
+      enrollmentTrends,
+      classPerformance,
+      attendanceStats,
+      ticketStats,
+      totalStudents: await Student.countDocuments(),
+      totalTeachers: await Teacher.countDocuments(),
+      totalClasses: await Class.countDocuments(),
+      openTickets: await Ticket.countDocuments({ status: { $in: ['Open', 'In Progress'] } })
     };
   }
 }

@@ -20,19 +20,33 @@ import { Badge } from "../../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../components/ui/Table";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Cell
+} from 'recharts';
 import api from "../../lib/api";
 
 export const AdminHome = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("This Month");
 
-  // Fetch real dashboard data
-  const { data: dashboardData, isLoading, isError } = useQuery({
+  // Fetch real analytics data
+  const { data: analytics, isLoading: isAnalyticsLoading } = useQuery({
+    queryKey: ["admin-analytics"],
+    queryFn: async () => {
+      const response = await api.get("/admin/analytics");
+      return response.data.data;
+    }
+  });
+
+  const { data: dashboardData, isLoading: isDashboardLoading } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: async () => {
       const response = await api.get("/admin/dashboard");
       return response.data.data;
     }
   });
+
+  const isLoading = isDashboardLoading || isAnalyticsLoading;
 
   const stats = [
     { label: "Total Students", value: dashboardData?.totalStudents || "0", change: "Sync Active", trend: "up", icon: GraduationCap, color: "text-blue-600 bg-blue-50" },
@@ -101,34 +115,58 @@ export const AdminHome = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activities */}
-        <Card className="p-8 lg:col-span-2 border-slate-200/60 shadow-sm rounded-[2.5rem]">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <Activity className="w-6 h-6 text-blue-600" />
-              Recent System Pulse
+        {/* Analytics Charts */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="p-8 border-slate-200/60 shadow-sm rounded-[2.5rem]">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <TrendingUp className="w-6 h-6 text-indigo-600" />
+                Enrollment Trajectory
+              </h2>
+            </div>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={analytics?.enrollmentTrends || []}>
+                  <defs>
+                    <linearGradient id="colorEnroll" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="_id" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorEnroll)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="p-8 border-slate-200/60 shadow-sm rounded-[2.5rem]">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2 mb-8">
+              <Award className="w-6 h-6 text-amber-500" />
+              Class Performance Index
             </h2>
-            <Badge variant="primary" className="px-3 py-1 rounded-lg text-[10px] font-black tracking-widest">LIVE SYNC</Badge>
-          </div>
-          <div className="space-y-6">
-            {dashboardData?.activities?.map((activity, idx) => (
-              <div key={idx} className="flex items-start gap-5 p-4 rounded-3xl hover:bg-slate-50 transition-all group">
-                <div className={`w-12 h-12 ${activity.bg} rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm`}>
-                  <Activity className={`w-6 h-6 ${activity.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{activity.msg}</p>
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1.5">{format(new Date(activity.time), "MMM dd, HH:mm")}</p>
-                </div>
-              </div>
-            ))}
-            {(!dashboardData?.activities || dashboardData.activities.length === 0) && (
-              <div className="text-center py-10">
-                <p className="text-slate-400 font-medium italic">Waiting for system logs...</p>
-              </div>
-            )}
-          </div>
-        </Card>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={analytics?.classPerformance || []}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} />
+                  <Bar dataKey="avgScore" radius={[10, 10, 0, 0]}>
+                    {analytics?.classPerformance?.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#6366f1' : '#a855f7'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
 
         {/* Quick Performance Summary */}
         <div className="space-y-8">
@@ -171,4 +209,4 @@ export const AdminHome = () => {
   );
 };
 
-import { Star } from "lucide-react";
+import { Star, TrendingUp } from "lucide-react";

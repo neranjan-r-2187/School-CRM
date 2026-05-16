@@ -52,6 +52,24 @@ const studentSchema = new mongoose.Schema(
 studentSchema.index({ user: 1 });
 studentSchema.index({ class: 1 });
 
+// Auto-generate roll number if missing
+studentSchema.pre('save', async function (next) {
+  if (this.isNew && !this.rollNumber && this.class) {
+    const Student = this.constructor;
+    const lastStudent = await Student.findOne({ class: this.class })
+      .sort({ rollNumber: -1 })
+      .collation({ locale: 'en', numericOrdering: true });
+    
+    if (lastStudent && lastStudent.rollNumber) {
+      const nextRoll = parseInt(lastStudent.rollNumber) + 1;
+      this.rollNumber = nextRoll.toString();
+    } else {
+      this.rollNumber = '1';
+    }
+  }
+  next();
+});
+
 const Student = mongoose.model('Student', studentSchema);
 
 module.exports = Student;

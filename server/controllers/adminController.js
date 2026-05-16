@@ -8,6 +8,8 @@ const Parent = require('../models/Parent');
 const Timetable = require('../models/Timetable');
 const asyncHandler = require('../middleware/asyncHandler');
 const sendResponse = require('../utils/apiResponse');
+const xlsx = require('xlsx');
+const dashboardService = require('../services/dashboardService');
 const { HTTP_STATUS, ROLES } = require('../constants');
 
 // @desc    Get all users
@@ -175,32 +177,49 @@ exports.updateUser = asyncHandler(async (req, res) => {
     user.password = req.body.password;
   }
   user.role = req.body.role || user.role;
+  user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
   user.isActive = req.body.isActive !== undefined ? req.body.isActive : user.isActive;
+  if (req.body.address) {
+    user.address = { ...user.address, ...req.body.address };
+  }
 
   const updatedUser = await user.save();
 
-  // Update/Create role-specific profile if needed
+  // Update/Create role-specific profile
   try {
     if (updatedUser.role === ROLES.TEACHER || updatedUser.role === ROLES.STAFF) {
-      const exists = await Teacher.findOne({ user: updatedUser._id });
-      if (!exists) {
+      const teacher = await Teacher.findOne({ user: updatedUser._id });
+      if (teacher) {
+        if (req.body.department) teacher.department = req.body.department;
+        if (req.body.qualification) teacher.qualification = req.body.qualification;
+        await teacher.save();
+      } else {
         await Teacher.create({
           user: updatedUser._id,
           employeeId: `EMP${Date.now()}`,
-          department: 'General'
+          department: req.body.department || 'General'
         });
       }
     } else if (updatedUser.role === ROLES.STUDENT) {
-      const exists = await Student.findOne({ user: updatedUser._id });
-      if (!exists) {
+      const student = await Student.findOne({ user: updatedUser._id });
+      if (student) {
+        if (req.body.studentId) student.studentId = req.body.studentId;
+        if (req.body.rollNumber) student.rollNumber = req.body.rollNumber;
+        if (req.body.class) student.class = req.body.class;
+        await student.save();
+      } else {
         await Student.create({
           user: updatedUser._id,
-          studentId: `STU${Date.now()}`
+          studentId: `STU${Date.now()}`,
+          class: req.body.class
         });
       }
     } else if (updatedUser.role === ROLES.PARENT) {
-      const exists = await Parent.findOne({ user: updatedUser._id });
-      if (!exists) {
+      const parent = await Parent.findOne({ user: updatedUser._id });
+      if (parent) {
+        if (req.body.occupation) parent.occupation = req.body.occupation;
+        await parent.save();
+      } else {
         await Parent.create({
           user: updatedUser._id
         });
@@ -210,7 +229,99 @@ exports.updateUser = asyncHandler(async (req, res) => {
     console.error('Failed to update/create profile during user update:', profileError);
   }
 
-  sendResponse(res, HTTP_STATUS.OK, updatedUser, 'User updated successfully');
+  sendResponse(res, HTTP_STATUS.OK, updatedUser, 'User and profile updated successfully');
+});
+
+// @desc    Update user avatar
+// @route   POST /api/admin/users/:id/avatar
+// @access  Private/Admin
+exports.updateAvatar = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('User not found');
+  }
+
+  if (!req.file) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please upload an image');
+  }
+
+  user.avatar = `/uploads/${req.file.filename}`;
+  await user.save();
+
+  sendResponse(res, HTTP_STATUS.OK, user, 'Avatar updated successfully');
+});
+
+// @desc    Bulk import users from Excel
+// @route   POST /api/admin/users/import
+// @access  Private/Admin
+exports.bulkImportUsers = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Please upload an Excel file');
+  }
+
+  const workbook = xlsx.readFile(req.file.path);
+  const sheetName = workbook.SheetNames[0];
+  const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+  const results = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+
+  for (const row of data) {
+    try {
+      const { name, email, role, password, ...profileData } = row;
+      
+      // Check if user exists
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        results.failed++;
+        results.errors.push(`Email ${email} already exists`);
+        continue;
+      }
+
+      const user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        role: role || ROLES.STUDENT,
+        password: password || 'Welcome@123'
+      });
+
+      if (user.role === ROLES.STUDENT) {
+        await Student.create({
+          user: user._id,
+          studentId: profileData.studentId || `STU${Date.now()}${results.success}`,
+          rollNumber: profileData.rollNumber,
+          class: profileData.classId // Assumes ID is provided in Excel
+        });
+      } else if (user.role === ROLES.TEACHER) {
+        await Teacher.create({
+          user: user._id,
+          employeeId: profileData.employeeId || `EMP${Date.now()}${results.success}`,
+          department: profileData.department
+        });
+      }
+
+      results.success++;
+    } catch (err) {
+      results.failed++;
+      results.errors.push(`Error importing ${row.email}: ${err.message}`);
+    }
+  }
+
+  sendResponse(res, HTTP_STATUS.OK, results, 'Bulk import completed');
+});
+
+// @desc    Get detailed school analytics
+// @route   GET /api/admin/analytics
+// @access  Private/Admin
+exports.getAnalytics = asyncHandler(async (req, res) => {
+  const analytics = await dashboardService.getAdminAnalytics();
+  sendResponse(res, HTTP_STATUS.OK, analytics, 'Analytics retrieved successfully');
 });
 
 // @desc    Delete user

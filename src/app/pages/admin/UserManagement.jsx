@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Loader2, Link as LinkIcon, UserMinus } from "lucide-react";
 import { ParentStudentLinkModal } from "./ParentStudentLinkModal";
+import { BulkImportModal } from "./BulkImportModal";
+import { AvatarUpload } from "../../components/ui/AvatarUpload";
 import { useNotifications } from "../../context/NotificationContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
@@ -19,8 +21,15 @@ export const UserManagement = () => {
     email: "",
     password: "",
     phone: "",
-    role: "Teacher"
+    role: "Teacher",
+    department: "",
+    employeeId: "",
+    studentId: "",
+    class: "",
+    rollNumber: "",
+    phoneNumber: ""
   });
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Fetch users from API
   const { data: usersResponse, isLoading, isError } = useQuery({
@@ -109,7 +118,8 @@ export const UserManagement = () => {
         class: user.class,
         rollNumber: user.rollNumber,
         employeeId: user.employeeId,
-        department: user.department
+        department: user.department,
+        phoneNumber: user.phoneNumber || ""
       });
     } else {
       setEditingUser(null);
@@ -118,7 +128,13 @@ export const UserManagement = () => {
         email: "",
         password: "",
         phone: "",
-        role: activeTab
+        role: activeTab,
+        department: "",
+        employeeId: "",
+        studentId: "",
+        class: "",
+        rollNumber: "",
+        phoneNumber: ""
       });
     }
     setIsModalOpen(true);
@@ -187,6 +203,13 @@ export const UserManagement = () => {
               />
             </div>
             <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="w-full md:w-auto px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-sm"
+            >
+              <Download className="w-5 h-5 text-indigo-600" />
+              Bulk Import
+            </button>
+            <button
               onClick={() => handleOpenModal()}
               className="w-full md:w-auto px-8 py-4 bg-slate-950 text-white rounded-2xl hover:bg-black transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-950/20"
             >
@@ -212,11 +235,16 @@ export const UserManagement = () => {
                 {filteredUsers.map((user) => <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
-                          alt={user.name}
-                          className="w-10 h-10 rounded-full"
-                        />
+                        <div className="relative group">
+                          <img
+                            src={user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${api.defaults.baseURL}${user.avatar}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                            alt={user.name}
+                            className="w-12 h-12 rounded-2xl shadow-sm object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span className="text-[8px] text-white font-black uppercase">LIVE</span>
+                          </div>
+                        </div>
                         <div>
                           <div className="font-medium text-slate-900">{user.name}</div>
                           <div className="text-sm text-slate-500">{user.role}</div>
@@ -277,14 +305,26 @@ export const UserManagement = () => {
 
       {isModalOpen && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">
-                {editingUser ? `Edit ${activeTab}` : `Add New ${activeTab}`}
-              </h2>
-              <button onClick={handleCloseModal} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg"><X className="w-5 h-5" /></button>
+            <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 flex items-center justify-between z-10">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                  {editingUser ? `Configure Identity` : `Initialize Node`}
+                </h2>
+                <p className="text-slate-500 font-medium text-xs mt-1">Institutional record for {formData.name || activeTab}</p>
+              </div>
+              <button onClick={handleCloseModal} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X className="w-6 h-6 text-slate-400" /></button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-10 space-y-8">
+              {editingUser && (
+                <div className="flex justify-center mb-8">
+                  <AvatarUpload 
+                    userId={editingUser._id} 
+                    currentAvatar={editingUser.avatar} 
+                    name={editingUser.name} 
+                  />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
@@ -370,6 +410,12 @@ export const UserManagement = () => {
             </form>
           </div>
         </div>}
+      {isImportModalOpen && (
+        <BulkImportModal 
+          isOpen={isImportModalOpen} 
+          onClose={() => setIsImportModalOpen(false)} 
+        />
+      )}
       {isLinkModalOpen && (
         <ParentStudentLinkModal 
           user={linkingUser} 

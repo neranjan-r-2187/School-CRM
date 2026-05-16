@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middleware/uploadMiddleware');
 const {
   getUsers,
   getTeachers,
   getStudents,
   getDashboard,
+  getAnalytics,
+  bulkImportUsers,
+  updateAvatar,
   createUser,
   createClass,
   updateClass,
@@ -36,6 +40,10 @@ router.route('/users')
 router.get('/teachers', getTeachers);
 router.get('/students', getStudents);
 router.get('/dashboard', getDashboard);
+router.get('/analytics', getAnalytics);
+
+router.post('/users/import', upload.single('file'), bulkImportUsers);
+router.post('/users/:id/avatar', upload.single('avatar'), updateAvatar);
 
 router.route('/classes')
   .post(createClass);
