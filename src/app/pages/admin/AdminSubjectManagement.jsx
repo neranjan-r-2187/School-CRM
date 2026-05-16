@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 
 export const AdminSubjectManagement = () => {
   const queryClient = useQueryClient();
@@ -349,30 +350,22 @@ export const AdminSubjectManagement = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Faculty Assignment</label>
-                  <select
+                  <SearchableSelect
+                    label="Faculty Assignment"
+                    options={teachers?.map(t => ({ label: `${t.user?.name} — ${t.department}`, value: t._id })) || []}
                     value={formData.teacher}
-                    onChange={(e) => setFormData({...formData, teacher: e.target.value})}
-                    className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 focus:bg-white transition-all font-bold text-slate-800 appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Lead Teacher</option>
-                    {teachers?.map(t => (
-                      <option key={t._id} value={t._id}>{t.user?.name} — {t.department}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({...formData, teacher: val})}
+                    placeholder="Select Lead Teacher..."
+                  />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Class Assignment</label>
-                  <select
+                  <SearchableSelect
+                    label="Class Assignment"
+                    options={classes?.map(c => ({ label: `${c.name}-${c.section} (${c.academicYear})`, value: c._id })) || []}
                     value={formData.class}
-                    onChange={(e) => setFormData({...formData, class: e.target.value})}
-                    className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 focus:bg-white transition-all font-bold text-slate-800 appearance-none cursor-pointer"
-                  >
-                    <option value="">Link to Academic Unit</option>
-                    {classes?.map(c => (
-                      <option key={c._id} value={c._id}>{c.name}-{c.section} ({c.academicYear})</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({...formData, class: val})}
+                    placeholder="Link to Academic Unit..."
+                  />
                 </div>
               </div>
 

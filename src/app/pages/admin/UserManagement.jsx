@@ -6,6 +6,8 @@ import { AvatarUpload } from "../../components/ui/AvatarUpload";
 import { useNotifications } from "../../context/NotificationContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
+import { Download } from "lucide-react";
 
 export const UserManagement = () => {
   const { showToast } = useNotifications();
@@ -39,6 +41,20 @@ export const UserManagement = () => {
       return response.data.data;
     }
   });
+
+  // Fetch classes for dropdown
+  const { data: classesData } = useQuery({
+    queryKey: ["classes"],
+    queryFn: async () => {
+      const response = await api.get("/classes");
+      return response.data.data;
+    }
+  });
+
+  const classOptions = (classesData || []).map(cls => ({
+    label: `${cls.name} (${cls.section})`,
+    value: cls._id
+  }));
 
   const users = usersResponse || [];
 
@@ -375,14 +391,14 @@ export const UserManagement = () => {
               )}
 
               {activeTab === "Student" && (
-                <div className="grid grid-cols-2 gap-4">
+                <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Class</label>
-                    <input
-                      type="text"
-                      value={formData.class || ""}
-                      onChange={(e) => setFormData({ ...formData, class: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                    <SearchableSelect
+                      label="Class Allocation"
+                      options={classOptions}
+                      value={formData.class}
+                      onChange={(val) => setFormData({ ...formData, class: val })}
+                      placeholder="Assign to academic unit..."
                     />
                   </div>
                   <div>
@@ -394,7 +410,7 @@ export const UserManagement = () => {
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                     />
                   </div>
-                </div>
+                </>
               )}
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">

@@ -2,6 +2,7 @@ import { Users, BookOpen, UserCheck, TrendingUp, Plus, Edit, Eye, Loader2, X, Tr
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../../lib/api";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { useState } from "react";
 import { Card, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -324,22 +325,16 @@ export const AdminClassManagement = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Lead Custodian</label>
-                  <div className="relative">
-                    <UserCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                    <select
-                      value={formData.classTeacherId}
-                      onChange={e => setFormData({...formData, classTeacherId: e.target.value})}
-                      className="w-full bg-slate-50 border-2 border-transparent rounded-2xl py-4 pl-14 pr-12 outline-none focus:bg-white focus:border-blue-500 transition-all font-black text-slate-900 appearance-none cursor-pointer"
-                    >
-                      <option value="">Select Faculty</option>
-                      {teachers.map(t => (
-                        <option key={t._id} value={t._id}>
-                          {t.user?.name || "Unknown"} — {t.department || "General"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <SearchableSelect
+                    label="Lead Custodian"
+                    options={teachers.map(t => ({ 
+                      label: `${t.user?.name || "Unknown"} — ${t.department || "General"}`, 
+                      value: t._id 
+                    }))}
+                    value={formData.classTeacherId}
+                    onChange={(val) => setFormData({...formData, classTeacherId: val})}
+                    placeholder="Assign Faculty Member..."
+                  />
                 </div>
               </div>
 

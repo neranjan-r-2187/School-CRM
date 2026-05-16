@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, GraduationCap, ArrowRight, Loader2, BookOpen } from "lucide-react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import api from "../../../lib/api";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { toast } from "sonner";
 
 export const MoveToClassModal = ({ isOpen, onClose, student }) => {
@@ -68,22 +69,13 @@ export const MoveToClassModal = ({ isOpen, onClose, student }) => {
           </div>
 
           <div className="space-y-4">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Class Allocation</label>
-            <div className="relative group">
-              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <select 
-                value={selectedClassId}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all font-bold text-slate-900 appearance-none outline-none"
-              >
-                <option value="">Select Target Class</option>
-                {classes?.map(c => (
-                  <option key={c._id} value={c._id}>{c.name} ({c.section})</option>
-                ))}
-              </select>
-            </div>
+            <SearchableSelect
+              label="Target Class Allocation"
+              options={classes?.map(c => ({ label: `${c.name} (${c.section})`, value: c._id })) || []}
+              value={selectedClassId}
+              onChange={(val) => setSelectedClassId(val)}
+              placeholder="Select Target Node..."
+            />
           </div>
 
           <div className="flex gap-4">

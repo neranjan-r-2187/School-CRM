@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UserCheck, Timer, UserX, Loader2, Check, Clock, MapPin } from "lucide-react";
 import { Card } from "../../components/ui/Card";
+import { SearchableSelect } from "../../app/components/ui/SearchableSelect";
 import { useTeacherClasses, useSubmitAttendance } from "./hooks/useTeacherData";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../lib/api";
@@ -66,17 +67,13 @@ export const TeacherAttendance = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Select Class</label>
-            <select 
+            <SearchableSelect
+              label="Select Class"
+              options={classes?.map(cls => ({ label: `${cls.name}-${cls.section}`, value: cls._id })) || []}
               value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="">Choose a class...</option>
-              {classes?.map((cls) => (
-                <option key={cls._id} value={cls._id}>{cls.name}-{cls.section}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedClassId(val)}
+              placeholder="Choose a class..."
+            />
           </div>
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Attendance Date</label>

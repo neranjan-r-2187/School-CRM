@@ -21,11 +21,17 @@ exports.getUsers = asyncHandler(async (req, res) => {
   // Attach profile IDs for Students and Parents
   const enrichedUsers = await Promise.all(users.map(async (u) => {
     if (u.role === ROLES.STUDENT) {
-      const student = await Student.findOne({ user: u._id }).select('_id parentIds').populate({
+      const student = await Student.findOne({ user: u._id }).select('_id parentIds class rollNumber').populate({
         path: 'parentIds',
         populate: { path: 'user', select: 'name' }
       });
-      return { ...u, profileId: student?._id, linkedParents: student?.parentIds || [] };
+      return { 
+        ...u, 
+        profileId: student?._id, 
+        linkedParents: student?.parentIds || [],
+        class: student?.class,
+        rollNumber: student?.rollNumber
+      };
     } else if (u.role === ROLES.PARENT) {
       const parent = await Parent.findOne({ user: u._id }).select('_id studentIds').populate({
         path: 'studentIds',
