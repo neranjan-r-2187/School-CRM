@@ -186,9 +186,9 @@ export const UserManagement = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-            User Operations
+            User Management
           </h2>
-          <p className="text-slate-500 font-medium">Provision and manage institutional identities</p>
+          <p className="text-slate-500 font-medium">Add and manage school accounts</p>
         </div>
       </div>
 
@@ -212,7 +212,7 @@ export const UserManagement = () => {
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors w-5 h-5" />
               <input
                 type="text"
-                placeholder={`Search ${activeTab.toLowerCase()} repository...`}
+                placeholder={`Search ${activeTab.toLowerCase()} records...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all font-bold text-slate-900 placeholder:text-slate-300"
@@ -230,7 +230,7 @@ export const UserManagement = () => {
               className="w-full md:w-auto px-8 py-4 bg-slate-950 text-white rounded-2xl hover:bg-black transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-950/20"
             >
               <Plus className="w-5 h-5" />
-              Provision {activeTab}
+              Add {activeTab}
             </button>
           </div>
         </div>
@@ -324,9 +324,9 @@ export const UserManagement = () => {
             <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 flex items-center justify-between z-10">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                  {editingUser ? `Configure Identity` : `Initialize Node`}
+                  {editingUser ? `Edit User` : `Add New User`}
                 </h2>
-                <p className="text-slate-500 font-medium text-xs mt-1">Institutional record for {formData.name || activeTab}</p>
+                <p className="text-slate-500 font-medium text-xs mt-1">Details for {formData.name || activeTab}</p>
               </div>
               <button onClick={handleCloseModal} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X className="w-6 h-6 text-slate-400" /></button>
             </div>

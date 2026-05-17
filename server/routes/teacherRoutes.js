@@ -13,9 +13,9 @@ const { ROLES } = require('../constants');
 const { validateAssignment } = require('../validators/assignmentValidator');
 const { validateAttendance } = require('../validators/attendanceValidator');
 
-// All teacher routes are protected and restricted to Teachers
+// All teacher routes are protected and restricted strictly to Teachers
 router.use(protect);
-router.use(authorize(ROLES.TEACHER, ROLES.ADMIN));
+router.use(authorize(ROLES.TEACHER));
 
 router.get('/dashboard', getDashboard);
 router.get('/classes', getClasses);

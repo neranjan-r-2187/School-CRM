@@ -20,8 +20,8 @@ router.get('/', authorize(ROLES.TEACHER, ROLES.ADMIN), (req, res, next) => {
   getAllStudents(req, res, next);
 });
 
-// Student personal routes restricted to Students/Admins
-router.use(authorize(ROLES.STUDENT, ROLES.ADMIN));
+// Student personal routes restricted strictly to Students
+router.use(authorize(ROLES.STUDENT));
 
 router.get('/dashboard', getDashboard);
 router.get('/profile', getProfile);

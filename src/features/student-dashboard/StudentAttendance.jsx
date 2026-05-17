@@ -1,14 +1,32 @@
-import { useData } from "../../app/context/DataContext";
-import { CheckCircle2, Clock } from "lucide-react";
+import { useStudentAttendance } from "./hooks/useStudentData";
+import { CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 export const StudentAttendance = () => {
-  const { attendance } = useData();
+  const { data: attendanceData, isLoading, isError } = useStudentAttendance();
   
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
+        <Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-600" />
+        <p>Loading attendance records...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-red-500">
+        <p>Failed to load attendance data. Please try again later.</p>
+      </div>
+    );
+  }
+
+  const attendance = attendanceData || [];
   const totalDays = attendance.length;
-  const presentDays = attendance.filter((a) => a.status === "present").length;
-  const absentDays = attendance.filter((a) => a.status === "absent").length;
-  const lateDays = attendance.filter((a) => a.status === "late").length;
+  const presentDays = attendance.filter((a) => a.status.toLowerCase() === "present").length;
+  const absentDays = attendance.filter((a) => a.status.toLowerCase() === "absent").length;
+  const lateDays = attendance.filter((a) => a.status.toLowerCase() === "late").length;
 
   return (
     <div className="space-y-6">
@@ -52,33 +70,39 @@ export const StudentAttendance = () => {
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="text-left p-4 font-semibold text-slate-700">Date</th>
-                <th className="text-left p-4 font-semibold text-slate-700">Subject</th>
-                <th className="text-center p-4 font-semibold text-slate-700">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendance.map((record, index) => (
-                <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-4 text-slate-900">{format(new Date(record.date), "MMM dd, yyyy")}</td>
-                  <td className="p-4 text-slate-700">{record.class?.name || "General"}</td>
-                  <td className="p-4 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-lg text-sm font-medium ${
-                      record.status === "present" ? "bg-green-100 text-green-700" : 
-                      record.status === "absent" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"
-                    }`}>
-                      {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                    </span>
-                  </td>
+        {attendance.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200">
+                  <th className="text-left p-4 font-semibold text-slate-700">Date</th>
+                  <th className="text-left p-4 font-semibold text-slate-700">Class</th>
+                  <th className="text-center p-4 font-semibold text-slate-700">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {attendance.map((record, index) => (
+                  <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="p-4 text-slate-900">{format(new Date(record.date), "MMM dd, yyyy")}</td>
+                    <td className="p-4 text-slate-700">{record.class?.name || "General"}</td>
+                    <td className="p-4 text-center">
+                      <span className={`inline-block px-3 py-1 rounded-lg text-sm font-medium ${
+                        record.status.toLowerCase() === "present" ? "bg-green-100 text-green-700" : 
+                        record.status.toLowerCase() === "absent" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"
+                      }`}>
+                        {record.status.charAt(0).toUpperCase() + record.status.slice(1).toLowerCase()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="py-12 text-center text-slate-500">
+            No attendance records found.
+          </div>
+        )}
       </div>
     </div>
   );

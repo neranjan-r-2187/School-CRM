@@ -100,7 +100,7 @@ export const DataProvider = ({ children }) => {
   });
 
   // 7. Fetch Linked Students (for Parents)
-  const { data: linkedStudents = [] } = useQuery({
+  const { data: linkedStudents = [], isLoading: isLinkedStudentsLoading } = useQuery({
     queryKey: ["linkedStudents", user?.id],
     queryFn: async () => {
       if (user?.role !== "Parent") return [];
@@ -120,6 +120,7 @@ export const DataProvider = ({ children }) => {
     users,
     doubts,
     linkedStudents,
+    isLinkedStudentsLoading,
     addTicket: (data) => addTicketMutation.mutate(data),
     addTicketMessage: (id, message) => api.post(`/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries(["tickets"])),
     updateTicket: (id, data) => api.put(`/tickets/${id}`, data).then(() => queryClient.invalidateQueries(["tickets"])),
@@ -127,7 +128,7 @@ export const DataProvider = ({ children }) => {
     addDoubt: (data) => addDoubtMutation.mutate(data),
     updateDoubt: (id, data) => updateDoubtMutation.mutate({ id, ...data }),
     addDoubtReply: (id, message) => api.post(`/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries(["doubts"])),
-  }), [assignments, attendance, grades, users, tickets, doubts, linkedStudents]);
+  }), [assignments, attendance, grades, users, tickets, doubts, linkedStudents, isLinkedStudentsLoading]);
 
   return <DataContext.Provider value={value}>
       {children}

@@ -6,7 +6,17 @@ import { useParentStudentData } from "./hooks/useParentData";
 export const ParentAttendance = () => {
   const { linkedStudents, selectedStudentId, setSelectedStudentId, studentData, isLoading } = useParentStudentData();
 
-  if (isLoading || !selectedStudentId) return <div className="py-20 text-center text-slate-400">Loading student data...</div>;
+  if (isLoading) return <div className="py-20 text-center text-slate-400">Loading student data...</div>;
+
+  if (linkedStudents.length === 0) {
+    return (
+      <div className="bg-white rounded-[2rem] p-12 text-center shadow-sm border border-slate-200 max-w-lg mx-auto mt-20">
+        <AlertCircle className="w-12 h-12 text-indigo-500 mx-auto mb-4 animate-pulse" />
+        <h3 className="text-xl font-black text-slate-900 uppercase tracking-wider">No Student Linked</h3>
+        <p className="text-slate-500 mt-2 font-medium">Please contact administration to link your child's account to this portal.</p>
+      </div>
+    );
+  }
 
   const attendance = studentData.attendance || [];
   

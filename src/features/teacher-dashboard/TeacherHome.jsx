@@ -31,7 +31,7 @@ export const TeacherHome = () => {
     { label: "Academic Units", value: stats?.totalClasses || "0", change: "Active groups", icon: UserCheck, color: "bg-blue-600" },
     { label: "Active Students", value: stats?.totalAssignedStudents || "0", change: "Synced enrollment", icon: Users, color: "bg-indigo-600" },
     { label: "Course Catalog", value: stats?.totalSubjects || "0", change: "Assigned modules", icon: BookOpen, color: "bg-purple-600" },
-    { label: "Attendance Pulse", value: stats?.pendingAttendance || "0", change: "Pending updates", icon: Clock, color: "bg-orange-600" }
+    { label: "Attendance Status", value: stats?.pendingAttendance || "0", change: "Pending updates", icon: Clock, color: "bg-orange-600" }
   ];
 
   return (
@@ -48,13 +48,13 @@ export const TeacherHome = () => {
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                 Staff Environment Active
               </div>
-              <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">System Node: {user?.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">Welcome, {user?.name}</h1>
               <p className="text-slate-400 font-medium text-lg max-w-md">Orchestrating academic units and student progression metrics.</p>
             </div>
             
             <div className="flex items-center gap-6 bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-white/10 shadow-2xl">
               <div className="text-right">
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Neural ID</p>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Teacher ID</p>
                 <p className="text-lg font-black text-white">{user?._id.slice(-8).toUpperCase()}</p>
               </div>
               <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-[1.5rem] flex items-center justify-center text-2xl font-black border-4 border-white/10 shadow-2xl text-white transform hover:rotate-6 transition-transform">

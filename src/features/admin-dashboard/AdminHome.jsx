@@ -50,13 +50,13 @@ export const AdminHome = () => {
 
   const stats = [
     { label: "Total Students", value: dashboardData?.totalStudents || "0", change: "Sync Active", trend: "up", icon: GraduationCap, color: "text-blue-600 bg-blue-50" },
-    { label: "Total Teachers", value: dashboardData?.totalTeachers || "0", change: "Faculty Node", trend: "up", icon: Users, color: "text-teal-600 bg-teal-50" },
+    { label: "Total Teachers", value: dashboardData?.totalTeachers || "0", change: "Faculty Members", trend: "up", icon: Users, color: "text-teal-600 bg-teal-50" },
     { label: "Active Classes", value: dashboardData?.totalClasses || "0", change: "Live Sections", trend: "neutral", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
     { label: "Course Catalog", value: dashboardData?.totalSubjects || "0", change: "Subjects", trend: "up", icon: Layers, color: "text-green-600 bg-green-50" }
   ];
 
   const quickStats = [
-    { label: "Institutional Load", value: "94.2%", icon: Activity, color: "bg-green-500" },
+    { label: "School Attendance Rate", value: "94.2%", icon: Activity, color: "bg-green-500" },
     { label: "Open Tickets", value: dashboardData?.openTickets || "0", icon: TicketIcon, color: "bg-red-500" },
     { label: "Sync Status", value: "Optimal", icon: CheckCircle2, color: "bg-blue-500" }
   ];
@@ -65,7 +65,7 @@ export const AdminHome = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-        <p className="text-slate-500 font-bold animate-pulse">Aggregating institutional metrics...</p>
+        <p className="text-slate-500 font-bold animate-pulse">Aggregating school metrics...</p>
       </div>
     );
   }
@@ -75,9 +75,9 @@ export const AdminHome = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h2 className="text-4xl font-black text-slate-900 tracking-tight">
-            Institutional Hub
+            Administration Hub
           </h2>
-          <p className="text-slate-500 font-medium mt-1">Holistic synchronization of school operations & metrics</p>
+          <p className="text-slate-500 font-medium mt-1">Overview of school operations & metrics</p>
         </div>
       </div>
 
@@ -174,7 +174,7 @@ export const AdminHome = () => {
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
             <div className="relative z-10">
               <Star className="w-10 h-10 text-yellow-400 mb-4 animate-bounce" />
-              <h3 className="text-xl font-black mb-2">Institutional Health</h3>
+              <h3 className="text-xl font-black mb-2">School Health Summary</h3>
               <p className="text-slate-400 text-sm font-medium mb-6 leading-relaxed">System-wide performance metrics are operating within optimal parameters for this session.</p>
               <div className="grid grid-cols-2 gap-4">
                 {quickStats.slice(0, 2).map((stat, idx) => (

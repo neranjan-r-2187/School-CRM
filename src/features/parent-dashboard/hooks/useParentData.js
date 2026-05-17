@@ -4,7 +4,7 @@ import api from "../../../lib/api";
 import { useData } from "../../../app/context/DataContext";
 
 export const useParentStudentData = () => {
-  const { linkedStudents } = useData();
+  const { linkedStudents, isLinkedStudentsLoading } = useData();
   const [selectedStudentId, setSelectedStudentId] = useState("");
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export const useParentStudentData = () => {
     }
   }, [linkedStudents]);
 
-  const { data: studentData, isLoading, isError } = useQuery({
+  const { data: studentData, isLoading: isStudentDataLoading, isError } = useQuery({
     queryKey: ["student-data", selectedStudentId],
     queryFn: async () => {
       const response = await api.get(`/parents/students/${selectedStudentId}/data`);
@@ -23,11 +23,11 @@ export const useParentStudentData = () => {
   });
 
   return {
-    linkedStudents,
+    linkedStudents: linkedStudents || [],
     selectedStudentId,
     setSelectedStudentId,
     studentData: studentData || {},
-    isLoading,
+    isLoading: isLinkedStudentsLoading || (linkedStudents?.length > 0 && !selectedStudentId) || isStudentDataLoading,
     isError
   };
 };

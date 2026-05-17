@@ -81,12 +81,21 @@ exports.login = asyncHandler(async (req, res) => {
   const token = generateToken(user._id);
 
   // User object without password
-  const userResponse = {
+  let userResponse = {
     _id: user._id,
     name: user.name,
     email: user.email,
     role: user.role,
   };
+
+  if (user.role === 'Student') {
+    const Student = require('../models/Student');
+    const studentProfile = await Student.findOne({ user: user._id }).populate('class');
+    if (studentProfile) {
+      userResponse.class = studentProfile.class;
+      userResponse.studentId = studentProfile.studentId;
+    }
+  }
 
   sendResponse(res, HTTP_STATUS.OK, { token, user: userResponse }, 'User logged in successfully');
 });
@@ -96,5 +105,16 @@ exports.login = asyncHandler(async (req, res) => {
 // @access  Private
 exports.getMe = asyncHandler(async (req, res) => {
   // req.user is attached by protect middleware
-  sendResponse(res, HTTP_STATUS.OK, req.user);
+  let userData = req.user.toObject();
+  
+  if (userData.role === 'Student') {
+    const Student = require('../models/Student');
+    const studentProfile = await Student.findOne({ user: userData._id }).populate('class');
+    if (studentProfile) {
+      userData.class = studentProfile.class;
+      userData.studentId = studentProfile.studentId;
+    }
+  }
+
+  sendResponse(res, HTTP_STATUS.OK, userData);
 });

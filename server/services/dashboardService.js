@@ -135,6 +135,19 @@ class DashboardService {
   /**
    * Get comprehensive Admin Analytics
    */
+  async getAdminStats() {
+    return {
+      totalStudents: await Student.countDocuments(),
+      totalTeachers: await Teacher.countDocuments(),
+      totalClasses: await Class.countDocuments(),
+      totalSubjects: await Subject.countDocuments(),
+      openTickets: await Ticket.countDocuments({ status: { $in: ['Open', 'In Progress'] } })
+    };
+  }
+
+  /**
+   * Get comprehensive Admin Analytics for Charts
+   */
   async getAdminAnalytics() {
     // 1. Enrollment Trends (last 6 months)
     const sixMonthsAgo = new Date();

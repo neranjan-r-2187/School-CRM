@@ -141,7 +141,7 @@ export function StudentManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Student Management</h1>
-          <p className="text-slate-500 font-medium mt-1">Holistic tracking of institutional enrollment node</p>
+          <p className="text-slate-500 font-medium mt-1">Holistic tracking of student enrollment and class assignments</p>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export function StudentManagement() {
                       <button 
                         onClick={() => setMovingStudent(student)}
                         className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="Relocate to Class"
+                        title="Transfer Student Class"
                       >
                         <GraduationCap className="w-4 h-4" />
                       </button>

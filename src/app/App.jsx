@@ -117,7 +117,7 @@ const AppContent = () => {
       {
     /* Student Routes - Direct without Layout */
   }
-      <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={["Student", "Admin", "SuperAdmin"]}>
+      <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={["Student"]}>
           <StudentLayout />
         </ProtectedRoute>}>
         <Route index element={<StudentDashboardHome />} />
@@ -133,9 +133,9 @@ const AppContent = () => {
       </Route>
       
       {
-    /* Admin Routes - Direct without Standard Layout */
+    /* Parent Routes - Direct without Standard Layout */
   }
-      <Route path="/parent/dashboard" element={<ProtectedRoute allowedRoles={["Parent", "Admin", "SuperAdmin"]}>
+      <Route path="/parent/dashboard" element={<ProtectedRoute allowedRoles={["Parent"]}>
           <ParentLayout />
         </ProtectedRoute>}>
         <Route index element={<ParentHome />} />
@@ -166,7 +166,7 @@ const AppContent = () => {
       {
     /* Teacher Routes - Direct without Standard Layout */
   }
-      <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={["Teacher", "Staff", "Admin", "SuperAdmin"]}>
+      <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={["Teacher", "Staff"]}>
           <TeacherLayout />
         </ProtectedRoute>}>
         <Route index element={<TeacherHome />} />
@@ -178,9 +178,9 @@ const AppContent = () => {
       </Route>
       
       {
-    /* Other Routes - With Layout */
+    /* Other Routes - With Layout (Staff/Admin) */
   }
-      <Route path="/" element={<ProtectedRoute>
+      <Route path="/" element={<ProtectedRoute allowedRoles={["Admin", "SuperAdmin", "Teacher", "Staff"]}>
           <Layout />
         </ProtectedRoute>}>
         <Route index element={<RedirectBasedOnRole />} />

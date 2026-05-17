@@ -57,7 +57,7 @@ export const StudentDashboardHome = () => {
             Welcome back, {user?.name.split(" ")[0]}! 👋
           </h1>
           <p className="text-slate-500 mt-1">
-            {user?.role} Profile • Roll No: {user?._id.slice(-6).toUpperCase()}
+            {user?.role} Profile • Roll No: {user?.studentId || user?.rollNumber || "N/A"}
           </p>
         </div>
       </div>

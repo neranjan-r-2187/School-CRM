@@ -93,7 +93,7 @@ export const SearchableSelect = ({
                   <input
                     autoFocus
                     type="text"
-                    placeholder="Search allocation matrix..."
+                    placeholder="Search options..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold text-slate-900 focus:ring-0 placeholder:text-slate-300"
@@ -105,7 +105,7 @@ export const SearchableSelect = ({
                 {loading ? (
                   <div className="flex items-center justify-center py-10 gap-3">
                     <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Syncing Nodes...</span>
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Searching options...</span>
                   </div>
                 ) : filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
@@ -121,7 +121,7 @@ export const SearchableSelect = ({
                   ))
                 ) : (
                   <div className="py-10 text-center">
-                    <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No matching nodes detected</p>
+                    <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No options found</p>
                   </div>
                 )}
               </div>

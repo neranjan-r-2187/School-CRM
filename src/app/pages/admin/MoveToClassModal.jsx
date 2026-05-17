@@ -45,8 +45,8 @@ export const MoveToClassModal = ({ isOpen, onClose, student }) => {
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Academic Relocation</h2>
-            <p className="text-slate-500 font-medium text-sm mt-1">Reassign student to a different node</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Transfer Student</h2>
+            <p className="text-slate-500 font-medium text-sm mt-1">Reassign student to a different class</p>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-white hover:shadow-md rounded-2xl transition-all">
             <X className="w-6 h-6 text-slate-400" />
@@ -70,11 +70,11 @@ export const MoveToClassModal = ({ isOpen, onClose, student }) => {
 
           <div className="space-y-4">
             <SearchableSelect
-              label="Target Class Allocation"
+              label="Select Target Class"
               options={classes?.map(c => ({ label: `${c.name} (${c.section})`, value: c._id })) || []}
               value={selectedClassId}
               onChange={(val) => setSelectedClassId(val)}
-              placeholder="Select Target Node..."
+              placeholder="Select target class..."
             />
           </div>
 
@@ -91,7 +91,7 @@ export const MoveToClassModal = ({ isOpen, onClose, student }) => {
               className="flex-[2] px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/20"
             >
               {moveMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
-              Relocate Student
+              Transfer Student
             </button>
           </div>
         </div>

@@ -100,7 +100,7 @@ export const Doubts = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Ask Your Doubts</h2>
-          <p className="text-slate-500">Student ID: STU202</p>
+          <p className="text-slate-500">Student ID: {user?.studentId || "STU-" + (user?._id ? user._id.slice(-4).toUpperCase() : "202")}</p>
           <p className="text-slate-600 mt-1">Get help from your teachers</p>
         </div>
         <button

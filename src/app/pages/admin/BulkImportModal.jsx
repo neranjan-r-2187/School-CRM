@@ -57,7 +57,7 @@ export const BulkImportModal = ({ isOpen, onClose }) => {
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Bulk Import</h2>
-            <p className="text-slate-500 font-medium text-sm mt-1">Provision multiple identities via Excel</p>
+            <p className="text-slate-500 font-medium text-sm mt-1">Import multiple users via Excel</p>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-white hover:shadow-md rounded-2xl transition-all">
             <X className="w-6 h-6 text-slate-400" />
@@ -71,7 +71,7 @@ export const BulkImportModal = ({ isOpen, onClose }) => {
                 <FileText className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <p className="text-sm font-black text-indigo-900">Standard Schema</p>
+                <p className="text-sm font-black text-indigo-900">Template Format</p>
                 <p className="text-xs text-indigo-600 font-bold uppercase tracking-widest mt-0.5">XLSX / CSV Supported</p>
               </div>
             </div>
@@ -91,12 +91,12 @@ export const BulkImportModal = ({ isOpen, onClose }) => {
               {file ? (
                 <div>
                   <p className="text-xl font-black text-slate-900 mb-1">{file.name}</p>
-                  <p className="text-sm text-emerald-600 font-bold">Node data buffered and ready</p>
+                  <p className="text-sm text-emerald-600 font-bold">Import file uploaded and ready</p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-xl font-black text-slate-900 mb-2">Initialize Data Stream</p>
-                  <p className="text-slate-500 font-medium">Drop your roster here or click to browse</p>
+                  <p className="text-xl font-black text-slate-900 mb-2">Upload spreadsheet file</p>
+                  <p className="text-slate-500 font-medium">Drop your Excel file here or click to browse</p>
                 </div>
               )}
               <input type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
@@ -108,7 +108,7 @@ export const BulkImportModal = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="flex-1 px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
             >
-              Abort
+              Cancel
             </button>
             <button 
               onClick={handleImport}
@@ -116,7 +116,7 @@ export const BulkImportModal = ({ isOpen, onClose }) => {
               className="flex-[2] px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-slate-900/20"
             >
               {importMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
-              Execute Import
+              Import Users
             </button>
           </div>
         </div>
