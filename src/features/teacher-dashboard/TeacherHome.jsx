@@ -46,7 +46,7 @@ export const TeacherHome = () => {
             <div className="text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/20 text-blue-300 text-xs font-black uppercase tracking-widest mb-4">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                Staff Environment Active
+                Teacher Environment Active
               </div>
               <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tight">Welcome, {user?.name}</h1>
               <p className="text-slate-400 font-medium text-lg max-w-md">Orchestrating academic units and student progression metrics.</p>

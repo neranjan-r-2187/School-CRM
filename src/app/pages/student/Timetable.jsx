@@ -32,7 +32,7 @@ export const Timetable = () => {
 
   const currentDaySchedule = useMemo(() => {
     if (!timetable || !timetable.rows) return [];
-    return timetable.rows.filter(row => row.day === selectedDay);
+    return timetable.rows.filter(row => row.day?.toLowerCase() === selectedDay?.toLowerCase());
   }, [timetable, selectedDay]);
 
   if (!user?.class?._id) {

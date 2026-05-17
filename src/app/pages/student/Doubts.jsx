@@ -19,9 +19,41 @@ export const Doubts = () => {
     description: "",
     priority: "Medium"
   });
+  const [attachment, setAttachment] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("idle");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAttachment(file);
+    setUploadStatus("uploading");
+    setUploadProgress(0);
+    
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setUploadStatus("completed");
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 150);
+  };
+
+  const handleRemoveAttachment = () => {
+    setAttachment(null);
+    setUploadStatus("idle");
+    setUploadProgress(0);
+  };
+
   const { data: studentTeachers = [] } = useStudentTeachers();
   const filteredDoubts = Array.isArray(doubts) ? (filterStatus === "All" ? doubts : doubts.filter((d) => d.status === filterStatus)) : [];
   const handleOpenModal = () => {
+    setAttachment(null);
+    setUploadStatus("idle");
+    setUploadProgress(0);
     setIsModalOpen(true);
     setNewDoubt({
       teacherId: "",
@@ -261,7 +293,7 @@ export const Doubts = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">Ask a Doubt</h2>
-              <p className="text-sm font-bold text-slate-900">Staff Account</p>
+              <p className="text-sm font-bold text-slate-900">Teacher Account</p>
               <button
     onClick={() => setIsModalOpen(false)}
     className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
@@ -344,13 +376,58 @@ export const Doubts = () => {
                   Detailed Description *
                 </label>
                 <textarea
-    required
-    rows={5}
-    value={newDoubt.description}
-    onChange={(e) => setNewDoubt({ ...newDoubt, description: e.target.value })}
-    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-    placeholder="Explain your doubt in detail..."
-  />
+                  required
+                  rows={5}
+                  value={newDoubt.description}
+                  onChange={(e) => setNewDoubt({ ...newDoubt, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  placeholder="Explain your doubt in detail..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Attachment (Optional)
+                </label>
+                {attachment ? (
+                  <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <div className="flex-1 mr-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium text-slate-700 truncate max-w-[200px]">
+                          {attachment.name}
+                        </span>
+                        <span className="text-xs text-slate-500 font-semibold">
+                          {uploadStatus === "uploading" ? `Uploading ${uploadProgress}%...` : "Uploaded"}
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-150 ${uploadStatus === "completed" ? "bg-green-500" : "bg-indigo-600"}`}
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAttachment}
+                      className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <p className="text-sm text-slate-600">
+                      <span className="text-indigo-600 font-medium">Click to upload</span> or drag and drop files here
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">PDF, PNG, JPG up to 5MB</p>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">

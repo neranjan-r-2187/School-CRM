@@ -41,7 +41,7 @@ export const StaffLayout = ({ children }) => {
   // We wrap children in a fragment because DashboardShell uses <Outlet /> normally,
   // but StaffLayout is used as a wrapper component in Layout.jsx
   return (
-    <DashboardShell menuItems={menuItems} roleName="Staff Portal">
+    <DashboardShell menuItems={menuItems} roleName="Teacher Portal">
       {children}
     </DashboardShell>
   );

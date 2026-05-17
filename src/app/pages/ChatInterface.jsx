@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { 
   Search, 
   Send, 
@@ -30,14 +30,12 @@ export const ChatInterface = () => {
     searchUsers 
   } = useChat(selectedConversationId);
 
-  const messagesEndRef = useRef(null);
+  const containerRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSend = (e) => {
@@ -188,7 +186,7 @@ export const ChatInterface = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages?.map((msg) => {
                 const isMe = msg.sender?._id === user?._id || msg.sender === user?._id || msg.sender?._id === user?.id || msg.sender === user?.id;
                 return (
@@ -205,7 +203,6 @@ export const ChatInterface = () => {
                   </div>
                 );
               })}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}

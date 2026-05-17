@@ -52,7 +52,7 @@ class StudentService {
     if (!student) return null;
 
     const Schedule = require('../models/Schedule');
-    return await Schedule.findOne({ class: student.class })
+    return await Schedule.find({ class: student.class })
       .populate('periods.subject', 'name')
       .populate({
         path: 'periods.teacher',

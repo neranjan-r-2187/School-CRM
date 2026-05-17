@@ -5,16 +5,15 @@ import App from "./app/App";
 import "./styles/fonts.css";
 import "./styles/theme.css";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes before data is considered stale
-      gcTime: 10 * 60 * 1000, // 10 minutes cache duration
+      gcTime: 15 * 60 * 1000, // 15 minutes cache duration
       refetchOnWindowFocus: false,
-      refetchOnMount: true,
+      refetchOnMount: false, // Use cached data immediately without mounting refetch skeletons
       refetchOnReconnect: true,
-      retry: 1,
+      retry: false, // Prevent persistent loading loops on network errors
     },
   },
 });

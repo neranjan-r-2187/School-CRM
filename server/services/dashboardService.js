@@ -60,10 +60,7 @@ class DashboardService {
 
     let totalSubjects = 0;
     if (student.class) {
-      const studentClass = await Class.findById(student.class);
-      if (studentClass && studentClass.subjects) {
-        totalSubjects = studentClass.subjects.length;
-      }
+      totalSubjects = await Subject.countDocuments({ class: student.class });
     }
     if (totalSubjects === 0) {
       totalSubjects = await Grade.distinct('subject', { student: studentId }).then(s => s.length);

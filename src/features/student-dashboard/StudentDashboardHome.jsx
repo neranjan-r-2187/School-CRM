@@ -42,10 +42,10 @@ export const StudentDashboardHome = () => {
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
   
   const getCurrentClass = () => {
-    if (!scheduleData) return null;
+    if (!scheduleData || !Array.isArray(scheduleData)) return null;
     
     const today = format(new Date(), 'EEEE');
-    const todayScheduleData = scheduleData.find(s => s.day === today);
+    const todayScheduleData = scheduleData.find(s => s.day?.toLowerCase() === today.toLowerCase());
     if (!todayScheduleData) return null;
 
     return todayScheduleData.periods.find((cls) => {
@@ -193,8 +193,11 @@ export const StudentDashboardHome = () => {
             </div>
             <div className="space-y-3">
               {(() => {
+                if (!scheduleData || !Array.isArray(scheduleData)) {
+                  return <p className="text-center text-slate-500 py-4">No classes scheduled for today.</p>;
+                }
                 const today = format(new Date(), 'EEEE');
-                const todayScheduleData = scheduleData?.find(s => s.day === today);
+                const todayScheduleData = scheduleData.find(s => s.day?.toLowerCase() === today.toLowerCase());
                 const periods = todayScheduleData?.periods || [];
                 
                 if (periods.length === 0) {

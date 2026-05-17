@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useDeferredValue } from "react";
 import {
   Users,
   UserPlus,
@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 export function AdmissionsCRM() {
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const admissions = [
     {
       id: "ADM-2026-001",
@@ -160,7 +162,14 @@ export function AdmissionsCRM() {
       change: "Next 7 days"
     }
   ];
-  const filteredAdmissions = selectedStatus === "all" ? admissions : admissions.filter((adm) => adm.status === selectedStatus);
+  const filteredAdmissions = admissions.filter((adm) => {
+    const matchesStatus = selectedStatus === "all" || adm.status === selectedStatus;
+    const matchesSearch = !deferredSearchQuery || 
+      adm.studentName.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      adm.parentName.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      adm.id.toLowerCase().includes(deferredSearchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -260,24 +269,33 @@ export function AdmissionsCRM() {
       {
     /* Filters */
   }
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-slate-700">Filter by status:</span>
           <div className="flex gap-2">
             {[
-    { value: "all", label: "All" },
-    { value: "pending", label: "Pending" },
-    { value: "interview", label: "Interview" },
-    { value: "approved", label: "Approved" },
-    { value: "rejected", label: "Rejected" }
-  ].map((filter) => <button
-    key={filter.value}
-    onClick={() => setSelectedStatus(filter.value)}
-    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedStatus === filter.value ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
-  >
-                {filter.label}
-              </button>)}
+              { value: "all", label: "All" },
+              { value: "pending", label: "Pending" },
+              { value: "interview", label: "Interview" },
+              { value: "approved", label: "Approved" },
+              { value: "rejected", label: "Rejected" }
+            ].map((filter) => <button
+              key={filter.value}
+              onClick={() => setSelectedStatus(filter.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedStatus === filter.value ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+            >
+              {filter.label}
+            </button>)}
           </div>
+        </div>
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search applications..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full md:w-64 px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 hover:bg-slate-100/50 focus:bg-white transition-all"
+          />
         </div>
       </div>
 

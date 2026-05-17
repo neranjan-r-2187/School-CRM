@@ -98,7 +98,7 @@ export const EnhancedLogin = ({ defaultTab }) => {
                 }}
                 className={`flex-1 text-sm font-medium py-2.5 px-3 rounded-lg transition-all duration-200 relative z-10 capitalize ${activeTab === tab ? "text-blue-700" : "text-slate-500 hover:text-slate-700"}`}
               >
-                {tab}
+                {tab === "staff" ? "Teacher" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 {activeTab === tab && (
                   <motion.div
                     layoutId="login-tab"

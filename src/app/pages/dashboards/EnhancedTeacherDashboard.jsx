@@ -245,7 +245,7 @@ export function EnhancedTeacherDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Staff Portal</h1>
+              <h1 className="text-3xl font-bold mb-2">Teacher Portal</h1>
               <p className="text-blue-100">Welcome back, {teacherProfile.name}</p>
             </div>
             <div className="flex items-center gap-4">

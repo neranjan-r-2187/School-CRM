@@ -57,10 +57,12 @@ exports.getConversations = asyncHandler(async (req, res) => {
 // @route   GET /api/chat/messages/:conversationId
 // @access  Private
 exports.getMessages = asyncHandler(async (req, res) => {
-  const conversation = await Conversation.findOne({
-    _id: req.params.conversationId,
-    participants: { $in: [req.user._id] }
-  });
+  const query = { _id: req.params.conversationId };
+  if (req.user.role !== ROLES.ADMIN) {
+    query.participants = { $in: [req.user._id] };
+  }
+
+  const conversation = await Conversation.findOne(query);
 
   if (!conversation) {
     res.status(HTTP_STATUS.NOT_FOUND);
@@ -94,7 +96,7 @@ exports.sendMessage = asyncHandler(async (req, res) => {
 
   if (conversationId) {
     conversation = await Conversation.findById(conversationId);
-    if (!conversation.participants.includes(req.user._id)) {
+    if (req.user.role !== ROLES.ADMIN && !conversation.participants.includes(req.user._id)) {
         res.status(HTTP_STATUS.FORBIDDEN);
         throw new Error('Not authorized to send message in this conversation');
     }

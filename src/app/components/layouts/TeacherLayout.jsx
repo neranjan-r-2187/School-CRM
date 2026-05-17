@@ -20,5 +20,5 @@ export const TeacherLayout = () => {
     { id: "chat", path: "/teacher/dashboard/chat", label: "Messages", icon: MessageSquare, badge: unreadConversationsCount }
   ];
 
-  return <DashboardShell menuItems={menuItems} roleName="Staff Portal" />;
+  return <DashboardShell menuItems={menuItems} roleName="Teacher Portal" />;
 };

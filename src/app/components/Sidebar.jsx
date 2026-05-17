@@ -76,8 +76,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
       isActive ? "bg-blue-50 text-blue-700 shadow-sm" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     )}
   >
-              <link.icon className={clsx("w-5 h-5", ({ isActive }) => isActive ? "text-blue-600" : "text-slate-400")} />
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  <link.icon className={clsx("w-5 h-5", isActive ? "text-blue-600" : "text-slate-400")} />
+                  <span>{link.label}</span>
+                </>
+              )}
             </NavLink>)}
 
           <div className="pt-4 mt-4 border-t border-slate-100">
@@ -85,14 +89,18 @@ export const Sidebar = ({ isOpen, onClose }) => {
               System
             </div>
             <NavLink
-    to="/settings"
-    className={({ isActive }) => clsx(
-      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm",
-      isActive ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-    )}
-  >
-              <Settings className="w-5 h-5 text-slate-400" />
-              Settings
+              to="/settings"
+              className={({ isActive }) => clsx(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm",
+                isActive ? "bg-blue-50 text-blue-700 shadow-sm" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              )}
+            >
+              {({ isActive }) => (
+                <>
+                  <Settings className={clsx("w-5 h-5", isActive ? "text-blue-600" : "text-slate-400")} />
+                  <span>Settings</span>
+                </>
+              )}
             </NavLink>
           </div>
         </div>

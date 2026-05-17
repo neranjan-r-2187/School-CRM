@@ -11,6 +11,7 @@ export const useTeacherDashboard = () => {
       const { data } = await api.get('/teachers/dashboard');
       return data.data;
     },
+    refetchInterval: 10000, // Keep activity stream & metrics fresh in real-time (BUG-013)
   });
 };
 

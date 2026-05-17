@@ -19,6 +19,16 @@ export const CareerOptions = () => {
   const [selectedStream, setSelectedStream] = useState("all");
   const [selectedCareer, setSelectedCareer] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
+
+  const handleSelectCareer = (career) => {
+    setLoadingId(career.id);
+    setTimeout(() => {
+      setSelectedCareer(career);
+      setLoadingId(null);
+    }, 600); // 600ms premium transition callback
+  };
+
   const streams = ["all", "Science", "Commerce", "Arts", "Technology", "Design", "Vocational"];
   const filteredCareers = mockCareers.filter((career) => {
     const matchesSearch = career.title.toLowerCase().includes(searchQuery.toLowerCase()) || career.description.toLowerCase().includes(searchQuery.toLowerCase()) || career.skills.some((skill) => skill.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -125,14 +135,23 @@ export const CareerOptions = () => {
     /* Career Cards Grid */
   }
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCareers.map((career, index) => <motion.div
-    key={career.id}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.05 }}
-    onClick={() => setSelectedCareer(career)}
-    className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-blue-200 transition-all cursor-pointer group"
-  >
+          {filteredCareers.map((career, index) => {
+            const isLoading = loadingId === career.id;
+            return <motion.div
+              key={career.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => !isLoading && handleSelectCareer(career)}
+              className="relative bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-blue-200 transition-all cursor-pointer group overflow-hidden"
+            >
+              {isLoading && (
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-[1.5px] z-10 flex flex-col items-center justify-center gap-2">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs font-semibold text-blue-600">Analyzing career path...</span>
+                </div>
+              )}
+
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-2xl">
                   {career.icon}
@@ -170,7 +189,8 @@ export const CareerOptions = () => {
                 View Details
                 <ChevronRight className="w-4 h-4" />
               </button>
-            </motion.div>)}
+            </motion.div>;
+          })}
         </div>
 
         {filteredCareers.length === 0 && <div className="text-center py-16">
