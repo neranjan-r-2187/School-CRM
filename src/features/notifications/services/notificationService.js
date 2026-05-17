@@ -30,6 +30,13 @@ export const notificationService = {
   },
 
   // Socket management
+  getSocket() {
+    if (!socket) {
+      this.initSocket();
+    }
+    return socket;
+  },
+
   initSocket(onNotificationReceived) {
     const token = localStorage.getItem('token');
     if (!token) return null;

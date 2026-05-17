@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import chatService from "../../services/chatService";
 import { useAuth } from "./AuthContext";
 import { useNotifications } from "./NotificationContext";
+import { notificationService } from "../../features/notifications/services/notificationService";
 
 const ChatContext = createContext(undefined);
 
@@ -10,6 +11,25 @@ export const ChatProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const { addNotification, showToast } = useNotifications();
   const [lastMessageIds, setLastMessageIds] = useState(new Set());
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const socket = notificationService.getSocket();
+    if (!socket) return;
+
+    const handleReceiveMessage = (newMessage) => {
+      console.log('ChatContext received realtime message:', newMessage);
+      queryClient.invalidateQueries({ queryKey: ['conversations-global'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    };
+
+    socket.on('chat:message:receive', handleReceiveMessage);
+
+    return () => {
+      socket.off('chat:message:receive', handleReceiveMessage);
+    };
+  }, [isAuthenticated, queryClient]);
 
   // Global polling for conversations (to detect new messages)
   const { data: conversations = [] } = useQuery({

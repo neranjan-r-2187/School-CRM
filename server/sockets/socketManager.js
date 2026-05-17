@@ -44,11 +44,16 @@ const initSocket = (server) => {
     }
   });
 
+const { registerChatHandlers } = require("./chatSocket");
+
   io.on("connection", (socket) => {
     const userId = socket.user.id;
     const userRole = socket.user.role;
 
     console.log(`Socket client connected: ${socket.user.name} (${userId}) as ${userRole}`);
+
+    // Register real-time chat socket handlers
+    registerChatHandlers(io, socket, userSockets);
 
     // Track active connection
     if (!userSockets.has(userId)) {

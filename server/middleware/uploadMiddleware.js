@@ -19,14 +19,18 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|xlsx|xls|csv/;
+  const allowedTypes = /jpeg|jpg|png|xlsx|xls|csv|pdf|doc|docx|txt|zip/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const mimetype = allowedTypes.test(file.mimetype) || 
+                   file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                   file.mimetype === 'application/pdf' ||
+                   file.mimetype === 'application/msword' ||
+                   file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
   if (extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only images and Excel files are allowed.'));
+    cb(new Error('Invalid file type. Allowed formats: images, excels, pdf, doc, docx, txt, zip.'));
   }
 };
 

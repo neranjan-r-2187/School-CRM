@@ -4,6 +4,7 @@ const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncHandler');
 const sendResponse = require('../utils/apiResponse');
 const { HTTP_STATUS, ROLES } = require('../constants');
+const { getIO } = require('../sockets/socketManager');
 
 // @desc    Get all conversations for current user
 // @route   GET /api/chat/conversations
@@ -50,7 +51,17 @@ exports.getConversations = asyncHandler(async (req, res) => {
     return true;
   });
 
-  sendResponse(res, HTTP_STATUS.OK, filteredConversations);
+  // Sort by pinnedBy first, then by updatedAt
+  const sortedConversations = filteredConversations.sort((a, b) => {
+    const aPinned = a.pinnedBy && a.pinnedBy.includes(req.user._id);
+    const bPinned = b.pinnedBy && b.pinnedBy.includes(req.user._id);
+    
+    if (aPinned && !bPinned) return -1;
+    if (!aPinned && bPinned) return 1;
+    return new Date(b.updatedAt) - new Date(a.updatedAt);
+  });
+
+  sendResponse(res, HTTP_STATUS.OK, sortedConversations);
 });
 
 // @desc    Get messages for a conversation
@@ -155,7 +166,8 @@ exports.sendMessage = asyncHandler(async (req, res) => {
   const message = await Message.create({
     conversation: conversation._id,
     sender: req.user._id,
-    text
+    text,
+    attachments: req.body.attachments || []
   });
 
   // Update last message and updatedAt in conversation
@@ -163,6 +175,14 @@ exports.sendMessage = asyncHandler(async (req, res) => {
   await conversation.save();
 
   const populatedMessage = await Message.findById(message._id).populate('sender', 'name avatar role');
+
+  // Emit real-time message via Socket.IO
+  try {
+    const io = getIO();
+    io.to(`conversation:${conversation._id}`).emit('chat:message:receive', populatedMessage);
+  } catch (err) {
+    console.error('Socket.IO emit error on sendMessage:', err.message);
+  }
 
   sendResponse(res, HTTP_STATUS.CREATED, populatedMessage, 'Message sent');
 });
@@ -197,4 +217,41 @@ exports.searchUsers = asyncHandler(async (req, res) => {
     const users = await User.find(searchFilter).select('name email role avatar').limit(10);
 
     sendResponse(res, HTTP_STATUS.OK, users);
+});
+
+// @desc    Pin or unpin a conversation
+// @route   PATCH /api/chat/conversations/:conversationId/pin
+// @access  Private
+exports.togglePinConversation = asyncHandler(async (req, res) => {
+  const conversation = await Conversation.findById(req.params.conversationId);
+  if (!conversation) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('Conversation not found');
+  }
+
+  if (req.user.role !== ROLES.ADMIN && !conversation.participants.includes(req.user._id)) {
+    res.status(HTTP_STATUS.FORBIDDEN);
+    throw new Error('Not authorized to access this conversation');
+  }
+
+  if (!conversation.pinnedBy) {
+    conversation.pinnedBy = [];
+  }
+
+  const isPinned = conversation.pinnedBy.includes(req.user._id);
+
+  if (isPinned) {
+    conversation.pinnedBy = conversation.pinnedBy.filter(
+      id => id.toString() !== req.user._id.toString()
+    );
+  } else {
+    conversation.pinnedBy.push(req.user._id);
+  }
+
+  await conversation.save();
+
+  sendResponse(res, HTTP_STATUS.OK, {
+    conversationId: conversation._id,
+    isPinned: !isPinned
+  }, isPinned ? 'Conversation unpinned' : 'Conversation pinned');
 });
