@@ -3,6 +3,8 @@ const Notification = require('../models/Notification');
 const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncHandler');
 const { HTTP_STATUS } = require('../constants');
+const { createAndSendNotification } = require('../sockets/notificationSocket');
+
 
 // @desc    Get all tickets for current user
 // @route   GET /api/tickets
@@ -52,16 +54,18 @@ exports.createTicket = asyncHandler(async (req, res) => {
   });
 
   // Notify Admins about new ticket
-  const admins = await User.find({ role: { $in: ['Admin', 'SuperAdmin'] } });
-  const adminNotifications = admins.map(admin => ({
-    userId: admin._id,
-    type: 'ticket',
-    title: 'New Support Ticket',
-    message: `${req.user.name} created a new ticket: ${title}`,
-    actionUrl: '/admin/dashboard/tickets',
-    relatedId: ticket._id
-  }));
-  await Notification.insertMany(adminNotifications);
+  try {
+    await createAndSendNotification({
+      role: 'Admin',
+      type: 'ticket',
+      title: 'New Support Ticket',
+      message: `${req.user.name} created a new ticket: ${title}`,
+      actionUrl: '/admin/dashboard/tickets',
+      relatedId: ticket._id
+    });
+  } catch (err) {
+    console.error('Error sending ticket notification to Admins:', err);
+  }
 
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
@@ -112,14 +116,18 @@ exports.addMessage = asyncHandler(async (req, res) => {
     : ticket.createdBy;
 
   if (recipientId) {
-    await Notification.create({
-      userId: recipientId,
-      type: 'ticket',
-      title: 'New Ticket Message',
-      message: `${req.user.name} replied to ticket ${ticket.ticketNumber}`,
-      actionUrl: req.user.role === 'Admin' ? '/student/dashboard/support' : '/admin/dashboard/tickets',
-      relatedId: ticket._id
-    });
+    try {
+      await createAndSendNotification({
+        userId: recipientId,
+        type: 'ticket',
+        title: 'New Ticket Message',
+        message: `${req.user.name} replied to ticket ${ticket.ticketNumber}`,
+        actionUrl: req.user.role === 'Admin' ? '/student/dashboard/support' : '/admin/dashboard/tickets',
+        relatedId: ticket._id
+      });
+    } catch (err) {
+      console.error('Error sending ticket message notification:', err);
+    }
   }
 
   res.status(HTTP_STATUS.OK).json({
@@ -156,14 +164,18 @@ exports.updateTicket = asyncHandler(async (req, res) => {
     notifMessage = `Your ticket ${ticket.ticketNumber} has been assigned to a staff member.`;
   }
 
-  await Notification.create({
-    userId: ticket.createdBy,
-    type: 'ticket',
-    title: notifTitle,
-    message: notifMessage,
-    actionUrl: '/student/dashboard/support',
-    relatedId: ticket._id
-  });
+  try {
+    await createAndSendNotification({
+      userId: ticket.createdBy,
+      type: 'ticket',
+      title: notifTitle,
+      message: notifMessage,
+      actionUrl: '/student/dashboard/support',
+      relatedId: ticket._id
+    });
+  } catch (err) {
+    console.error('Error sending ticket status notification:', err);
+  }
 
   res.status(HTTP_STATUS.OK).json({
     success: true,

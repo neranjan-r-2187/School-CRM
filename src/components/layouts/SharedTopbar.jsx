@@ -1,12 +1,8 @@
-import { Menu, Bell } from "lucide-react";
-import { useState } from "react";
+import { Menu } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useNotifications } from "../../app/context/NotificationContext";
-import { useChatContext } from "../../app/context/ChatContext";
-import { NotificationCenter } from "../../app/components/NotificationCenter";
+import { NotificationDropdown } from "../../features/notifications/components/NotificationDropdown";
 
 export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -19,10 +15,6 @@ export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
   };
 
   const activeMenu = getActiveMenu();
-
-  const { unreadCount } = useNotifications();
-  const { unreadConversationsCount } = useChatContext();
-  const totalUnread = unreadCount + unreadConversationsCount;
 
   return (
     <>
@@ -42,22 +34,9 @@ export const SharedTopbar = ({ setSidebarOpen, menuItems }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <Bell className="w-5 h-5 text-slate-600" />
-            {totalUnread > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                {totalUnread > 9 ? '9+' : totalUnread}
-              </span>
-            )}
-          </button>
+          <NotificationDropdown />
         </div>
       </header>
-
-      {/* Notification Center */}
-      {showNotifications && <NotificationCenter onClose={() => setShowNotifications(false)} />}
     </>
   );
 };

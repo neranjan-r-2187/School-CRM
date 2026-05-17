@@ -86,10 +86,19 @@ app.use('/api/subjects', subjectRoutes);
 // Error Handling Middleware (must be after routes)
 app.use(errorHandler);
 
+const http = require('http');
+const { initSocket } = require('./sockets/socketManager');
+
 // Define port
 const PORT = process.env.PORT || 5000;
 
+// Create HTTP server wrapper for Socket.IO
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+initSocket(server);
+
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });

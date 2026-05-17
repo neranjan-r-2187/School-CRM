@@ -5,6 +5,9 @@ const dashboardService = require('../services/dashboardService');
 const attendanceService = require('../services/attendanceService');
 const assignmentService = require('../services/assignmentService');
 const { HTTP_STATUS } = require('../constants');
+const { createAndSendNotification } = require('../sockets/notificationSocket');
+const Student = require('../models/Student');
+const mongoose = require('mongoose');
 
 // @desc    Get teacher dashboard stats
 // @route   GET /api/teachers/dashboard
@@ -28,6 +31,44 @@ exports.getClasses = asyncHandler(async (req, res) => {
 exports.submitAttendance = asyncHandler(async (req, res) => {
   const { classId, records } = req.body;
   const attendance = await attendanceService.submitAttendance(req.user.id, classId, records);
+
+  // Send notifications for each student record
+  try {
+    for (const record of records) {
+      const student = await Student.findById(record.student).populate('user');
+      if (student && student.user) {
+        // Notify student of attendance marked
+        await createAndSendNotification({
+          userId: student.user._id,
+          type: 'attendance',
+          title: 'Attendance Marked',
+          message: `You have been marked ${record.status} for today.`,
+          actionUrl: '/student/attendance',
+          relatedId: student._id
+        });
+        
+        // If absent, send warning to parents
+        if (record.status === 'absent' && student.parentIds && student.parentIds.length > 0) {
+          for (const parent of student.parentIds) {
+            const parentUser = await mongoose.model('Parent').findById(parent).populate('user');
+            if (parentUser && parentUser.user) {
+              await createAndSendNotification({
+                userId: parentUser.user._id,
+                type: 'attendance',
+                title: 'Attendance Warning',
+                message: `Your child ${student.user.name} was marked absent today.`,
+                actionUrl: '/parent/attendance',
+                relatedId: student._id
+              });
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error generating attendance notifications:', err);
+  }
+
   sendResponse(res, HTTP_STATUS.CREATED, attendance, 'Attendance submitted successfully');
 });
 
@@ -36,6 +77,26 @@ exports.submitAttendance = asyncHandler(async (req, res) => {
 // @access  Private/Teacher
 exports.createAssignment = asyncHandler(async (req, res) => {
   const assignment = await assignmentService.createAssignment(req.user.id, req.body);
+
+  // Notify all students in this class
+  try {
+    const students = await Student.find({ class: req.body.class }).populate('user');
+    for (const student of students) {
+      if (student.user) {
+        await createAndSendNotification({
+          userId: student.user._id,
+          type: 'assignment',
+          title: 'New Assignment Created',
+          message: `Your teacher created a new assignment: ${assignment.title}`,
+          actionUrl: '/student/assignments',
+          relatedId: assignment._id
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error generating assignment notifications:', err);
+  }
+
   sendResponse(res, HTTP_STATUS.CREATED, assignment, 'Assignment created successfully');
 });
 

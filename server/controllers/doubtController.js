@@ -1,6 +1,7 @@
 const Doubt = require('../models/Doubt');
 const asyncHandler = require('../middleware/asyncHandler');
 const { HTTP_STATUS } = require('../constants');
+const { createAndSendNotification } = require('../sockets/notificationSocket');
 
 // @desc    Get all doubts (filtered by user)
 // @route   GET /api/doubts
@@ -39,6 +40,21 @@ exports.createDoubt = asyncHandler(async (req, res) => {
     student: req.user.id,
     priority
   });
+
+  // Notify the assigned teacher
+  try {
+    if (teacherId) {
+      await createAndSendNotification({
+        userId: teacherId,
+        type: 'ticket',
+        title: 'New Student Doubt',
+        message: `${req.user.name} posted a new doubt: ${title}`,
+        actionUrl: '/teacher/dashboard'
+      });
+    }
+  } catch (err) {
+    console.error('Error sending doubt notification to teacher:', err);
+  }
 
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
@@ -91,6 +107,25 @@ exports.addReply = asyncHandler(async (req, res) => {
 
   doubt.status = 'Answered';
   await doubt.save();
+
+  // Notify the opposite party of reply
+  try {
+    const recipientId = req.user.id === doubt.student.toString()
+      ? doubt.teacher
+      : doubt.student;
+      
+    if (recipientId) {
+      await createAndSendNotification({
+        userId: recipientId,
+        type: 'ticket',
+        title: 'New Reply on Doubt',
+        message: `${req.user.name} replied to doubt thread: "${doubt.title}"`,
+        actionUrl: req.user.role === 'Student' ? '/teacher/dashboard' : '/student/dashboard/doubts'
+      });
+    }
+  } catch (err) {
+    console.error('Error sending doubt reply notification:', err);
+  }
 
   res.status(HTTP_STATUS.OK).json({
     success: true,

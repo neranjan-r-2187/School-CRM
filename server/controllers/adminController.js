@@ -11,6 +11,7 @@ const sendResponse = require('../utils/apiResponse');
 const xlsx = require('xlsx');
 const dashboardService = require('../services/dashboardService');
 const { HTTP_STATUS, ROLES } = require('../constants');
+const { createAndSendNotification } = require('../sockets/notificationSocket');
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -211,7 +212,21 @@ exports.updateUser = asyncHandler(async (req, res) => {
       if (student) {
         if (req.body.studentId) student.studentId = req.body.studentId;
         if (req.body.rollNumber) student.rollNumber = req.body.rollNumber;
-        if (req.body.class) student.class = req.body.class;
+        if (req.body.class) {
+          student.class = req.body.class;
+          try {
+            const classObj = await Class.findById(req.body.class);
+            await createAndSendNotification({
+              userId: updatedUser._id,
+              type: 'info',
+              title: 'Class Assigned',
+              message: `Your class assignment has been updated to: ${classObj ? classObj.name : 'New Class'}`,
+              actionUrl: '/student/dashboard'
+            });
+          } catch (err) {
+            console.error('Error sending class assignment notification:', err);
+          }
+        }
         await student.save();
       } else {
         await Student.create({
@@ -449,6 +464,32 @@ exports.linkParentStudent = asyncHandler(async (req, res) => {
   student.parentIds.push(parentId);
   await student.save();
 
+  // Notify both parent and student of linkage
+  try {
+    const parentUser = await User.findById(parent.user);
+    const studentUser = await User.findById(student.user);
+    if (parentUser) {
+      await createAndSendNotification({
+        userId: parentUser._id,
+        type: 'info',
+        title: 'Student Account Linked',
+        message: `Your account has been successfully linked to student: ${studentUser ? studentUser.name : 'Unknown Student'}`,
+        actionUrl: '/parent/dashboard'
+      });
+    }
+    if (studentUser) {
+      await createAndSendNotification({
+        userId: studentUser._id,
+        type: 'info',
+        title: 'Parent Account Linked',
+        message: `Your account has been linked to parent: ${parentUser ? parentUser.name : 'Unknown Parent'}`,
+        actionUrl: '/student/dashboard'
+      });
+    }
+  } catch (err) {
+    console.error('Error generating linking notifications:', err);
+  }
+
   sendResponse(res, HTTP_STATUS.OK, { parent, student }, 'Parent and Student linked successfully');
 });
 
@@ -610,6 +651,21 @@ exports.approveTimetable = asyncHandler(async (req, res) => {
   timetable.approvedAt = new Date();
   await timetable.save();
 
+  // Notify teacher of timetable approval
+  try {
+    if (timetable.uploadedBy) {
+      await createAndSendNotification({
+        userId: timetable.uploadedBy,
+        type: 'announcement',
+        title: 'Timetable Approved',
+        message: `Your timetable upload has been approved by the Admin.`,
+        actionUrl: '/teacher/dashboard'
+      });
+    }
+  } catch (err) {
+    console.error('Error sending timetable approval notification:', err);
+  }
+
   sendResponse(res, HTTP_STATUS.OK, timetable, 'Timetable approved successfully');
 });
 
@@ -627,6 +683,21 @@ exports.rejectTimetable = asyncHandler(async (req, res) => {
   timetable.status = 'Rejected';
   timetable.rejectionReason = reason || 'No reason provided';
   await timetable.save();
+
+  // Notify teacher of timetable rejection
+  try {
+    if (timetable.uploadedBy) {
+      await createAndSendNotification({
+        userId: timetable.uploadedBy,
+        type: 'announcement',
+        title: 'Timetable Rejected',
+        message: `Your timetable upload has been rejected. Reason: ${timetable.rejectionReason}`,
+        actionUrl: '/teacher/dashboard'
+      });
+    }
+  } catch (err) {
+    console.error('Error sending timetable rejection notification:', err);
+  }
 
   sendResponse(res, HTTP_STATUS.OK, timetable, 'Timetable rejected successfully');
 });

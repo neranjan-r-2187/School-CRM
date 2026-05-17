@@ -67,6 +67,7 @@ import { AttendanceManagement } from "./pages/management/AttendanceManagement";
 import { FeesManagement } from "./pages/management/FeesManagement";
 import { ReportsAnalytics } from "./pages/management/ReportsAnalytics";
 import { Settings } from "./pages/management/Settings";
+import { NotificationCenter } from "../features/notifications/components/NotificationCenter";
 
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -204,6 +205,7 @@ const AppContent = () => {
         <Route path="reports" element={<ReportsAnalytics />} />
         <Route path="settings" element={<Settings />} />
       </Route>
+      <Route path="/notifications" element={<ProtectedRoute allowedRoles={["Student", "Parent", "Admin", "SuperAdmin", "Teacher", "Staff"]}><NotificationCenter /></ProtectedRoute>} />
     </Routes>;
 };
 export default function App() {
