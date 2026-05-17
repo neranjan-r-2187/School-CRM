@@ -81,21 +81,21 @@ export const DataProvider = ({ children }) => {
   const addTicketMutation = useMutation({
     mutationFn: (ticketData) => api.post("/tickets", ticketData),
     onSuccess: () => {
-      queryClient.invalidateQueries(["tickets"]);
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
     }
   });
 
   const addDoubtMutation = useMutation({
     mutationFn: (doubtData) => api.post("/doubts", doubtData),
     onSuccess: () => {
-      queryClient.invalidateQueries(["doubts"]);
+      queryClient.invalidateQueries({ queryKey: ["doubts"] });
     }
   });
 
   const updateDoubtMutation = useMutation({
-    mutationFn: ({ id, ...data }) => api.put(`/api/doubts/${id}`, data),
+    mutationFn: ({ id, ...data }) => api.put(`/doubts/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(["doubts"]);
+      queryClient.invalidateQueries({ queryKey: ["doubts"] });
     }
   });
 
@@ -121,13 +121,13 @@ export const DataProvider = ({ children }) => {
     doubts,
     linkedStudents,
     isLinkedStudentsLoading,
-    addTicket: (data) => addTicketMutation.mutate(data),
-    addTicketMessage: (id, message) => api.post(`/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries(["tickets"])),
-    updateTicket: (id, data) => api.put(`/tickets/${id}`, data).then(() => queryClient.invalidateQueries(["tickets"])),
-    deleteTicket: (id) => api.delete(`/tickets/${id}`).then(() => queryClient.invalidateQueries(["tickets"])),
-    addDoubt: (data) => addDoubtMutation.mutate(data),
-    updateDoubt: (id, data) => updateDoubtMutation.mutate({ id, ...data }),
-    addDoubtReply: (id, message) => api.post(`/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries(["doubts"])),
+    addTicket: (data) => addTicketMutation.mutateAsync(data),
+    addTicketMessage: (id, message) => api.post(`/tickets/${id}/messages`, { message }).then(() => queryClient.invalidateQueries({ queryKey: ["tickets"] })),
+    updateTicket: (id, data) => api.put(`/tickets/${id}`, data).then(() => queryClient.invalidateQueries({ queryKey: ["tickets"] })),
+    deleteTicket: (id) => api.delete(`/tickets/${id}`).then(() => queryClient.invalidateQueries({ queryKey: ["tickets"] })),
+    addDoubt: (data) => addDoubtMutation.mutateAsync(data),
+    updateDoubt: (id, data) => updateDoubtMutation.mutateAsync({ id, ...data }),
+    addDoubtReply: (id, message) => api.post(`/doubts/${id}/replies`, { message }).then(() => queryClient.invalidateQueries({ queryKey: ["doubts"] })),
   }), [assignments, attendance, grades, users, tickets, doubts, linkedStudents, isLinkedStudentsLoading]);
 
   return <DataContext.Provider value={value}>

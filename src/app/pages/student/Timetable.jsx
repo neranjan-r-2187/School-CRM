@@ -10,6 +10,15 @@ export const Timetable = () => {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const [selectedDay, setSelectedDay] = useState("Monday");
 
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    const parts = timeStr.split(":");
+    if (parts.length !== 2) return timeStr;
+    const hours = parts[0];
+    const minutes = parts[1].padEnd(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
   // Fetch approved timetable for current user's class
   const { data: timetable, isLoading } = useQuery({
     queryKey: ['approved-timetable', user?.class?._id],
@@ -93,8 +102,8 @@ export const Timetable = () => {
                         <Clock className="w-3 h-3" />
                         <span className="text-[10px] font-bold uppercase">Period {cls.period}</span>
                       </div>
-                      <p className="text-sm font-black text-slate-900">{cls.startTime}</p>
-                      <p className="text-xs text-slate-400 font-medium">{cls.endTime}</p>
+                      <p className="text-sm font-black text-slate-900">{formatTime(cls.startTime)}</p>
+                      <p className="text-xs text-slate-400 font-medium">{formatTime(cls.endTime)}</p>
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">

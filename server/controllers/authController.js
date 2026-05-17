@@ -118,3 +118,72 @@ exports.getMe = asyncHandler(async (req, res) => {
 
   sendResponse(res, HTTP_STATUS.OK, userData);
 });
+
+// @desc    Forgot password - send OTP
+// // @route   POST /api/auth/forgot-password
+// // @access  Public
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('User not found with this email');
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  user.otpCode = otp;
+  user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  await user.save();
+
+  console.log(`[OTP DEVELOPMENT] Password Reset OTP for ${email}: ${otp}`);
+
+  sendResponse(res, HTTP_STATUS.OK, { otp }, 'OTP sent to email (simulated)');
+});
+
+// @desc    Verify OTP
+// // @route   POST /api/auth/verify-otp
+// // @access  Public
+exports.verifyOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('User not found');
+  }
+
+  if (!user.otpCode || user.otpCode !== otp || user.otpExpires < new Date()) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Invalid or expired OTP');
+  }
+
+  sendResponse(res, HTTP_STATUS.OK, {}, 'OTP verified successfully');
+});
+
+// @desc    Reset password
+// // @route   POST /api/auth/reset-password
+// // @access  Public
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(HTTP_STATUS.NOT_FOUND);
+    throw new Error('User not found');
+  }
+
+  if (!user.otpCode || user.otpCode !== otp || user.otpExpires < new Date()) {
+    res.status(HTTP_STATUS.BAD_REQUEST);
+    throw new Error('Invalid or expired OTP');
+  }
+
+  // Set new password
+  user.password = password;
+  user.otpCode = ''; // Clear OTP fields
+  user.otpExpires = undefined;
+  await user.save();
+
+  sendResponse(res, HTTP_STATUS.OK, {}, 'Password reset successfully');
+});

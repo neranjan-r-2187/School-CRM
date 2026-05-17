@@ -26,21 +26,21 @@ export const NotificationProvider = ({ children }) => {
   const markAsReadMutation = useMutation({
     mutationFn: (id) => api.patch(`/notifications/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: () => api.patch("/notifications/mark-all-read"),
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
   });
 
   const deleteNotificationMutation = useMutation({
     mutationFn: (id) => api.delete(`/notifications/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
   });
 
@@ -71,7 +71,7 @@ export const NotificationProvider = ({ children }) => {
       if (notification.userId) {
         await api.post("/notifications", notification);
       }
-      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     } catch (error) {
       console.error("Failed to add notification:", error);
     }
@@ -83,10 +83,10 @@ export const NotificationProvider = ({ children }) => {
         notifications,
         unreadCount,
         addNotification,
-        markAsRead: (id) => markAsReadMutation.mutate(id),
-        markAllAsRead: () => markAllReadMutation.mutate(),
-        clearAll: () => markAllReadMutation.mutate(), // Alias for simplicity
-        deleteNotification: (id) => deleteNotificationMutation.mutate(id),
+        markAsRead: (id) => markAsReadMutation.mutateAsync(id),
+        markAllAsRead: () => markAllReadMutation.mutateAsync(),
+        clearAll: () => markAllReadMutation.mutateAsync(), // Alias for simplicity
+        deleteNotification: (id) => deleteNotificationMutation.mutateAsync(id),
         showToast
       }}
     >

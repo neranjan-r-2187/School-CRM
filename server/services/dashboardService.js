@@ -58,11 +58,22 @@ class DashboardService {
       }))
     ].sort((a, b) => b.time - a.time).slice(0, 4);
 
+    let totalSubjects = 0;
+    if (student.class) {
+      const studentClass = await Class.findById(student.class);
+      if (studentClass && studentClass.subjects) {
+        totalSubjects = studentClass.subjects.length;
+      }
+    }
+    if (totalSubjects === 0) {
+      totalSubjects = await Grade.distinct('subject', { student: studentId }).then(s => s.length);
+    }
+
     return {
       attendancePercentage: Math.round(attendancePercentage),
       averageGrade: Math.round(avgGrade),
       pendingAssignments,
-      totalSubjects: await Grade.distinct('subject', { student: studentId }).then(s => s.length),
+      totalSubjects,
       activities: recentActivities
     };
   }

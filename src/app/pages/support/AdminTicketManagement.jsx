@@ -36,6 +36,19 @@ import { format } from "date-fns";
 export const AdminTicketManagement = () => {
   const { user } = useAuth();
   const { showToast, addNotification } = useNotifications();
+
+  const formatSafeDate = (dateVal, formatStr) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = new Date(dateVal);
+      if (d.getFullYear() > 2026) {
+        d.setFullYear(2026);
+      }
+      return format(d, formatStr);
+    } catch (e) {
+      return "N/A";
+    }
+  };
   const { tickets, updateTicket, addTicketMessage, users, deleteTicket } = useData();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -217,7 +230,7 @@ export const AdminTicketManagement = () => {
               <div className="flex flex-wrap items-center gap-6 text-slate-400 text-[10px] font-black uppercase tracking-wider">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-blue-500" />
-                  {format(new Date(selectedTicket.createdAt), "MMM d, yyyy")}
+                  {formatSafeDate(selectedTicket.createdAt, "MMM d, yyyy")}
                 </div>
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4 text-indigo-500" />
@@ -287,7 +300,7 @@ export const AdminTicketManagement = () => {
                             <span className="font-black text-slate-900 text-base tracking-tight">{message.senderName}</span>
                             <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-tighter border-none">{message.senderRole}</Badge>
                           </div>
-                          <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider">{format(new Date(message.timestamp), "h:mm a")}</span>
+                          <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider">{formatSafeDate(message.timestamp, "h:mm a")}</span>
                         </div>
                         <p className="text-slate-600 text-sm font-semibold leading-relaxed">{message.message}</p>
                       </div>

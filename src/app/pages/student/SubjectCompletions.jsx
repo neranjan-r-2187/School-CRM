@@ -36,9 +36,9 @@ export const SubjectCompletions = () => {
     if (percentage >= 40) return "text-orange-600";
     return "text-red-600";
   };
-  const overallCompletion = Math.round(
-    mockSubjectCompletions.reduce((sum, subject) => sum + subject.percentage, 0) / mockSubjectCompletions.length
-  );
+  const overallCompletion = mockSubjectCompletions && mockSubjectCompletions.length > 0
+    ? Math.round(mockSubjectCompletions.reduce((sum, subject) => sum + subject.percentage, 0) / mockSubjectCompletions.length)
+    : 0;
   return <div className="min-h-screen bg-slate-50">
       {
     /* Hero Section */
@@ -176,7 +176,7 @@ export const SubjectCompletions = () => {
       className="border-t border-slate-100 bg-slate-50"
     >
                     <div className="p-6 space-y-2">
-                      {subject.units.map((unit, unitIndex) => <div
+                      {(subject.units || []).map((unit, unitIndex) => <div
       key={unit.id}
       className={`flex items-center gap-4 p-4 rounded-lg transition-all ${unit.completed ? "bg-white border border-green-100" : "bg-white border border-slate-100 opacity-70"}`}
     >

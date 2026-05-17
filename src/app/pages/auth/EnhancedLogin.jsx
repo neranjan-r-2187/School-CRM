@@ -2,13 +2,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../../context/AuthContext";
 import { Eye, EyeOff, Lock, ArrowRight, Loader2, Mail, Hash, Sparkles, Building2, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 
-export const EnhancedLogin = () => {
+export const EnhancedLogin = ({ defaultTab }) => {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("parent");
+  const [activeTab, setActiveTab] = useState(defaultTab || "parent");
   const [showPassword, setShowPassword] = useState(false);
   
   // Single email/password state is enough since they share the same backend route
@@ -168,9 +168,9 @@ export const EnhancedLogin = () => {
                 <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-4 h-4" />
                 <span className="text-sm text-slate-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+              <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-700">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             {error && (

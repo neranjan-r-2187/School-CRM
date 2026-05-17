@@ -18,6 +18,7 @@ import { TeacherLayout } from "./components/layouts/TeacherLayout";
 // Tip: For future optimization, use React.lazy for route components:
 // const EnhancedLogin = lazy(() => import('./pages/auth/EnhancedLogin'));
 import { EnhancedLogin } from "./pages/auth/EnhancedLogin";
+import { ForgotPassword } from "./pages/auth/ForgotPassword";
 import { ParentDashboard } from "./pages/ParentDashboard";
 import { ChatInterface } from "./pages/ChatInterface";
 import { SupportTickets } from "./pages/support/SupportTickets";
@@ -113,6 +114,8 @@ const PlaceholderPage = ({ title }) => <div className="flex flex-col items-cente
 const AppContent = () => {
   return <Routes>
       <Route path="/login" element={<EnhancedLogin />} />
+      <Route path="/teacher/login" element={<EnhancedLogin defaultTab="staff" />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       
       {
     /* Student Routes - Direct without Layout */

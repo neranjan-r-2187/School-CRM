@@ -1,6 +1,6 @@
 import { X, LogOut } from "lucide-react";
 import { useAuth } from "../../app/context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName = "Portal", sidebarFooter }) => {
   const { user, logout } = useAuth();
@@ -13,9 +13,10 @@ export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName
     navigate("/login");
   };
 
-  const handleMenuClick = (path) => {
-    navigate(path);
-    setSidebarOpen(false);
+  const handleMenuClick = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   // Find the single most specific active item
@@ -62,12 +63,13 @@ export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName
               const Icon = item.icon;
               const isActive = item.id === activeId;
               return (
-                <button
+                <Link
                   key={item.id}
-                  onClick={() => handleMenuClick(item.path)}
+                  to={item.path}
+                  onClick={handleMenuClick}
                   className={`
                     w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
-                    ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}
+                    ${isActive ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}
                   `}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
@@ -77,7 +79,7 @@ export const SharedSidebar = ({ sidebarOpen, setSidebarOpen, menuItems, roleName
                       {item.badge}
                     </span>
                   )}
-                </button>
+                </Link>
               );
             })}
           </div>

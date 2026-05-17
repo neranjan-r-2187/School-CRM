@@ -34,6 +34,19 @@ import { format } from "date-fns";
 export const SupportTickets = () => {
   const { user } = useAuth();
   const { showToast } = useNotifications();
+
+  const formatSafeDate = (dateVal, formatStr) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = new Date(dateVal);
+      if (d.getFullYear() > 2026) {
+        d.setFullYear(2026);
+      }
+      return format(d, formatStr);
+    } catch (e) {
+      return "N/A";
+    }
+  };
   const { tickets, addTicket, addTicketMessage } = useData();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,7 +371,7 @@ export const SupportTickets = () => {
                         </Badge>
                         <div className="flex items-center gap-2 text-[10px] text-slate-300 font-black uppercase tracking-widest ml-auto lg:ml-0">
                           <Calendar className="w-4 h-4 opacity-40" />
-                          {ticket.createdAt ? format(new Date(ticket.createdAt), "MMM d, yyyy") : "N/A"}
+                          {formatSafeDate(ticket.createdAt, "MMM d, yyyy")}
                         </div>
                       </div>
                     </div>
@@ -409,7 +422,7 @@ export const SupportTickets = () => {
                       <span className="flex items-center gap-2 text-indigo-400"><Tag className="w-4 h-4" /> {selectedTicket.category}</span>
                       <span className="flex items-center gap-2">
                         <Clock className="w-4 h-4" /> 
-                        {selectedTicket.createdAt ? `Submitted on ${format(new Date(selectedTicket.createdAt), "MMM d, yyyy 'at' h:mm a")}` : "Date N/A"}
+                        {selectedTicket.createdAt ? `Submitted on ${formatSafeDate(selectedTicket.createdAt, "MMM d, yyyy 'at' h:mm a")}` : "Date N/A"}
                       </span>
                    </div>
                 </div>
@@ -455,7 +468,7 @@ export const SupportTickets = () => {
                             <div className="flex items-center justify-between mb-2">
                                <span className="text-sm font-black text-slate-900 tracking-tight">{message.senderName}</span>
                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider">
-                                 {message.timestamp ? format(new Date(message.timestamp), "MMM d, h:mm a") : "Time N/A"}
+                                 {formatSafeDate(message.timestamp, "MMM d, h:mm a")}
                                </span>
                             </div>
                             <p className="text-slate-600 leading-relaxed font-semibold text-sm">{message.message}</p>

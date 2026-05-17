@@ -4,6 +4,7 @@ import { useData } from "../../context/DataContext";
 import { useNotifications } from "../../context/NotificationContext";
 import { format } from "date-fns";
 import { useAuth } from "../../context/AuthContext";
+import { useStudentTeachers } from "../../../features/student-dashboard/hooks/useStudentData";
 export const Doubts = () => {
   const { user } = useAuth();
   const { showToast, addNotification } = useNotifications();
@@ -18,8 +19,8 @@ export const Doubts = () => {
     description: "",
     priority: "Medium"
   });
-  const teachers = users.filter((u) => u.role.includes("Teacher"));
-  const filteredDoubts = filterStatus === "All" ? doubts : doubts.filter((d) => d.status === filterStatus);
+  const { data: studentTeachers = [] } = useStudentTeachers();
+  const filteredDoubts = Array.isArray(doubts) ? (filterStatus === "All" ? doubts : doubts.filter((d) => d.status === filterStatus)) : [];
   const handleOpenModal = () => {
     setIsModalOpen(true);
     setNewDoubt({
@@ -32,21 +33,15 @@ export const Doubts = () => {
   };
   const handleSubmitDoubt = (e) => {
     e.preventDefault();
-    const teacher = teachers.find((t) => t.id === newDoubt.teacherId);
-    if (!teacher) return;
-    const doubt = {
-      id: `D${(doubts.length + 1).toString().padStart(3, "0")}`,
-      studentId: "S001",
-      studentName: "Student Name",
-      subject: newDoubt.subject,
+    if (!newDoubt.teacherId) return;
+    const payload = {
       title: newDoubt.question,
       question: newDoubt.description,
-      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-      status: "Open",
-      priority: newDoubt.priority,
-      replies: []
+      subject: newDoubt.subject,
+      teacherId: newDoubt.teacherId,
+      priority: newDoubt.priority
     };
-    addDoubt(doubt);
+    addDoubt(payload);
     setIsModalOpen(false);
     showToast("success", "Doubt Submitted", `Your question has been posted`);
     addNotification({
@@ -302,9 +297,11 @@ export const Doubts = () => {
     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
   >
                     <option value="">Select a teacher</option>
-                    {teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>
-                        {teacher.name}
-                      </option>)}
+                    {studentTeachers.map((teacher) => (
+                      <option key={teacher._id} value={teacher.user?._id}>
+                        {teacher.user?.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

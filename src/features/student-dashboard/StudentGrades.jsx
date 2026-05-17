@@ -28,28 +28,33 @@ export const StudentGrades = () => {
               </tr>
             </thead>
             <tbody>
-              {grades && grades.length > 0 ? grades.map((grade, index) => (
-                <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-4 font-medium text-slate-900">{grade.subject?.name || grade.subject}</td>
-                  <td className="p-4 text-slate-700">{grade.exam || "Term Exam"}</td>
-                  <td className="p-4 text-center text-slate-700">{grade.marksObtained || grade.score}</td>
-                  <td className="p-4 text-center text-slate-700">{grade.totalMarks || grade.maxScore}</td>
-                  <td className="p-4 text-center">
-                    <span className={`font-semibold ${
-                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 90 ? "text-green-600" : 
-                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 75 ? "text-blue-600" : 
-                      (grade.percentage || (grade.score / grade.maxScore) * 100) >= 60 ? "text-orange-600" : "text-red-600"
-                    }`}>
-                      {grade.percentage ? grade.percentage.toFixed(1) : ((grade.score / grade.maxScore) * 100).toFixed(1)}%
-                    </span>
-                  </td>
+              {grades && grades.length > 0 ? grades.map((grade, index) => {
+                const marks = grade.marksObtained !== undefined ? grade.marksObtained : (grade.score !== undefined ? grade.score : 0);
+                const total = grade.totalMarks !== undefined ? grade.totalMarks : (grade.maxScore !== undefined ? grade.maxScore : 100);
+                const percentage = total > 0 ? (marks / total) * 100 : 0;
+                return (
+                  <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="p-4 font-medium text-slate-900">{grade.subject?.name || grade.subject}</td>
+                    <td className="p-4 text-slate-700">{grade.exam || "Term Exam"}</td>
+                    <td className="p-4 text-center text-slate-700">{marks}</td>
+                    <td className="p-4 text-center text-slate-700">{total}</td>
+                    <td className="p-4 text-center">
+                      <span className={`font-semibold ${
+                        percentage >= 90 ? "text-green-600" : 
+                        percentage >= 75 ? "text-blue-600" : 
+                        percentage >= 60 ? "text-orange-600" : "text-red-600"
+                      }`}>
+                        {percentage.toFixed(1)}%
+                      </span>
+                    </td>
                   <td className="p-4 text-center">
                     <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-medium text-sm">
                       {grade.grade}
                     </span>
                   </td>
                 </tr>
-              )) : (
+                );
+              }) : (
                 <tr>
                   <td colSpan="6" className="p-8 text-center text-slate-500">
                     No grades available yet.

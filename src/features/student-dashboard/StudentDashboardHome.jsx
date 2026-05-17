@@ -20,6 +20,15 @@ import { DashboardSkeleton } from "../../components/ui/skeletons/DashboardSkelet
 export const StudentDashboardHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
+    const parts = timeStr.split(":");
+    if (parts.length !== 2) return timeStr;
+    const hours = parts[0];
+    const minutes = parts[1].padEnd(2, '0');
+    return `${hours}:${minutes}`;
+  };
   
   // Real data hooks
   const { data: stats, isLoading: statsLoading, isError: statsError } = useStudentDashboard();
@@ -205,8 +214,8 @@ export const StudentDashboardHome = () => {
                       }`}
                     >
                       <div className={`text-center min-w-[60px] ${isCurrent ? "text-blue-600" : "text-slate-600"}`}>
-                        <p className="text-xs font-medium">{cls.startTime}</p>
-                        <p className="text-xs text-slate-400">{cls.endTime}</p>
+                        <p className="text-xs font-medium">{formatTime(cls.startTime)}</p>
+                        <p className="text-xs text-slate-400">{formatTime(cls.endTime)}</p>
                       </div>
                       <div className="flex-1">
                         <p className={`font-semibold ${isCurrent ? "text-blue-900" : "text-slate-900"}`}>
