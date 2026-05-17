@@ -40,7 +40,10 @@ class StudentService {
 
     return await Assignment.find({ class: student.class })
       .populate('subject', 'name')
-      .populate('teacher', 'name')
+      .populate({
+        path: 'teacher',
+        populate: { path: 'user', select: 'name' }
+      })
       .sort('dueDate');
   }
 

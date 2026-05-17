@@ -3,7 +3,9 @@ import { HelpCircle, Plus, Send, Check, Clock, AlertCircle, X, Filter } from "lu
 import { useData } from "../../context/DataContext";
 import { useNotifications } from "../../context/NotificationContext";
 import { format } from "date-fns";
+import { useAuth } from "../../context/AuthContext";
 export const Doubts = () => {
+  const { user } = useAuth();
   const { showToast, addNotification } = useNotifications();
   const { doubts, users, addDoubt, updateDoubt, addDoubtReply } = useData();
   const [isModalOpen, setIsModalOpen] = useState(false);

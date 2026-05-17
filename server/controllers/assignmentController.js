@@ -8,7 +8,10 @@ const { HTTP_STATUS } = require('../constants');
 // @route   GET /api/assignments
 // @access  Public
 exports.getAssignments = asyncHandler(async (req, res) => {
-  const features = new APIFeatures(Assignment.find().populate('subject', 'name').populate('teacher', 'name'), req.query)
+  const features = new APIFeatures(Assignment.find().populate('subject', 'name').populate({
+    path: 'teacher',
+    populate: { path: 'user', select: 'name' }
+  }), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -25,7 +28,10 @@ exports.getAssignments = asyncHandler(async (req, res) => {
 exports.getAssignment = asyncHandler(async (req, res) => {
   const assignment = await Assignment.findById(req.params.id)
     .populate('subject')
-    .populate('teacher')
+    .populate({
+      path: 'teacher',
+      populate: { path: 'user', select: 'name avatar' }
+    })
     .populate('class');
 
   if (!assignment) {
