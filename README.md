@@ -2,6 +2,11 @@
 
 A modern, full-stack School Management System (CRM) built with React, Node.js, and MongoDB. This application provides a streamlined experience for students, teachers, and administrators to manage academic life.
 
+# [Link](https://school-crm-blond.vercel.app/)
+```
+https://school-crm-blond.vercel.app/
+```
+
 ## 🚀 Features
 
 ### Core Modules
