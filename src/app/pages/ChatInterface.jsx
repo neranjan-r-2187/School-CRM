@@ -1,2 +1,3 @@
-export { ChatInterface } from "../../features/chat/components/ChatInterface";
+import ChatInterface from "../../features/chat/components/ChatInterface";
+export { ChatInterface };
 export default ChatInterface;

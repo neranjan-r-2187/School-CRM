@@ -218,7 +218,9 @@ export default function App() {
             <ChatProvider>
               <Toaster position="top-right" richColors />
               <Suspense fallback={<PageLoader text="Loading application..." />}>
-                <AppContent />
+                <ErrorBoundary>
+                  <AppContent />
+                </ErrorBoundary>
               </Suspense>
             </ChatProvider>
           </DataProvider>
