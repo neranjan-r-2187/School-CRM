@@ -51,6 +51,7 @@ import { AdminSubjectManagement } from "./pages/admin/AdminSubjectManagement";
 import { AdminTimetableApprovals } from "./pages/admin/AdminTimetableApprovals";
 import { AdminTicketManagement } from "./pages/support/AdminTicketManagement";
 import { UserManagement } from "./pages/admin/UserManagement";
+import { AdminGradebook } from "../features/gradebook/pages/AdminGradebook";
 
 // Teacher Features
 import { TeacherHome } from "../features/teacher-dashboard/TeacherHome";
@@ -163,6 +164,7 @@ const AppContent = () => {
         <Route path="reports" element={<AdminReports />} />
         <Route path="tickets" element={<AdminTicketManagement />} />
         <Route path="timetable-approvals" element={<AdminTimetableApprovals />} />
+        <Route path="gradebook" element={<AdminGradebook />} />
         <Route path="chat" element={<ChatInterface />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>

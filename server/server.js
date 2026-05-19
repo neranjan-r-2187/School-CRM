@@ -20,6 +20,7 @@ const parentDashboardRoutes = require('./routes/parentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const subjectRoutes = require('./routes/subjectRoutes');
+const examGradeRoutes = require('./routes/examGradeRoutes');
 
 
 
@@ -38,6 +39,9 @@ require('./models/Doubt');
 require('./models/Conversation');
 require('./models/Message');
 require('./models/Notification');
+require('./models/ExamType');
+require('./models/ExamGrade');
+require('./models/ReportCard');
 
 
 // Initialize express app
@@ -80,6 +84,7 @@ app.use('/api/parents', parentDashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/timetables', timetableRoutes);
 app.use('/api/subjects', subjectRoutes);
+app.use('/api/exam-grades', examGradeRoutes);
 
 
 

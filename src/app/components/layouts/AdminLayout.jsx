@@ -9,6 +9,7 @@ import {
   Book,
   MessageSquare,
   Calendar,
+  Award,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 import { useChatContext } from "../../context/ChatContext";
@@ -27,6 +28,7 @@ export const AdminLayout = () => {
     { id: "classes", path: "/admin/dashboard/classes", label: "Classes", icon: Book },
     { id: "subjects", path: "/admin/dashboard/subjects", label: "Subject Management", icon: Book },
     { id: "timetable", path: "/admin/dashboard/timetable-approvals", label: "Timetable Approvals", icon: Calendar },
+    { id: "gradebook", path: "/admin/dashboard/gradebook", label: "Gradebook", icon: Award },
     { id: "fees", path: "/admin/dashboard/fees", label: "Fees & Payments", icon: DollarSign },
     { id: "reports", path: "/admin/dashboard/reports", label: "Reports", icon: BarChart3 },
     { id: "tickets", path: "/admin/dashboard/tickets", label: "Support Tickets", icon: TicketIcon, badge: openTicketsCount },
