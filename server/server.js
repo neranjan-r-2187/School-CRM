@@ -4,7 +4,31 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
+const rateLimit = require('express-rate-limit');
+const cron = require('node-cron');
+const { createClient } = require('redis');
+const { z } = require('zod');
+const { GoogleGenAI } = require('@google/genai');
 
+// Redis Client Setup (Caching)
+const redisClient = createClient();
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisClient.connect().catch(console.error);
+
+// Initialize AI Client
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'default' });
+
+// Global Rate Limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests, please try again later.'
+});
+
+// Scheduled Job / Cron
+cron.schedule('0 0 * * *', () => {
+  console.log('Running nightly database cleanup and report generation tasks...');
+});
 // Route imports
 const healthRoutes = require('./routes/healthRoutes');
 const studentRoutes = require('./routes/studentRoutes');
@@ -61,7 +85,8 @@ app.use(cors({
 app.use(express.json()); // Parse JSON payloads
 app.use(express.urlencoded({ extended: false }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
- 
+app.use('/api/', apiLimiter); // Apply rate limiter to all API routes
+
 
 
 // Basic route for root
@@ -86,8 +111,47 @@ app.use('/api/timetables', timetableRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/exam-grades', examGradeRoutes);
 
+// AI & Zod Integration Example
+const aiPromptSchema = z.object({ prompt: z.string().min(5).max(500) });
 
+app.post('/api/ai/assist', async (req, res, next) => {
+  try {
+    // Request Body Validation (Zod)
+    const { prompt } = aiPromptSchema.parse(req.body);
+    
+    // LLM API Integration & Streaming (Google Gen AI)
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    
+    const responseStream = await ai.models.generateContentStream({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+    
+    for await (const chunk of responseStream) {
+        res.write(chunk.text);
+    }
+    res.end();
+  } catch (error) {
+    if (error instanceof z.ZodError) return res.status(400).json({ error: error.errors });
+    next(error);
+  }
+});
 
+// Redis Caching Example
+app.get('/api/stats', async (req, res, next) => {
+  try {
+    const cachedStats = await redisClient.get('dashboard_stats');
+    if (cachedStats) return res.json(JSON.parse(cachedStats));
+    
+    // Simulate DB query
+    const stats = { users: 150, classes: 12, attendanceRate: '95%' };
+    await redisClient.setEx('dashboard_stats', 3600, JSON.stringify(stats)); // Cache for 1 hour
+    res.json(stats);
+  } catch (error) {
+    next(error);
+  }
+});
 // Error Handling Middleware (must be after routes)
 app.use(errorHandler);
 

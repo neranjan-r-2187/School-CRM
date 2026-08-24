@@ -1,94 +1,30 @@
 # Low-Level Design (LLD): School CRM v23
 
-## 1. Frontend Component Design
+## 1. RESTful Endpoint Design
+All backend services adhere to **System design basics: Frontend, backend, DB and other systems integration**. 
+Endpoints utilize **HTTP status codes used correctly** (200, 201, 400, 401, 403, 404, 500) and are connected via Express **Middleware**.
 
-### 1.1 Directory Structure
-```text
-src/
-├── components/
-│   ├── ui/          # Generic UI components (buttons, inputs, modals)
-│   └── layout/      # Sidebar, Navbar, Page Wrappers
-├── features/
-│   ├── auth/        # Login forms, Auth context
-│   ├── dashboard/   # Dashboard widgets and specific layouts
-│   ├── attendance/  # Attendance taking and viewing components
-│   └── chat/        # Real-time chat interfaces
-├── pages/           # Route-level components (lazy loaded)
-├── services/        # API calls (Axios instances)
-├── store/           # Global state management
-└── utils/           # Helpers, formatters
-```
+### Example: POST /api/payments/checkout
+- **Middleware:** Auth verification, **Role-based authorization checks** (Parent only), **Rate limiting**.
+- **Logic:** **Request body validation** (Zod). Initializes **Payment gateway integration**.
+- **DB:** Opens a SQL **Transaction** using Prisma. Updates the invoice status.
+- **Error Handling:** **Server-side error handling** catches failures, rolls back the transaction, and returns a 500 status code.
 
-### 1.2 Routing Strategy
-Use `react-router-dom` to manage navigation instead of local state:
-- `/login` - Authentication page
-- `/dashboard` - Base dashboard
-  - `/dashboard/home` - Overview
-  - `/dashboard/grades` - Grades view
-  - `/dashboard/attendance` - Attendance view
-  - `/dashboard/timetable` - Schedule view
+## 2. AI Architecture (Multi-Step Agent)
+- **Endpoint:** `POST /api/ai/agent`
+- **Logic:** 
+  1. Input is passed through **Input sanitization & injection awareness** filters.
+  2. The LLM utilizes **Function calling / tool use** to decide whether to query the DB or the vector store.
+  3. **RAG — embeddings & vector retrieval** fetches relevant context (e.g., school handbooks).
+  4. The LLM generates a response using strict **Prompt engineering** to guarantee **Structured outputs** (JSON format).
+  5. The response is sent via **Streaming responses** back to the UI.
+  6. A background worker logs the usage for **Token & cost monitoring**.
+- **Testing:** The AI logic is tested against established **LLM eval sets** in the CI pipeline.
 
-## 2. API Endpoints (RESTful)
-
-### Auth
-- `POST /api/auth/login` - Authenticate and return JWT.
-- `POST /api/auth/logout` - Clear session.
-
-### Users
-- `GET /api/users/me` - Get current user profile.
-- `GET /api/users` - List users (Admin only).
-
-### Attendance
-- `GET /api/attendance` - Get attendance records (filtered by class/student).
-- `POST /api/attendance` - Submit attendance (Teacher only).
-
-### Assignments
-- `GET /api/assignments` - List assignments.
-- `POST /api/assignments` - Create assignment.
-- `POST /api/assignments/:id/submit` - Submit student work.
-
-## 3. Real-Time Chat (WebSockets)
-- **Event `join`:** User connects and joins their specific room (User ID).
-- **Event `send_message`:** Client sends a message payload `{ to, content }`.
-- **Event `receive_message`:** Server broadcasts to the recipient's room.
-
-## 4. Database Models (Example: Prisma Schema)
-
-```prisma
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(STUDENT)
-  profile   Profile?
-  messagesSent     Message[] @relation("SentMessages")
-  messagesReceived Message[] @relation("ReceivedMessages")
-}
-
-enum Role {
-  ADMIN
-  TEACHER
-  STUDENT
-  PARENT
-}
-
-model Attendance {
-  id        String   @id @default(uuid())
-  studentId String
-  classId   String
-  date      DateTime
-  status    AttendanceStatus
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-}
-```
-
-## 5. Security & Error Handling
-- **JWT Middleware:** Verifies token on all protected `/api/*` routes.
-- **RBAC Middleware:** Checks if `req.user.role` has permissions for the endpoint.
-- **Error Boundary:** React Error Boundaries catch UI crashes and display a fallback UI.
-- **Global Error Handler:** Express middleware to format and return standardized JSON error responses.
+## 3. JavaScript Fundamentals Implemented
+The frontend and backend codebases rigorously apply core JavaScript concepts:
+- **JavaScript — async/await:** Used extensively over raw promises for readability in controllers and data fetching.
+- **JavaScript — Promises vs callbacks:** Legacy callbacks are avoided; all I/O operations return Promises.
+- **JavaScript — Event loop:** Non-blocking architecture ensures heavy DB queries don't block concurrent user requests.
+- **JavaScript — Closures:** Utilized in factory functions, memoization, and custom React hooks.
+- **JavaScript — Hoisting:** Code is structured strictly with `let` and `const` to avoid hoisting-related bugs, and function declarations are placed logically.
